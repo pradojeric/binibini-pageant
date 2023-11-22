@@ -24,6 +24,7 @@
         "@types/react": "^18.2.37",
         "flowbite": "^2.0.0",
         "flowbite-react": "^0.6.4",
+        "react-lazy-load-image-component": "^1.6.0",
         "react-to-print": "^2.14.15"
     }
 }

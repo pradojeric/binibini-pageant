@@ -1,14 +1,18 @@
 import ScoringInput from "@/Pages/Scoring/Partials/ScoringInput";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
     return (
         <div>
             <div className="flex flex-col items-center">
-                <div class="relative w-full">
-                    <img
+                <div className="relative w-full">
+                    <LazyLoadImage
                         className="w-full object-cover border bg-black"
                         src={`/storage/` + candidate.picture}
                         alt={candidate.full_name}
+                        placeholderSrc={`/logo.png`}
+                        effect="blur"
                     />
 
                     <div className="uppercase text-xl font-bold absolute top-1 left-1 bg-amber-600 rounded-full p-2">
