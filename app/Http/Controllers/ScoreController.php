@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CandidateCriteria;
+use App\Models\Criteria;
 use App\Models\Pageant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,16 @@ class ScoreController extends Controller
         ]);
     }
 
+    public function showDetails(Pageant $pageant)
+    {
+        $groupCriterias = $pageant->criterias->groupBy('groups')->values()->all();
+
+        return Inertia::render('Scoring/Details', [
+            'pageant' => $pageant,
+            'groupCriterias' => $groupCriterias,
+        ]);
+    }
+
     public function show(Pageant $pageant)
     {
         $judge = Auth::user();
@@ -32,6 +43,35 @@ class ScoreController extends Controller
 
         if ($pageant->current_round == null) {
             session()->flash('message', 'Round not yet started');
+            return;
+        }
+
+        return Inertia::render('Scoring/Show', [
+            'pageant' => $pageant->load(['criterias' => function ($query) use ($pageant) {
+                $query->where('round', $pageant->current_round);
+            }, 'candidates', 'judges']),
+        ]);
+    }
+
+    public function score(Pageant $pageant, Criteria $criteria)
+    {
+
+        $judge = Auth::user();
+
+        if ($pageant->current_round != $criteria->round) {
+            session()->flash('message', 'Round not yet started');
+            return;
+        }
+
+        if ($pageant->current_round == null) {
+            session()->flash('message', 'Pageant not opened yet');
+            return;
+        }
+
+        $alreadyScores = $judge->candidateCritieras->where('criteria_id', $criteria->id);
+
+        if ($alreadyScores->count() > 0) {
+            session()->flash('message', 'Already scored');
             return;
         }
 

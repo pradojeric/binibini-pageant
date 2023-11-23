@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/scoring/pageants', [ScoreController::class, 'index'])->name('scoring.index');
+    Route::get('/scoring/{pageant}/details', [ScoreController::class, 'showDetails'])->name('scoring.details');
+    Route::get('/scoring/{pageant}/criterias/{criteria}', [ScoreController::class, 'score'])->name('scoring.score');
     Route::get('/scoring/pageants/{pageant}', [ScoreController::class, 'show'])->name('scoring.show');
     Route::post('/scoring/pageants/{pageant}/store', [ScoreController::class, 'store'])->name('scoring.store');
 

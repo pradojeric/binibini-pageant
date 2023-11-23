@@ -49,7 +49,10 @@ export default function Authenticated({ user, header, children }) {
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                                    {/* <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" /> */}
+                                    <span className="uppercase text-xl tracking-tighter font-extrabold dark:text-white">
+                                        PAGEANT SYSTEM
+                                    </span>
                                 </Link>
                             </div>
 
@@ -93,11 +96,14 @@ export default function Authenticated({ user, header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route("profile.edit")}
-                                        >
-                                            Profile
-                                        </Dropdown.Link>
+                                        {user.role == "admin" && (
+                                            <Dropdown.Link
+                                                href={route("profile.edit")}
+                                            >
+                                                Profile
+                                            </Dropdown.Link>
+                                        )}
+
                                         <Dropdown.Link
                                             href={route("logout")}
                                             method="post"

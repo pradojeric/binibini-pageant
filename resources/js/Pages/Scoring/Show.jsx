@@ -4,6 +4,7 @@ import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 export default function ScoringShow({ auth, pageant }) {
     const { data, setData, post } = useForm({
@@ -74,7 +75,7 @@ export default function ScoringShow({ auth, pageant }) {
                                 <div className="flex justify-between mb-2">
                                     <div>
                                         <div className="uppercase">
-                                            Rounds: {pageant.rounds}
+                                            Rounds: {pageant.current_round}
                                         </div>
                                         <div className="uppercase">
                                             Pageant Type: {pageant.type}

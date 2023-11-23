@@ -78,12 +78,13 @@ export default function ScoringIndex({ auth, pageants }) {
                                 {pageants.map((pageant) => {
                                     return (
                                         <Link
+                                            key={pageant.id}
                                             href={route(
-                                                "scoring.show",
+                                                "scoring.details",
                                                 pageant.id
                                             )}
                                         >
-                                            <div className="flex flex-col items-center">
+                                            <div className="flex flex-col items-center ">
                                                 <img
                                                     className="w-full h-96"
                                                     alt={pageant.pageant}
@@ -91,7 +92,8 @@ export default function ScoringIndex({ auth, pageants }) {
                                                         `/storage/` +
                                                         pageant.background
                                                     }
-                                                ></img>
+                                                />
+
                                                 <div className="dark:text-white text-xl font-bold tracking-wide">
                                                     {pageant.pageant}
                                                 </div>
