@@ -4,8 +4,8 @@ import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import SelectInput from "@/Components/SelectInput";
-import Checkbox from "@/Components/Checkbox";
 import PrimaryButton from "@/Components/PrimaryButton";
+import { useState } from "react";
 
 export default function PageantCreate({ auth }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -13,14 +13,26 @@ export default function PageantCreate({ auth }) {
         type: "",
         background: "",
         rounds: 1,
-        separate_scoring: false,
+        pageant_rounds: {
+            mr: [{ round: 1, number_of_candidates: 1 }],
+            ms: [{ round: 1, number_of_candidates: 1 }],
+        },
     });
 
     const types = [
-        { id: "mr&ms", value: "Mr. & Ms." },
-        { id: "mr", value: "Mr." },
         { id: "ms", value: "Ms." },
+        { id: "mr", value: "Mr." },
+        { id: "mr&ms", value: "Mr. & Ms." },
     ];
+
+    const getType = () => {
+        if (!data.type) return [];
+
+        const regexString = /m[rs]/g;
+        const array = [...data.type.match(regexString)];
+
+        return array;
+    };
 
     function submit(e) {
         e.preventDefault();
@@ -128,33 +140,195 @@ export default function PageantCreate({ auth }) {
                                         type="number"
                                         name="rounds"
                                         value={data.rounds}
+                                        min={1}
                                         className="mt-1 block w-full"
-                                        onChange={(e) =>
-                                            setData("rounds", e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            const a = Array.from(
+                                                { length: e.target.value },
+                                                (_, i) => ({
+                                                    round: i + 1,
+                                                    number_of_candidates: 1,
+                                                })
+                                            );
+
+                                            const newData = {
+                                                rounds: e.target.value,
+                                                pageant_rounds: {
+                                                    mr: [...a],
+                                                    ms: [...a],
+                                                },
+                                            };
+                                            setData({ ...data, ...newData });
+                                        }}
                                     />
                                     <InputError
                                         message={errors.rounds}
                                         className="mt-2"
                                     />
                                 </div>
-                                <div className="block mt-4">
-                                    <label className="flex items-center">
-                                        <Checkbox
-                                            name="separate_scoring"
-                                            checked={data.separate_scoring}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "separate_scoring",
-                                                    e.target.checked
-                                                )
-                                            }
-                                        />
-                                        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                                            Separate Scoring
-                                        </span>
-                                    </label>
+
+                                <div className="mt-4">
+                                    <div className="flex justify-between gap-4 dark:text-white">
+                                        {getType().includes("mr") && (
+                                            <div>
+                                                <div className="uppercase tracking-wide">
+                                                    Male Candidate
+                                                </div>
+                                                <table className="w-full">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Round</th>
+                                                            <th>
+                                                                Number of
+                                                                Candidates
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {data.pageant_rounds[
+                                                            "mr"
+                                                        ].map((pr, index) => {
+                                                            return (
+                                                                <tr
+                                                                    key={
+                                                                        `mr` +
+                                                                        pr.round
+                                                                    }
+                                                                >
+                                                                    <td className="text-center">
+                                                                        {
+                                                                            pr.round
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        <TextInput
+                                                                            type="number"
+                                                                            value={
+                                                                                pr.number_of_candidates
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) => {
+                                                                                const old =
+                                                                                    data
+                                                                                        .pageant_rounds[
+                                                                                        "mr"
+                                                                                    ];
+                                                                                old[
+                                                                                    index
+                                                                                ] =
+                                                                                    {
+                                                                                        round: pr.round,
+                                                                                        number_of_candidates:
+                                                                                            e
+                                                                                                .target
+                                                                                                .value,
+                                                                                    };
+                                                                                const newValue =
+                                                                                    old;
+
+                                                                                setData(
+                                                                                    "pageant_rounds",
+                                                                                    {
+                                                                                        ...data.pageant_rounds,
+                                                                                        mr: newValue,
+                                                                                    }
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+
+                                        {getType().includes("ms") && (
+                                            <div>
+                                                <div className="uppercase tracking-wide">
+                                                    Female Candidate
+                                                </div>
+                                                <table className="w-full">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="px-3 py-2">
+                                                                Round
+                                                            </th>
+                                                            <th className="px-3 py-2">
+                                                                Number of
+                                                                Candidates
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {data.pageant_rounds[
+                                                            "ms"
+                                                        ].map((pr, index) => {
+                                                            return (
+                                                                <tr
+                                                                    key={
+                                                                        `ms` +
+                                                                        pr.round
+                                                                    }
+                                                                >
+                                                                    <td className="text-center">
+                                                                        {
+                                                                            pr.round
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        <TextInput
+                                                                            type="number"
+                                                                            value={
+                                                                                pr.number_of_candidates
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) => {
+                                                                                const old =
+                                                                                    data
+                                                                                        .pageant_rounds[
+                                                                                        "ms"
+                                                                                    ];
+                                                                                old[
+                                                                                    index
+                                                                                ] =
+                                                                                    {
+                                                                                        round: pr.round,
+                                                                                        number_of_candidates:
+                                                                                            e
+                                                                                                .target
+                                                                                                .value,
+                                                                                    };
+                                                                                const newValue =
+                                                                                    old;
+
+                                                                                console.log(
+                                                                                    data.pageant_rounds
+                                                                                );
+
+                                                                                setData(
+                                                                                    "pageant_rounds",
+                                                                                    {
+                                                                                        ...data.pageant_rounds,
+                                                                                        ms: newValue,
+                                                                                    }
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
+
                                 <div className="flex items-center justify-end mt-4">
                                     <PrimaryButton
                                         className="ml-4"

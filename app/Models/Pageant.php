@@ -36,6 +36,10 @@ class Pageant extends Model
     public function awards(): BelongsToMany
     {
         return $this->belongsToMany(Candidate::class, 'pageant_award')->withPivot(['award', 'ranking'])->withTimestamps();
+    }
 
+    public function pageantRounds(): HasMany
+    {
+        return $this->hasMany(PageantRound::class);
     }
 }

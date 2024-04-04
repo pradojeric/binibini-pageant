@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('type');
             $table->string('background')->nullable();
             $table->integer('rounds')->default(1);
-            $table->boolean('separate_scoring')->default(false);
+            $table->integer('current_round')->default(0);
+            $table->integer('current_group')->default(0);
             $table->string('status')->nullable();
             $table->timestamps();
         });

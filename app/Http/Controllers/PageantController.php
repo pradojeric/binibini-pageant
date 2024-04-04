@@ -34,12 +34,13 @@ class PageantController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
         $validatedData = $request->validate([
             'pageant' => ['required'],
             'type' => ['required'],
             'background' => ['nullable', 'image'],
             'rounds' => ['required', 'numeric'],
-            'separate_scoring' => ['required'],
+            'pageant_rounds' => ['required', 'array'],
         ]);
 
         if (!$request->picture) {
@@ -48,7 +49,18 @@ class PageantController extends Controller
             $validatedData['background'] = $request->file('background')->storePublicly('pageant', 'public');
         }
 
-        Pageant::create($validatedData);
+        $pageant = Pageant::create($validatedData);
+
+        $data = [];
+        foreach ($request->pageant_rounds as $type => $pageant_round) {
+            $data[] = [
+                'pageant_type' => $type,
+                'round' => $pageant_round['round'],
+                'number_of_candidates' => $pageant_round['number_of_candidates'],
+            ];
+        }
+
+        $pageant->pageantRounds()->createMany($data);
 
         return redirect()->route('pageants.index');
     }

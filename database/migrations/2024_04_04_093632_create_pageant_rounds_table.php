@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('criterias', function (Blueprint $table) {
+        Schema::create('pageant_rounds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pageant_id')->constrained();
+            $table->string('pageant_type');
             $table->integer('round');
-            $table->integer('group');
-            $table->boolean('hidden_scoring')->default(false);
-            $table->string('name');
-            $table->float('percentage');
+            $table->integer('number_of_candidates');
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('criterias');
+        Schema::dropIfExists('pageant_rounds');
     }
 };

@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pageants', function (Blueprint $table) {
-            $table->integer('current_round')->after('rounds')->nullable();
+        Schema::create('candidate_rounds', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('pageant_round_id')->constrained();
+            $table->foreignId('candidate_id')->constrained();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pageants', function (Blueprint $table) {
-            $table->dropColumn('current_round');
-        });
+        Schema::dropIfExists('candidate_rounds');
     }
 };
