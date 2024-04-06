@@ -34,7 +34,7 @@ class PageantController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $validatedData = $request->validate([
             'pageant' => ['required'],
             'type' => ['required'],
@@ -49,17 +49,24 @@ class PageantController extends Controller
             $validatedData['background'] = $request->file('background')->storePublicly('pageant', 'public');
         }
 
-        $pageant = Pageant::create($validatedData);
+        $regexString = '/m[rs]/';
+        preg_match($regexString, $request->type, $matches);
+        // dd($matches);
 
         $data = [];
-        foreach ($request->pageant_rounds as $type => $pageant_round) {
-            $data[] = [
-                'pageant_type' => $type,
-                'round' => $pageant_round['round'],
-                'number_of_candidates' => $pageant_round['number_of_candidates'],
-            ];
-        }
+        foreach ($request->pageant_rounds as $type => $pageant_rounds) {
 
+            if (in_array($type, $matches)) {
+                foreach ($pageant_rounds as $pageant_round) {
+                    $data[] = [
+                        'pageant_type' => $type,
+                        'round' => $pageant_round['round'],
+                        'number_of_candidates' => $pageant_round['number_of_candidates'],
+                    ];
+                }
+            }
+        }
+        $pageant = Pageant::create(collect($validatedData)->except('pageant_rounds')->toArray());
         $pageant->pageantRounds()->createMany($data);
 
         return redirect()->route('pageants.index');
@@ -147,6 +154,12 @@ class PageantController extends Controller
     public function changeRound(Request $request, Pageant $pageant)
     {
         $pageant->update(['current_round' => $request->round]);
+        $pageant->update(['current_group' => 0]);
+    }
+
+    public function changeGroup(Request $request, Pageant $pageant)
+    {
+        $pageant->update(['current_group' => $request->group]);
     }
 
     public function calculateResult(Pageant $pageant)

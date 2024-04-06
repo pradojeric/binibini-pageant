@@ -1,8 +1,5 @@
-import PrimaryButton from "@/Components/PrimaryButton";
-import TableComponent from "@/Components/TableComponent";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
-import { Fragment } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 
 function classNames(...classes) {
@@ -36,7 +33,7 @@ export default function ScoringIndex({ auth, pageant, groupCriterias }) {
                                 return (
                                     <div key={index}>
                                         <h2 className="uppercase dark:text-white text-2xl font-bold">
-                                            {`Criteria group #` + (index + 1)}
+                                            {`Round #` + (index + 1)}
                                         </h2>
                                         <div className="grid grid-cols-4 gap-4 items-center">
                                             {group.map((criteria) => {
@@ -55,7 +52,9 @@ export default function ScoringIndex({ auth, pageant, groupCriterias }) {
                                                         className={classNames(
                                                             `w-full object-cover bg-black`,
                                                             pageant.current_round ==
-                                                                criteria.round
+                                                                criteria.round &&
+                                                                pageant.current_group ==
+                                                                    criteria.group
                                                                 ? "border border-green-500"
                                                                 : "border border-red-500"
                                                         )}

@@ -8,7 +8,7 @@ function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
             <div className="flex flex-col items-center">
                 <div className="relative w-full">
                     <LazyLoadImage
-                        className="w-full object-cover border bg-black"
+                        className="w-full bg-black object-cover"
                         src={`/storage/` + candidate.picture}
                         alt={candidate.full_name}
                         placeholderSrc={`/logo.png`}

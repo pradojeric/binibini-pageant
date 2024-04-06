@@ -189,7 +189,7 @@ export default forwardRef(function PageantPrinting(
                     </div>
                     <hr />
 
-                    {maleCandidates && (
+                    {maleCandidates.length > 0 && (
                         <div className="my-2">
                             {criteria &&
                                 renderScores(maleCandidates, criteria, "male")}
@@ -203,7 +203,7 @@ export default forwardRef(function PageantPrinting(
                             )}
                         </div>
                     )}
-                    {femaleCandidates && (
+                    {femaleCandidates.length > 0 && (
                         <div className="my-2 break-before-page">
                             {criteria &&
                                 renderScores(

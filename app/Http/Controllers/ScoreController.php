@@ -22,7 +22,7 @@ class ScoreController extends Controller
 
     public function showDetails(Pageant $pageant)
     {
-        $groupCriterias = $pageant->criterias->groupBy('groups')->values()->all();
+        $groupCriterias = $pageant->criterias->where('hidden_scoring', false)->groupBy('round')->values()->all();
 
         return Inertia::render('Scoring/Details', [
             'pageant' => $pageant,
@@ -58,7 +58,7 @@ class ScoreController extends Controller
 
         $judge = Auth::user();
 
-        if ($pageant->current_round != $criteria->round) {
+        if ($pageant->current_round != $criteria->round || $pageant->current_group != $criteria->group) {
             session()->flash('message', 'Round not yet started');
             return;
         }
@@ -75,10 +75,15 @@ class ScoreController extends Controller
             return;
         }
 
+        $candidates = $pageant->pageantRounds()->where('round', $pageant->current_round)->first()->candidates;
+
         return Inertia::render('Scoring/Show', [
             'pageant' => $pageant->load(['criterias' => function ($query) use ($pageant) {
-                $query->where('round', $pageant->current_round);
-            }, 'candidates', 'judges']),
+                $query->where('hidden_scoring', false)
+                    ->where('round', $pageant->current_round)
+                    ->where('group', $pageant->current_group);
+            }, 'judges']),
+            'candidates' => $candidates,
         ]);
     }
 
@@ -140,7 +145,7 @@ class ScoreController extends Controller
         $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();
 
         return Inertia::render('Pageant/PageantScores', [
-            'pageant' => $pageant,
+            'pageant' => $pageant->load('pageantRounds'),
             'maleCandidates' => $maleCandidates,
             'femaleCandidates' => $femaleCandidates,
             'criterias' => $criterias,
@@ -158,12 +163,21 @@ class ScoreController extends Controller
             $scores = [];
 
             foreach ($criterias as $criteria) {
-                foreach ($judges as $judge) {
-                    // $pivot = $criteria->candidates()->where('candidates.id', $candidate->id)->wherePivot('user_id', $judge->id)->get()->sum('pivot.score');
-                    $pivot = CandidateCriteria::where(function ($query) use ($candidate, $judge, $criteria) {
-                        $query->where('criteria_id', $criteria->id)->where('candidate_id', $candidate->id)->where('user_id', $judge->id);
+                if ($criteria->hidden_scoring) {
+                    $pivot = CandidateCriteria::where(function ($query) use ($candidate, $criteria) {
+                        $query->where('criteria_id', $criteria->id)->where('candidate_id', $candidate->id);
                     })->sum('score');
-                    $scores[$criteria->id][$judge->id] = $pivot ?? '';
+                    $scores[$criteria->id][0] = $pivot ?? '';
+
+                } else {
+
+                    foreach ($judges as $judge) {
+                        // $pivot = $criteria->candidates()->where('candidates.id', $candidate->id)->wherePivot('user_id', $judge->id)->get()->sum('pivot.score');
+                        $pivot = CandidateCriteria::where(function ($query) use ($candidate, $judge, $criteria) {
+                            $query->where('criteria_id', $criteria->id)->where('candidate_id', $candidate->id)->where('user_id', $judge->id);
+                        })->sum('score');
+                        $scores[$criteria->id][$judge->id] = $pivot ?? '';
+                    }
                 }
                 $scores[$criteria->id]['total'] = array_sum($scores[$criteria->id]);
             }

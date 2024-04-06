@@ -6,7 +6,7 @@ export default function CriteriaList({ criterias, handleEditMode = () => {} }) {
     const { delete: destroy } = useForm({});
     const showAction = route().current("pageants.criterias.index");
 
-    const headers = ["Group", "Round", "Name", "Percentage"];
+    const headers = ["Round", "Group", "Name", "Percentage", "Score by Admin"];
 
     if (showAction) {
         headers.push("Action");
@@ -28,16 +28,19 @@ export default function CriteriaList({ criterias, handleEditMode = () => {} }) {
                     return (
                         <tr key={index}>
                             <td className="text-center px-3 py-2">
-                                {criteria.groups}
+                                {criteria.round}
                             </td>
                             <td className="text-center px-3 py-2">
-                                {criteria.round}
+                                {criteria.group}
                             </td>
                             <td className="text-center px-3 py-2">
                                 {criteria.name}
                             </td>
                             <td className="text-center px-3 py-2">
                                 {criteria.percentage}
+                            </td>
+                            <td className="text-center px-3 py-2">
+                                {criteria.hidden_scoring ? "True" : "False"}
                             </td>
                             {showAction && (
                                 <td className="text-center px-3 py-2 flex space-x-1">

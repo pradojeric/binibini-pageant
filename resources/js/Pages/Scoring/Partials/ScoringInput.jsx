@@ -4,7 +4,7 @@ import { useState } from "react";
 
 function ScoringInput({ criteria, candidate, onInputData = () => {} }) {
     const [value, setValue] = useState(0);
-    const minMax = { min: 0, max: criteria.percentage };
+    const minMax = { min: criteria.percentage / 2, max: criteria.percentage };
 
     return (
         <>
@@ -21,15 +21,17 @@ function ScoringInput({ criteria, candidate, onInputData = () => {} }) {
                     value={value}
                     data-criteria-id={criteria.id}
                     required
-                    onChange={(e) => {
+                    onBlur={(e) => {
                         const score = Math.max(
                             minMax.min,
                             Math.min(minMax.max, e.target.value)
                         );
-
                         setValue(score);
 
                         onInputData(candidate.id, criteria.id, score);
+                    }}
+                    onChange={(e) => {
+                        setValue(e.target.value);
 
                         // const criteriaId = e.target.dataset.criteriaId;
 

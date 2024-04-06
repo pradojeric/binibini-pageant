@@ -32,11 +32,13 @@ class CriteriaController extends Controller
      */
     public function store(Request $request, Pageant $pageant)
     {
+        // dd($request->all());
         $validatedData = $request->validate([
             'name' => ['required'],
             'round' => ['required', 'numeric'],
             'percentage' => ['required', 'numeric'],
-            'groups' => ['required', 'numeric']
+            'group' => ['required', 'numeric'],
+            'hidden_scoring' => ['nullable'],
         ]);
 
         $pageant->criterias()->create($validatedData);
@@ -68,8 +70,8 @@ class CriteriaController extends Controller
             'name' => ['required'],
             'round' => ['required', 'numeric'],
             'percentage' => ['required', 'numeric'],
-            'groups' => ['required', 'numeric']
-
+            'group' => ['required', 'numeric'],
+            'hidden_scoring' => ['nullable'],
         ]);
 
         $criteria->update($validatedData);

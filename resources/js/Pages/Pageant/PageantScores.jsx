@@ -18,9 +18,11 @@ export default function PageantScores({
     const [femCan, setFemCan] = useState(femaleCandidates);
     const [maleCan, setMaleCan] = useState(maleCandidates);
     const [crits, setCrits] = useState(criterias);
+    const [groupList, setGroupList] = useState([1]);
+
+    const roundList = Array.from({ length: pageant.rounds }, (_, i) => i + 1);
 
     const headings = ["Rank", "Candidate Name"];
-    const roundList = Array.from({ length: pageant.rounds }, (_, i) => i + 1);
 
     // return <>{console.log(criterias)}</>;
 
@@ -28,6 +30,30 @@ export default function PageantScores({
         setFemCan(femaleCandidates);
         setMaleCan(maleCandidates);
         setCrits(criterias);
+
+        const organizedData = criterias.reduce((acc, item) => {
+            if (!acc[item.round]) {
+                acc[item.round] = {};
+            }
+            if (!acc[item.round][item.group]) {
+                acc[item.round][item.group] = [];
+            }
+            acc[item.round][item.group].push(item.name);
+            return acc;
+        }, {});
+
+        if (!organizedData[pageant.current_round]) {
+            setGroupList([]);
+            return;
+        }
+
+        const groups = Object.keys(organizedData[pageant.current_round]);
+        const highestGroup = Math.max(...groups.map(Number)); // Convert keys to numbers and find the max
+        setGroupList(Array.from({ length: highestGroup }, (_, i) => i + 1));
+    }, [pageant]);
+
+    useEffect(() => {
+        //
     }, [pageant]);
 
     const sortFunction = (i) => {
@@ -89,37 +115,85 @@ export default function PageantScores({
                                 {pageant.current_round ?? "Not Yet Started"}
                             </div>
                             <div className="uppercase dark:text-white text-lg">
+                                Current Group:{" "}
+                                {pageant.current_group ?? "Not Yet Started"}
+                            </div>
+                            <div className="uppercase dark:text-white text-lg">
                                 Total Rounds: {pageant.rounds}
                             </div>
 
                             <div className="flex justify-between">
-                                <form>
-                                    <InputLabel value="Change Round" />
-                                    <SelectInput
-                                        name="round"
-                                        onChange={(e) => {
-                                            router.put(
-                                                route("pageant.change-round", {
-                                                    pageant: pageant.id,
-                                                    round: e.target.value,
-                                                })
-                                            );
-                                        }}
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="">Round 0</option>
-                                        {roundList.map((round, index) => {
-                                            return (
-                                                <option
-                                                    value={round}
-                                                    key={`R` + index}
-                                                >
-                                                    {round}
-                                                </option>
-                                            );
-                                        })}
-                                    </SelectInput>
-                                </form>
+                                <div className="flex gap-2">
+                                    <form>
+                                        <InputLabel value="Change Round" />
+                                        <SelectInput
+                                            name="round"
+                                            onChange={(e) => {
+                                                router.put(
+                                                    route(
+                                                        "pageant.change-round",
+                                                        {
+                                                            pageant: pageant.id,
+                                                            round: e.target
+                                                                .value,
+                                                        }
+                                                    )
+                                                );
+                                            }}
+                                        >
+                                            <option value="" hidden>
+                                                Select
+                                            </option>
+                                            <option value="0">Round 0</option>
+                                            {pageant.pageant_rounds.map(
+                                                (round, index) => {
+                                                    return (
+                                                        <option
+                                                            value={round.round}
+                                                            key={`R` + index}
+                                                        >
+                                                            {`Round ${round.round}`}
+                                                        </option>
+                                                    );
+                                                }
+                                            )}
+                                        </SelectInput>
+                                    </form>
+                                    <form>
+                                        <InputLabel value="Change Group" />
+                                        <SelectInput
+                                            name="group"
+                                            onChange={(e) => {
+                                                router.put(
+                                                    route(
+                                                        "pageant.change-group",
+                                                        {
+                                                            pageant: pageant.id,
+                                                            group: e.target
+                                                                .value,
+                                                        }
+                                                    )
+                                                );
+                                            }}
+                                        >
+                                            <option value="" hidden>
+                                                Select
+                                            </option>
+                                            <option value="0">Group 0</option>
+                                            {groupList.map((group, index) => {
+                                                return (
+                                                    <option
+                                                        value={group}
+                                                        key={`G` + index}
+                                                    >
+                                                        {`Group ${group}`}
+                                                    </option>
+                                                );
+                                            })}
+                                        </SelectInput>
+                                    </form>
+                                </div>
+
                                 <form>
                                     <InputLabel value="Sort By" />
                                     <SelectInput
@@ -147,6 +221,24 @@ export default function PageantScores({
                                         })}
                                     </SelectInput>
                                 </form>
+                            </div>
+
+                            <div className="mt-4">
+                                <Link href={route("scoring.admin", pageant.id)}>
+                                    <PrimaryButton>
+                                        Score Hidden Criteria
+                                    </PrimaryButton>
+                                </Link>
+                                <Link
+                                    href={route(
+                                        "pageant.candidates.select",
+                                        pageant.id
+                                    )}
+                                >
+                                    <PrimaryButton>
+                                        Select Round Candidate
+                                    </PrimaryButton>
+                                </Link>
                             </div>
 
                             <hr className="mt-4 mb-2" />

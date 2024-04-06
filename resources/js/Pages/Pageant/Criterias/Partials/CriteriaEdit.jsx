@@ -1,3 +1,4 @@
+import Checkbox from "@/Components/Checkbox";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -13,7 +14,9 @@ export default function CriteriaEdit({
     const { data, setData, patch, processing, errors, reset } = useForm({
         name: criteria.name,
         round: criteria.round,
+        group: criteria.group,
         percentage: criteria.percentage,
+        hidden_scoring: criteria.hidden_scoring,
     });
 
     useEffect(() => {
@@ -39,6 +42,16 @@ export default function CriteriaEdit({
             <h2 className="uppercase font-bold">Edit</h2>
             <form onSubmit={submit}>
                 <div className="my-2">
+                    <div className="mt-4">
+                        <InputLabel htmlFor="group" value="Group" />
+                        <TextInput
+                            className="w-full block"
+                            id="group"
+                            name="group"
+                            value={data.group}
+                            onChange={(e) => setData("group", e.target.value)}
+                        />
+                    </div>
                     <div className="mt-4">
                         <InputLabel htmlFor="round" value="Round" />
                         <TextInput
@@ -75,6 +88,22 @@ export default function CriteriaEdit({
                         />
                     </div>
 
+                    <div className="mt-4 flex items-center gap-2">
+                        <Checkbox
+                            name="hidden_scoring"
+                            value={true}
+                            defaultChecked={data.hidden_scoring}
+                            id="hidden_scoring"
+                            onChange={(e) => {
+                                setData("hidden_scoring", e.target.checked);
+                            }}
+                        />
+                        <InputLabel
+                            htmlFor="hidden_scoring"
+                            value="Score by Admin"
+                        />
+                    </div>
+
                     <div className="mt-4 flex justify-end">
                         <PrimaryButton
                             type="button"
@@ -89,6 +118,7 @@ export default function CriteriaEdit({
                     </div>
                 </div>
                 <InputError message={errors.round} />
+                <InputError message={errors.group} />
                 <InputError message={errors.name} />
                 <InputError message={errors.percentage} />
             </form>

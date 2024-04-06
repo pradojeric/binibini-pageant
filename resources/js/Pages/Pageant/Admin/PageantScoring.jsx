@@ -1,7 +1,5 @@
 import { Head, Link, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import TextInput from "@/Components/TextInput";
-import InputLabel from "@/Components/InputLabel";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
@@ -48,7 +46,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("scoring.store", pageant.id));
+        post(route("scoring.admin.store", pageant.id));
     };
 
     return (
@@ -63,7 +61,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
             <Head title="Pageant" />
 
             <div
-                className="py-12 bg-fixed bg-contain bg-center"
+                className="py-12 bg-fixed bg-cover"
                 style={{
                     backgroundImage: `url(/storage/${pageant.background})`,
                 }}
@@ -74,9 +72,6 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                             <form onSubmit={submit}>
                                 <div className="flex justify-between mb-2">
                                     <div>
-                                        <div className="uppercase">
-                                            Rounds: {pageant.current_round}
-                                        </div>
                                         <div className="uppercase">
                                             Pageant Type: {pageant.type}
                                         </div>
@@ -93,7 +88,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                         <h2 className="uppercase font-bold text-lg tracking-wide">
                                             Mr Candidates
                                         </h2>
-                                        <div className="grid grid-cols-4 gap-8 mt-4">
+                                        <div className="grid grid-cols-3 gap-8 mt-4">
                                             {maleCandidates.map((candidate) => {
                                                 return (
                                                     <CandidateBox
@@ -122,7 +117,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                         <h2 className="uppercase font-bold text-lg tracking-wide">
                                             Ms Candidates
                                         </h2>
-                                        <div className="grid grid-cols-4 gap-8 mt-4">
+                                        <div className="grid grid-cols-3 gap-8 mt-4">
                                             {femaleCandidates.map(
                                                 (candidate) => {
                                                     return (

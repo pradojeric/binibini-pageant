@@ -3,6 +3,7 @@ import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import { useForm } from "@inertiajs/react";
+import { Checkbox } from "flowbite-react";
 import { useEffect } from "react";
 
 export default function CriteriaCreate({ className = "", pageant }) {
@@ -10,7 +11,8 @@ export default function CriteriaCreate({ className = "", pageant }) {
         name: "",
         round: 1,
         percentage: 0,
-        groups: 1,
+        group: 1,
+        hidden_scoring: false,
     });
 
     useEffect(() => {
@@ -36,13 +38,13 @@ export default function CriteriaCreate({ className = "", pageant }) {
             <form onSubmit={submit}>
                 <div className="my-2">
                     <div className="mt-4">
-                        <InputLabel htmlFor="groups" value="Group" />
+                        <InputLabel htmlFor="group" value="Group" />
                         <TextInput
                             className="w-full block"
-                            id="groups"
-                            name="groups"
-                            value={data.groups}
-                            onChange={(e) => setData("groups", e.target.value)}
+                            id="group"
+                            name="group"
+                            value={data.group}
+                            onChange={(e) => setData("group", e.target.value)}
                         />
                     </div>
 
@@ -79,6 +81,21 @@ export default function CriteriaCreate({ className = "", pageant }) {
                             onChange={(e) =>
                                 setData("percentage", e.target.value)
                             }
+                        />
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2">
+                        <Checkbox
+                            name="hidden_scoring"
+                            value={true}
+                            id="hidden_scoring"
+                            onChange={(e) => {
+                                setData("hidden_scoring", e.target.checked);
+                            }}
+                        />
+                        <InputLabel
+                            htmlFor="hidden_scoring"
+                            value="Score by Admin"
                         />
                     </div>
 

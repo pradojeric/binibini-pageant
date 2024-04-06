@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminScoringController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\JudgeController;
@@ -56,10 +57,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/pageants/{pageant}/select-judges', [PageantController::class, 'selectJudges'])->name('pageant.select-judges');
         Route::post('/pageants/{pageant}/store-judges', [PageantController::class, 'storeJudges'])->name('pageant.store-judges');
         Route::put('/pageants/{pageant}/change-round', [PageantController::class, 'changeRound'])->name('pageant.change-round');
+        Route::put('/pageants/{pageant}/change-group', [PageantController::class, 'changeGroup'])->name('pageant.change-group');
 
         Route::resource('pageants.criterias', CriteriaController::class)->shallow();
         Route::resource('pageants.candidates', CandidateController::class)->except(['update'])->shallow();
         Route::post('/candidates/{candidate}/update', [CandidateController::class, 'update'])->name('candidates.update');
+
+        Route::get('/scoring/{pageant}/admin', [AdminScoringController::class, 'show'])->name('scoring.admin');
+        Route::post('/scoring/{pageant}/admin/store', [AdminScoringController::class, 'store'])->name('scoring.admin.store');
+
+        Route::get('/pageant/{pageant}/candidate-round', [AdminScoringController::class, 'select'])->name('pageant.candidates.select');
+        Route::post('/pageant/{pageant}/candidate-round/store', [AdminScoringController::class, 'selectStore'])->name('select.store');
 
         Route::get('/pageants/view-scores/{pageant}', [ScoreController::class, 'viewScores'])->name('pageant.view-scores');
         Route::get('/pageants/{pageant}/for-printing', [ScoreController::class, 'forPrinting'])->name('pageant.for-printing');

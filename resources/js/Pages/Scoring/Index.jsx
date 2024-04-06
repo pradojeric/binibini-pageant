@@ -2,6 +2,8 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TableComponent from "@/Components/TableComponent";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 export default function ScoringIndex({ auth, pageants }) {
     const { flash } = usePage().props;
@@ -85,13 +87,15 @@ export default function ScoringIndex({ auth, pageants }) {
                                             )}
                                         >
                                             <div className="flex flex-col items-center ">
-                                                <img
-                                                    className="w-full h-96"
+                                                <LazyLoadImage
+                                                    className="w-full object-scale-down bg-black h-40"
                                                     alt={pageant.pageant}
                                                     src={
                                                         `/storage/` +
                                                         pageant.background
                                                     }
+                                                    placeholderSrc={`/logo.png`}
+                                                    effect="blur"
                                                 />
 
                                                 <div className="dark:text-white text-xl font-bold tracking-wide">
