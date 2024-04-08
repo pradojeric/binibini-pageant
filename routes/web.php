@@ -69,6 +69,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/pageant/{pageant}/candidate-round', [AdminScoringController::class, 'select'])->name('pageant.candidates.select');
         Route::post('/pageant/{pageant}/candidate-round/store', [AdminScoringController::class, 'selectStore'])->name('select.store');
 
+        Route::get('/pageant/{pageant}/deduct', [AdminScoringController::class, 'deduct'])->name('pageant.deduct');
+        Route::post('/pageant/{pageant}/deduct/store', [AdminScoringController::class, 'storeDeduction'])->name('pageant.deduct.store');
+
         Route::get('/pageants/view-scores/{pageant}', [ScoreController::class, 'viewScores'])->name('pageant.view-scores');
         Route::get('/pageants/{pageant}/for-printing', [ScoreController::class, 'forPrinting'])->name('pageant.for-printing');
     });

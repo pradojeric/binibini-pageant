@@ -2,11 +2,68 @@ import TableComponent from "@/Components/TableComponent";
 import { useRef } from "react";
 import { forwardRef } from "react";
 
-function RenderTable({ criteria, candidates, gender, judges }) {
-    candidates.sort(
-        (a, b) =>
-            b.scores[criteria.id]["total"] - a.scores[criteria.id]["total"]
-    );
+function rankItems(candidates, sortedBy = "total") {
+    // Function to extract the total score from an item
+    function getTotalScore(item, sortedBy) {
+        return sortedBy === "total"
+            ? item.total
+            : item.scores[sortedBy]["total"];
+    }
+
+    // Function to assign the average rank for tied ranks within the sorted data
+    function assignAverageRank(startIndex, endIndex, rankSum) {
+        const averageRank = (rankSum / (endIndex - startIndex + 1)).toFixed(1);
+        for (let i = startIndex; i <= endIndex; i++) {
+            sortedData[i].rank = averageRank; // Assign the average rank as a decimal
+        }
+    }
+
+    const sortedData = [...candidates].sort((a, b) => {
+        return getTotalScore(b, sortedBy) - getTotalScore(a, sortedBy);
+    });
+
+    let rank = 1;
+    let startIndex = 0;
+    let rankSum = 0;
+    let previousTotal = getTotalScore(sortedData[0], sortedBy);
+
+    sortedData.forEach((item, index) => {
+        const currentTotal = getTotalScore(item, sortedBy);
+        rankSum += rank; // Sum up ranks for a potential tie calculation
+
+        if (currentTotal === previousTotal && index !== 0) {
+            // If there's a tie, continue to the next item
+            if (index === sortedData.length - 1) {
+                // If it's the last item, assign the average rank for the tie
+                assignAverageRank(startIndex, index, rankSum);
+            }
+        } else {
+            // If the previous items were tied, calculate their average rank
+            if (index - startIndex > 1) {
+                assignAverageRank(startIndex, index - 1, rankSum - rank);
+            } else {
+                // If there was no tie, just assign the rank normally
+                sortedData[startIndex].rank = startIndex + 1;
+            }
+            // Update variables for the next set of items
+            startIndex = index;
+            rankSum = rank;
+            previousTotal = currentTotal;
+
+            // Assign rank for the last item if it's not in a tie
+            if (index === sortedData.length - 1) {
+                sortedData[index].rank = index + 1;
+            }
+        }
+
+        rank++; // Increment rank for the next item
+    });
+
+    return sortedData;
+}
+
+function RenderTable({ criteria, allCandidates, gender, judges }) {
+    const candidates = rankItems(allCandidates, criteria.id);
 
     return (
         <div className="dark:text-white mt-2">
@@ -68,7 +125,7 @@ function RenderTable({ criteria, candidates, gender, judges }) {
                                     {candidate.scores[criteria.id]["total"]}
                                 </td>
                                 <td className="px-3 py-1 text-center">
-                                    {index + 1}
+                                    {candidate.rank}
                                 </td>
                             </tr>
                         );
@@ -79,7 +136,9 @@ function RenderTable({ criteria, candidates, gender, judges }) {
     );
 }
 
-function RenderTotalTable({ candidates, gender, judges, criterias }) {
+function RenderTotalTable({ allCandidates, gender, criterias }) {
+    const candidates = rankItems(allCandidates);
+
     return (
         <div className="dark:text-white mt-2">
             <h2 className="uppercase font-bold text-xl">{gender} Candidates</h2>
@@ -138,7 +197,7 @@ function RenderTotalTable({ candidates, gender, judges, criterias }) {
                                     {candidate.total}
                                 </td>
                                 <td className="px-3 py-1 text-center">
-                                    {index + 1}
+                                    {candidate.rank}
                                 </td>
                             </tr>
                         );
@@ -167,7 +226,7 @@ export default forwardRef(function PageantPrinting(
             <RenderTable
                 key={`male` + criteria.id}
                 criteria={criteria}
-                candidates={candidates}
+                allCandidates={candidates}
                 judges={judges}
                 gender={gender}
             />
@@ -181,95 +240,72 @@ export default forwardRef(function PageantPrinting(
                     {pageant.pageant}
                 </h1>
 
-                <div className="p-2 break-after-page" key={criteria.name}>
-                    <div className="uppercase text-2xl font-bold dark:text-white">
-                        {criteria
-                            ? criteria.name + ` - Round ` + criteria.round
-                            : `Grand Total`}
-                    </div>
-                    <hr />
-
-                    {maleCandidates.length > 0 && (
-                        <div className="my-2">
-                            {criteria &&
-                                renderScores(maleCandidates, criteria, "male")}
-                            {!criteria && (
-                                <RenderTotalTable
-                                    candidates={maleCandidates}
-                                    gender="male"
-                                    criterias={criterias}
-                                    judges={judges}
-                                />
-                            )}
-                        </div>
-                    )}
-                    {femaleCandidates.length > 0 && (
-                        <div className="my-2 break-before-page">
-                            {criteria &&
-                                renderScores(
-                                    femaleCandidates,
-                                    criteria,
-                                    "female"
-                                )}
-                            {!criteria && (
-                                <RenderTotalTable
-                                    candidates={femaleCandidates}
-                                    gender="female"
-                                    criterias={criterias}
-                                    judges={judges}
-                                />
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* {criterias.map((criteria) => {
-                    return (
+                {maleCandidates.length > 0 && (
+                    <>
                         <div
                             className="p-2 break-after-page"
                             key={criteria.name}
                         >
                             <div className="uppercase text-2xl font-bold dark:text-white">
-                                {criteria.name + ` - Round ` + criteria.round}
+                                {criteria
+                                    ? criteria.name +
+                                      ` - Round ` +
+                                      criteria.round
+                                    : `Grand Total`}
                             </div>
                             <hr />
                             <div className="my-2">
-                                <RenderTable
-                                    key={`fem` + criteria.id}
-                                    criteria={criteria}
-                                    candidates={femaleCandidates}
-                                    gender="female"
-                                />
-                            </div>
-                            <div className="my-2">
-                                <RenderTable
-                                    key={`male` + criteria.id}
-                                    criteria={criteria}
-                                    candidates={maleCandidates}
-                                    gender="male"
-                                />
+                                {criteria &&
+                                    renderScores(
+                                        maleCandidates,
+                                        criteria,
+                                        "male"
+                                    )}
+                                {!criteria && (
+                                    <RenderTotalTable
+                                        allCandidates={maleCandidates}
+                                        gender="male"
+                                        criterias={criterias}
+                                        judges={judges}
+                                    />
+                                )}
                             </div>
                         </div>
-                    );
-                })} */}
-                {/* <div className="p-2 break-after-page">
-                    <div className="uppercase text-3xl font-bold dark:text-white">
-                        Grand Total of Score
-                    </div>
-                    <hr />
-                    <div className="my-2">
-                        <RenderTable
-                            candidates={femaleCandidates}
-                            gender="female"
-                        />
-                    </div>
-                    <div className="my-2">
-                        <RenderTable
-                            candidates={maleCandidates}
-                            gender="male"
-                        />
-                    </div>
-                </div> */}
+                    </>
+                )}
+                {femaleCandidates.length > 0 && (
+                    <>
+                        <div
+                            className="p-2 break-after-page"
+                            key={criteria.name}
+                        >
+                            <div className="uppercase text-2xl font-bold dark:text-white">
+                                {criteria
+                                    ? criteria.name +
+                                      ` - Round ` +
+                                      criteria.round
+                                    : `Grand Total`}
+                            </div>
+                            <hr />
+                            <div className="my-2">
+                                {criteria &&
+                                    renderScores(
+                                        femaleCandidates,
+                                        criteria,
+                                        "female"
+                                    )}
+                                {!criteria && (
+                                    <RenderTotalTable
+                                        allCandidates={femaleCandidates}
+                                        gender="female"
+                                        criterias={criterias}
+                                        judges={judges}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

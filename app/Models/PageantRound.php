@@ -16,4 +16,9 @@ class PageantRound extends Model
     {
         return $this->belongsToMany(Candidate::class, 'candidate_rounds');
     }
+
+    public function candidatesDeduction(): BelongsToMany
+    {
+        return $this->belongsToMany(Candidate::class, 'round_deductions')->withPivot('deduction');
+    }
 }

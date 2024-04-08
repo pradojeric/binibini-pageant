@@ -8,6 +8,65 @@ import { useRef } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 
+function rankItems(candidates, sortedBy = "total") {
+    if (candidates.length < 1) return [];
+    // Function to extract the total score from an item
+    function getTotalScore(item, sortedBy) {
+        return sortedBy === "total" ? item.total : item.scores[sortedBy];
+    }
+
+    // Function to assign the average rank for tied ranks within the sorted data
+    function assignAverageRank(startIndex, endIndex, rankSum) {
+        const averageRank = (rankSum / (endIndex - startIndex + 1)).toFixed(1);
+        for (let i = startIndex; i <= endIndex; i++) {
+            sortedData[i].rank = averageRank; // Assign the average rank as a decimal
+        }
+    }
+
+    const sortedData = [...candidates].sort((a, b) => {
+        return getTotalScore(b, sortedBy) - getTotalScore(a, sortedBy);
+    });
+
+    let rank = 1;
+    let startIndex = 0;
+    let rankSum = 0;
+    let previousTotal = getTotalScore(sortedData[0], sortedBy);
+
+    sortedData.forEach((item, index) => {
+        const currentTotal = getTotalScore(item, sortedBy);
+        rankSum += rank; // Sum up ranks for a potential tie calculation
+
+        if (currentTotal === previousTotal && index !== 0) {
+            // If there's a tie, continue to the next item
+            if (index === sortedData.length - 1) {
+                // If it's the last item, assign the average rank for the tie
+                assignAverageRank(startIndex, index, rankSum);
+            }
+        } else {
+            // If the previous items were tied, calculate their average rank
+            if (index - startIndex > 1) {
+                assignAverageRank(startIndex, index - 1, rankSum - rank);
+            } else {
+                // If there was no tie, just assign the rank normally
+                sortedData[startIndex].rank = startIndex + 1;
+            }
+            // Update variables for the next set of items
+            startIndex = index;
+            rankSum = rank;
+            previousTotal = currentTotal;
+
+            // Assign rank for the last item if it's not in a tie
+            if (index === sortedData.length - 1) {
+                sortedData[index].rank = index + 1;
+            }
+        }
+
+        rank++; // Increment rank for the next item
+    });
+
+    return sortedData;
+}
+
 export default function PageantScores({
     auth,
     pageant,
@@ -15,20 +74,16 @@ export default function PageantScores({
     femaleCandidates = [],
     criterias,
 }) {
-    const [femCan, setFemCan] = useState(femaleCandidates);
-    const [maleCan, setMaleCan] = useState(maleCandidates);
+    const [femCan, setFemCan] = useState([]);
+    const [maleCan, setMaleCan] = useState([]);
     const [crits, setCrits] = useState(criterias);
     const [groupList, setGroupList] = useState([1]);
 
-    const roundList = Array.from({ length: pageant.rounds }, (_, i) => i + 1);
-
-    const headings = ["Rank", "Candidate Name"];
-
-    // return <>{console.log(criterias)}</>;
+    const headings = ["Candidate Name"];
 
     useEffect(() => {
-        setFemCan(femaleCandidates);
-        setMaleCan(maleCandidates);
+        setFemCan(rankItems(femaleCandidates));
+        setMaleCan(rankItems(maleCandidates));
         setCrits(criterias);
 
         const organizedData = criterias.reduce((acc, item) => {
@@ -52,24 +107,20 @@ export default function PageantScores({
         setGroupList(Array.from({ length: highestGroup }, (_, i) => i + 1));
     }, [pageant]);
 
-    useEffect(() => {
-        //
-    }, [pageant]);
-
     const sortFunction = (i) => {
-        const femSort = [...femaleCandidates];
-        const maleSort = [...maleCandidates];
-        femSort.sort((a, b) => {
-            if (i === "total") return b.total - a.total;
-            return b.scores[i] - a.scores[i];
-        });
-        maleSort.sort((a, b) => {
-            if (i === "total") return b.total - a.total;
-            return b.scores[i] - a.scores[i];
-        });
+        // const femSort = [...femaleCandidates];
+        // const maleSort = [...maleCandidates];
+        // femSort.sort((a, b) => {
+        //     if (i === "total") return b.total - a.total;
+        //     return b.scores[i] - a.scores[i];
+        // });
+        // maleSort.sort((a, b) => {
+        //     if (i === "total") return b.total - a.total;
+        //     return b.scores[i] - a.scores[i];
+        // });
 
-        setFemCan(femSort);
-        setMaleCan(maleSort);
+        setFemCan(rankItems(femaleCandidates, i));
+        setMaleCan(rankItems(maleCandidates, i));
     };
 
     crits.map((criteria) => {
@@ -77,6 +128,11 @@ export default function PageantScores({
     });
 
     headings.push("Total");
+    if (pageant.current_round == 1) {
+        headings.push("Deduction");
+        headings.push("Overall");
+    }
+    headings.push("Rank");
 
     return (
         <AuthenticatedLayout
@@ -239,6 +295,11 @@ export default function PageantScores({
                                         Select Round Candidate
                                     </PrimaryButton>
                                 </Link>
+                                <Link
+                                    href={route("pageant.deduct", pageant.id)}
+                                >
+                                    <PrimaryButton>Deduct Points</PrimaryButton>
+                                </Link>
                             </div>
 
                             <hr className="mt-4 mb-2" />
@@ -248,6 +309,7 @@ export default function PageantScores({
                                     gender="Male"
                                     candidates={maleCan}
                                     headings={headings}
+                                    current_round={pageant.current_round}
                                 ></CandidateScoreList>
                             )}
                             {(pageant.type == "ms" ||
@@ -256,6 +318,7 @@ export default function PageantScores({
                                     gender="Female"
                                     candidates={femCan}
                                     headings={headings}
+                                    current_round={pageant.current_round}
                                 ></CandidateScoreList>
                             )}
                         </div>

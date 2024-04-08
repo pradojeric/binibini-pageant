@@ -1,6 +1,11 @@
 import TableComponent from "@/Components/TableComponent";
 
-function CandidateScoreList({ gender = "Male", candidates, headings }) {
+function CandidateScoreList({
+    gender = "Male",
+    candidates,
+    headings,
+    current_round,
+}) {
     const renderScores = (candidate) => {
         const scores = Object.values(candidate.scores);
 
@@ -25,9 +30,6 @@ function CandidateScoreList({ gender = "Male", candidates, headings }) {
                 {candidates.map((candidate, index) => {
                     return (
                         <tr key={candidate.id}>
-                            <td className="text-center px-3 py-2 dark:text-white">
-                                {index + 1}
-                            </td>
                             <td>
                                 <div className="flex space-x-4 items-center px-3 py-2">
                                     <div className="shrink-0">
@@ -60,8 +62,21 @@ function CandidateScoreList({ gender = "Male", candidates, headings }) {
                                 </div>
                             </td>
                             {renderScores(candidate)}
+                            {current_round === 1 && (
+                                <>
+                                    <td className="text-center px-3 py-2 dark:text-white">
+                                        {candidate.total + candidate.deduction}
+                                    </td>
+                                    <td className="text-center px-3 py-2 dark:text-white">
+                                        {candidate.deduction}
+                                    </td>
+                                </>
+                            )}
                             <td className="text-center px-3 py-2 dark:text-white">
                                 {candidate.total}
+                            </td>
+                            <td className="text-center px-3 py-2 dark:text-white">
+                                {candidate.rank}
                             </td>
                         </tr>
                     );

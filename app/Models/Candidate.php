@@ -33,4 +33,9 @@ class Candidate extends Model
     {
         return $this->belongsToMany(Criteria::class)->withPivot(['score'])->withTimestamps();
     }
+
+    public function candidatesDeduction(): BelongsToMany
+    {
+        return $this->belongsToMany(PageantRound::class, 'round_deductions')->withPivot('deduction');
+    }
 }

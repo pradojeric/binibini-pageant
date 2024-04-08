@@ -122,12 +122,13 @@ class ScoreController extends Controller
 
     public function viewScores(Request $request, Pageant $pageant)
     {
-        $candidates = $pageant->candidates;
-        $criterias = $pageant->criterias->where('round', $pageant->current_round)->values()->all();
 
+        $criterias = $pageant->criterias->where('round', $pageant->current_round)->values()->all();
+        $round = $pageant->pageantRounds()->where('round', $pageant->current_round)->first();
+        $candidates = $round->candidates;
         $judges = $pageant->judges;
 
-        $candidatesScores = $candidates->map(function ($candidate) use ($criterias) {
+        $candidatesScores = $candidates->map(function ($candidate) use ($criterias, $round) {
             $scores = [];
             foreach ($criterias as $criteria) {
                 $pivot = $criteria->candidates->where('id', $candidate->id)->sum('pivot.score');
@@ -136,7 +137,9 @@ class ScoreController extends Controller
 
             $total = array_sum($scores);
             $candidate['scores'] = $scores;
-            $candidate['total'] = $total;
+            $deduction = $candidate->candidatesDeduction()->find($round) ? $candidate->candidatesDeduction()->find($round)->pivot->deduction : 0;
+            $candidate['deduction'] = $deduction;
+            $candidate['total'] = $total - $deduction;
 
             return $candidate;
         });
@@ -185,12 +188,12 @@ class ScoreController extends Controller
             $total = array_sum(array_column($scores, 'total'));
 
             $candidate['scores'] = $scores;
-            $candidate['total'] = $total;
+            $deduction = $candidate->candidatesDeduction->sum('pivot.deduction');
+            $candidate['deduction'] = $deduction;
+            $candidate['total'] = $total - $deduction;
 
             return $candidate;
         });
-
-        // dd($candidatesScores->toArray());
 
         $maleCandidates = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
         $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();

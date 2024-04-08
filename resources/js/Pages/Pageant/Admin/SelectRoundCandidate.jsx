@@ -105,11 +105,8 @@ export default function ScoringShow({
                                 <div className="mt-4">
                                     {candidates.map((candidate) => {
                                         return (
-                                            <div
-                                                className="block"
-                                                key={candidate.id}
-                                            >
-                                                <label className="flex items-center">
+                                            <div key={candidate.id}>
+                                                <label className="flex items-center gap-4">
                                                     <Checkbox
                                                         name="selectedJudges[]"
                                                         value={candidate.id}
@@ -118,9 +115,40 @@ export default function ScoringShow({
                                                         )}
                                                         onChange={handleChecked}
                                                     />
-                                                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                                                        {candidate.full_name}
-                                                    </span>
+                                                    <div className="flex space-x-4 items-center px-3 py-2">
+                                                        <div>
+                                                            {candidate.picture ? (
+                                                                <img
+                                                                    className="rounded-full h-16 w-16 object-cover border border-black bg-white"
+                                                                    src={
+                                                                        `/storage/` +
+                                                                        candidate.picture
+                                                                    }
+                                                                    alt={
+                                                                        candidate.full_name
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                ""
+                                                            )}
+                                                        </div>
+                                                        <div className="dark:text-white">
+                                                            {`#` +
+                                                                candidate.candidate_number}
+                                                        </div>
+                                                        <div>
+                                                            <div className="uppercase font-bold dark:text-white">
+                                                                {
+                                                                    candidate.full_name
+                                                                }
+                                                            </div>
+                                                            <div className="text-sm text-gray-400">
+                                                                {
+                                                                    candidate.nickname
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </label>
                                             </div>
                                         );

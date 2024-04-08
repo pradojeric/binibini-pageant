@@ -97,7 +97,7 @@ export default function PageantPrinting({
                         <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                             <ReactToPrint
                                 content={reactToPrintContent}
-                                documentTitle="AwesomeFileName"
+                                documentTitle={pageant.pageant}
                                 onAfterPrint={handleAfterPrint}
                                 onBeforeGetContent={handleOnBeforeGetContent}
                                 onBeforePrint={handleBeforePrint}

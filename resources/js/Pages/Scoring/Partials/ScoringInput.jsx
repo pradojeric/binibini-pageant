@@ -4,7 +4,10 @@ import { useState } from "react";
 
 function ScoringInput({ criteria, candidate, onInputData = () => {} }) {
     const [value, setValue] = useState(0);
-    const minMax = { min: criteria.percentage / 2, max: criteria.percentage };
+    const minMax = {
+        min: (criteria.percentage / 2).toFixed(0),
+        max: criteria.percentage,
+    };
 
     return (
         <>
