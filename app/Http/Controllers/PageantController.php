@@ -38,7 +38,7 @@ class PageantController extends Controller
         $validatedData = $request->validate([
             'pageant' => ['required'],
             'type' => ['required'],
-            'background' => ['nullable', 'mimes:jpg,jpeg,png'],
+            'background' => ['nullable', 'image'],
             'rounds' => ['required', 'numeric'],
             'pageant_rounds' => ['required', 'array'],
         ]);
@@ -46,7 +46,7 @@ class PageantController extends Controller
         if (!$request->picture) {
             unset($validatedData['background']);
         } else {
-            $validatedData['background'] = $request->file('background')->storePubliclyAs('pageant', $request->pageant ,'public');
+            $validatedData['background'] = $request->file('background')->storePubliclyAs('pageant', $request->pageant, 'public');
         }
 
         $regexString = '/m[rs]/';
