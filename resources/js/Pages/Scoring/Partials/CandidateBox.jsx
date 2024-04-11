@@ -2,7 +2,7 @@ import ScoringInput from "@/Pages/Scoring/Partials/ScoringInput";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
-function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
+function CandidateBox({ candidate, criterias, onInputData = () => { } }) {
     return (
         <div>
             <div className="flex flex-col items-center">
@@ -18,8 +18,8 @@ function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
                     <div className="uppercase text-xl font-bold absolute top-1 left-1 bg-amber-600 rounded-full p-2">
                         {`# ` + candidate.candidate_number}
                     </div>
-                    <div className="absolute inset-x-0 bottom-0 bg-slate-500">
-                        <div className="uppercase text-center">
+                    <div className="absolute inset-x-0 -bottom-5 bg-slate-500">
+                        <div className="uppercase text-center text-gray-300">
                             {candidate.gender + `. ` + candidate.full_name}
                         </div>
                         <div className="uppercase text-sm text-gray-200 text-center">
@@ -28,7 +28,7 @@ function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
                     </div>
                 </div>
 
-                <div className="mt-4 w-full">
+                <div className="mt-6 w-full">
                     {criterias.map((criteria, index) => {
                         return (
                             <ScoringInput

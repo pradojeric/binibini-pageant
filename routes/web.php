@@ -72,6 +72,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pageant/{pageant}/deduct', [AdminScoringController::class, 'deduct'])->name('pageant.deduct');
         Route::post('/pageant/{pageant}/deduct/store', [AdminScoringController::class, 'storeDeduction'])->name('pageant.deduct.store');
 
+        Route::get('/pageants/reset-scores/{pageant}', [PageantController::class, 'resetScores'])->name('pageant.reset-scores');
         Route::get('/pageants/view-scores/{pageant}', [ScoreController::class, 'viewScores'])->name('pageant.view-scores');
         Route::get('/pageants/{pageant}/for-printing', [ScoreController::class, 'forPrinting'])->name('pageant.for-printing');
     });

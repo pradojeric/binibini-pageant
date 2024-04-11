@@ -125,7 +125,7 @@ class ScoreController extends Controller
 
         $criterias = $pageant->criterias->where('round', $pageant->current_round)->values()->all();
         $round = $pageant->pageantRounds()->where('round', $pageant->current_round)->first();
-        $candidates = $round->candidates;
+        $candidates = $round ? $round->candidates : $pageant->candidates;
         $judges = $pageant->judges;
 
         $candidatesScores = $candidates->map(function ($candidate) use ($criterias, $round) {

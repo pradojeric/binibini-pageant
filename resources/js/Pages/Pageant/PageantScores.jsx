@@ -4,9 +4,7 @@ import SelectInput from "@/Components/SelectInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
 import { Head, Link, router } from "@inertiajs/react";
-import { useRef } from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function rankItems(candidates, sortedBy = "total") {
     if (candidates.length < 1) return [];
@@ -158,6 +156,15 @@ export default function PageantScores({
                                 >
                                     <PrimaryButton>Summary</PrimaryButton>
                                 </Link>
+
+                                <PrimaryButton onClick={(e) => {
+                                    if (confirm('Are you sure? Not irreversable')) {
+                                        alert('Success')
+                                        router.get(route('pageant.reset-scores', pageant.id))
+                                    }
+                                }
+                                }>Reset Score</PrimaryButton>
+
                                 {pageant.status != "finished" && (
                                     <Link>
                                         <PrimaryButton>
@@ -305,26 +312,26 @@ export default function PageantScores({
                             <hr className="mt-4 mb-2" />
                             {(pageant.type == "mr" ||
                                 pageant.type == "mr&ms") && (
-                                <CandidateScoreList
-                                    gender="Male"
-                                    candidates={maleCan}
-                                    headings={headings}
-                                    current_round={pageant.current_round}
-                                ></CandidateScoreList>
-                            )}
+                                    <CandidateScoreList
+                                        gender="Male"
+                                        candidates={maleCan}
+                                        headings={headings}
+                                        current_round={pageant.current_round}
+                                    ></CandidateScoreList>
+                                )}
                             {(pageant.type == "ms" ||
                                 pageant.type == "mr&ms") && (
-                                <CandidateScoreList
-                                    gender="Female"
-                                    candidates={femCan}
-                                    headings={headings}
-                                    current_round={pageant.current_round}
-                                ></CandidateScoreList>
-                            )}
+                                    <CandidateScoreList
+                                        gender="Female"
+                                        candidates={femCan}
+                                        headings={headings}
+                                        current_round={pageant.current_round}
+                                    ></CandidateScoreList>
+                                )}
                         </div>
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

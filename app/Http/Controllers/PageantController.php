@@ -168,4 +168,19 @@ class PageantController extends Controller
             'pageant' => $pageant,
         ]);
     }
+
+    public function resetScores(Pageant $pageant)
+    {
+
+        foreach($pageant->criterias as $criteria)
+        {
+            $criteria->candidates()->delete();
+        }
+        foreach($pageant->pageantRounds as $round){
+            $round->candidatesDeduction()->delete();
+            $round->candidates()->delete();
+        }
+
+        return back()->with('message', 'Successfully reset score');
+    }
 }
