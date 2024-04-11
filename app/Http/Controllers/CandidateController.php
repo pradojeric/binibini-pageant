@@ -78,7 +78,7 @@ class CandidateController extends Controller
 
         $validatedData = $request->validate([
             'candidate_number' => ['required'],
-            'picture' => ['nullable', 'image'],
+            'picture' => ['nullable', 'mimes:jpg,jpeg,png'],
             'last_name' => ['required'],
             'first_name' => ['required'],
             'middle_name' => ['nullable'],

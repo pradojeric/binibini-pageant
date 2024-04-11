@@ -120,7 +120,7 @@ export default function PageantCreate({ auth }) {
                                         onChange={(e) =>
                                             setData(
                                                 "background",
-                                                e.target.value
+                                                e.target.files[0]
                                             )
                                         }
                                         className="mt-1 block w-full"
@@ -212,18 +212,18 @@ export default function PageantCreate({ auth }) {
                                                                                 const old =
                                                                                     data
                                                                                         .pageant_rounds[
-                                                                                        "mr"
+                                                                                    "mr"
                                                                                     ];
                                                                                 old[
                                                                                     index
                                                                                 ] =
-                                                                                    {
-                                                                                        round: pr.round,
-                                                                                        number_of_candidates:
-                                                                                            e
-                                                                                                .target
-                                                                                                .value,
-                                                                                    };
+                                                                                {
+                                                                                    round: pr.round,
+                                                                                    number_of_candidates:
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                };
                                                                                 const newValue =
                                                                                     old;
 
@@ -290,18 +290,18 @@ export default function PageantCreate({ auth }) {
                                                                                 const old =
                                                                                     data
                                                                                         .pageant_rounds[
-                                                                                        "ms"
+                                                                                    "ms"
                                                                                     ];
                                                                                 old[
                                                                                     index
                                                                                 ] =
-                                                                                    {
-                                                                                        round: pr.round,
-                                                                                        number_of_candidates:
-                                                                                            e
-                                                                                                .target
-                                                                                                .value,
-                                                                                    };
+                                                                                {
+                                                                                    round: pr.round,
+                                                                                    number_of_candidates:
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                };
                                                                                 const newValue =
                                                                                     old;
 

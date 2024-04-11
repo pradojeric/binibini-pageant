@@ -38,7 +38,7 @@ class PageantController extends Controller
         $validatedData = $request->validate([
             'pageant' => ['required'],
             'type' => ['required'],
-            'background' => ['nullable', 'image'],
+            'background' => ['nullable', 'mimes:jpg,jpeg,png'],
             'rounds' => ['required', 'numeric'],
             'pageant_rounds' => ['required', 'array'],
         ]);
