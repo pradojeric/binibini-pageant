@@ -46,7 +46,7 @@ class PageantController extends Controller
         if (!$request->picture) {
             unset($validatedData['background']);
         } else {
-            $validatedData['background'] = $request->file('background')->storePublicly('pageant', 'public');
+            $validatedData['background'] = $request->file('background')->storePubliclyAs('pageant', $request->pageant ,'public');
         }
 
         $regexString = '/m[rs]/';

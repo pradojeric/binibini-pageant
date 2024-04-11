@@ -48,7 +48,7 @@ class CandidateController extends Controller
         if (!$request->picture) {
             unset($validatedData['picture']);
         } else {
-            $validatedData['picture'] = $request->file('picture')->storePublicly('candidate', 'public');
+            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number ,'public');
         }
 
         $pageant->candidates()->create($validatedData);
@@ -94,7 +94,7 @@ class CandidateController extends Controller
             if ($candidate->picture && Storage::exists($candidate->picture)) {
                 Storage::delete($candidate->picture);
             }
-            $validatedData['picture'] = $request->file('picture')->storePublicly('candidate', 'public');
+            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number ,'public');
         }
 
         $candidate->update($validatedData);
