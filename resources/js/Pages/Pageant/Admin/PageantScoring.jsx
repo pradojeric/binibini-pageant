@@ -84,48 +84,16 @@ export default function ScoringShow({ auth, pageant, candidates }) {
 
                                 {(pageant.type == "mr" ||
                                     pageant.type == "mr&ms") && (
-                                    <div>
-                                        <h2 className="uppercase font-bold text-lg tracking-wide">
-                                            Mr Candidates
-                                        </h2>
-                                        <div className="grid grid-cols-3 gap-8 mt-4">
-                                            {maleCandidates.map((candidate) => {
-                                                return (
-                                                    <CandidateBox
-                                                        key={candidate.id}
-                                                        candidate={candidate}
-                                                        criterias={
-                                                            pageant.criterias
-                                                        }
-                                                        onInputData={
-                                                            handleSetData
-                                                        }
-                                                    />
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {pageant.type == "mr&ms" && (
-                                    <hr className="my-4" />
-                                )}
-
-                                {(pageant.type == "ms" ||
-                                    pageant.type == "mr&ms") && (
-                                    <div>
-                                        <h2 className="uppercase font-bold text-lg tracking-wide">
-                                            Ms Candidates
-                                        </h2>
-                                        <div className="grid grid-cols-3 gap-8 mt-4">
-                                            {femaleCandidates.map(
-                                                (candidate) => {
+                                        <div>
+                                            <h2 className="uppercase font-bold text-lg tracking-wide">
+                                                Mr Candidates
+                                            </h2>
+                                            <div className="grid grid-cols-4 gap-8 mt-4">
+                                                {maleCandidates.map((candidate) => {
                                                     return (
                                                         <CandidateBox
                                                             key={candidate.id}
-                                                            candidate={
-                                                                candidate
-                                                            }
+                                                            candidate={candidate}
                                                             criterias={
                                                                 pageant.criterias
                                                             }
@@ -134,11 +102,43 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                                             }
                                                         />
                                                     );
-                                                }
-                                            )}
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
+
+                                {pageant.type == "mr&ms" && (
+                                    <hr className="my-4" />
                                 )}
+
+                                {(pageant.type == "ms" ||
+                                    pageant.type == "mr&ms") && (
+                                        <div>
+                                            <h2 className="uppercase font-bold text-lg tracking-wide">
+                                                Ms Candidates
+                                            </h2>
+                                            <div className="grid grid-cols-4 gap-8 mt-4">
+                                                {femaleCandidates.map(
+                                                    (candidate) => {
+                                                        return (
+                                                            <CandidateBox
+                                                                key={candidate.id}
+                                                                candidate={
+                                                                    candidate
+                                                                }
+                                                                criterias={
+                                                                    pageant.criterias
+                                                                }
+                                                                onInputData={
+                                                                    handleSetData
+                                                                }
+                                                            />
+                                                        );
+                                                    }
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                             </form>
                         </div>
                     </div>

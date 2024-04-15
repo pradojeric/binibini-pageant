@@ -174,11 +174,11 @@ class PageantController extends Controller
 
         foreach($pageant->criterias as $criteria)
         {
-            $criteria->candidates()->delete();
+            $criteria->candidates()->detach();
         }
         foreach($pageant->pageantRounds as $round){
-            $round->candidatesDeduction()->delete();
-            $round->candidates()->delete();
+            $round->candidatesDeduction()->detach();
+            $round->candidates()->detach();
         }
 
         return back()->with('message', 'Successfully reset score');

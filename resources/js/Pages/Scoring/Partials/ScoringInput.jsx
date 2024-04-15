@@ -2,7 +2,7 @@ import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import { useState } from "react";
 
-function ScoringInput({ criteria, candidate, onInputData = () => {} }) {
+function ScoringInput({ criteria, candidate, onInputData = () => { } }) {
     const [value, setValue] = useState(0);
     const minMax = {
         min: (criteria.percentage / 2).toFixed(0),
@@ -24,6 +24,8 @@ function ScoringInput({ criteria, candidate, onInputData = () => {} }) {
                     value={value}
                     data-criteria-id={criteria.id}
                     required
+                    min={minMax.min}
+                    max={minMax.max}
                     onBlur={(e) => {
                         const score = Math.max(
                             minMax.min,
