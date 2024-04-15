@@ -47,7 +47,6 @@ export default function ScoringShow({ auth, pageant, candidates }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route("scoring.store", pageant.id));
     };
 
