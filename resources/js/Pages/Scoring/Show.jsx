@@ -45,9 +45,38 @@ export default function ScoringShow({ auth, pageant, candidates }) {
         }
     };
 
+    // Function to check if all candidates have been scored
+    const allCandidatesScored = () => {
+        // Create a set to store candidate ids that have been scored
+        let scoredCandidates = new Set();
+
+        // Iterate through the scores array
+        for (let score of data.scores) {
+            scoredCandidates.add(score.candidate_id);
+        }
+
+        // Check if all candidates have been scored
+        for (let candidate of candidates) {
+            if (!scoredCandidates.has(candidate.id)) {
+                return false; // If any candidate has not been scored, return false
+            }
+        }
+        return true; // All candidates have been scored
+    };
+
     const submit = (e) => {
         e.preventDefault();
-        post(route("scoring.store", pageant.id));
+
+        if (!allCandidatesScored()) {
+            alert("All candidates must be scored");
+            return;
+        }
+
+        post(route("scoring.store", pageant.id), {
+            onError: (errors) => {
+                console.log(errors);
+            },
+        });
     };
 
     return (
