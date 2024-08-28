@@ -80,6 +80,7 @@ export default function ScoringShow({
                                     <InputLabel value="Round" />
                                     <SelectInput
                                         name="round"
+                                        value={data.round}
                                         onChange={(e) => {
                                             setData("round", e.target.value);
                                         }}

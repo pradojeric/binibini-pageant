@@ -63,7 +63,7 @@ class AdminScoringController extends Controller
             'round' => ['required'],
         ]);
 
-        $round = $pageant->pageantRounds->where('round', $request->round)->first();
+        $round = $pageant->pageantRounds->where('id', $request->round)->first();
 
         $request->validate([
             'selectedCandidates' => ['required', 'array', 'size:' . $round->number_of_candidates],
