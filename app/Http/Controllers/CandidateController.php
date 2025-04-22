@@ -1,13 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Models\Pageant;
 use App\Models\Candidate;
-use Illuminate\Support\Str;
+use App\Models\Pageant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class CandidateController extends Controller
 {
@@ -36,20 +35,25 @@ class CandidateController extends Controller
     {
         $validatedData = $request->validate([
             'candidate_number' => ['required'],
-            'picture' => ['nullable', 'image'],
-            'last_name' => ['required'],
-            'first_name' => ['required'],
-            'middle_name' => ['nullable'],
-            'name_ext' => ['nullable'],
-            'gender' => ['required'],
-            'nickname' => ['required'],
-            'description' => ['required'],
+            'picture'          => ['nullable', 'image'],
+            'last_name'        => ['required'],
+            'first_name'       => ['required'],
+            'middle_name'      => ['nullable'],
+            'name_ext'         => ['nullable'],
+            'gender'           => ['required'],
+            'nickname'         => ['required'],
+            'description'      => ['required'],
         ]);
 
         /* 2. If a file is present, build a safe, non‑empty name */
         if ($request->hasFile('picture')) {
 
-            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number, 'public');
+            $validatedData['picture'] = $request->file('picture')
+                ->storePubliclyAs(
+                    'candidate',
+                    Str::slug($request->last_name . ", " . $request->first_name) . '.' . $request->file('picture')->extension(),
+                    'public'
+                );
         }
 
         $pageant->candidates()->create($validatedData);
@@ -79,17 +83,17 @@ class CandidateController extends Controller
 
         $validatedData = $request->validate([
             'candidate_number' => ['required'],
-            'picture' => ['nullable', 'mimes:jpg,jpeg,png'],
-            'last_name' => ['required'],
-            'first_name' => ['required'],
-            'middle_name' => ['nullable'],
-            'name_ext' => ['nullable'],
-            'gender' => ['required'],
-            'nickname' => ['required'],
-            'description' => ['required'],
+            'picture'          => ['nullable', 'mimes:jpg,jpeg,png'],
+            'last_name'        => ['required'],
+            'first_name'       => ['required'],
+            'middle_name'      => ['nullable'],
+            'name_ext'         => ['nullable'],
+            'gender'           => ['required'],
+            'nickname'         => ['required'],
+            'description'      => ['required'],
         ]);
 
-        if (!$request->picture) {
+        if (! $request->picture) {
             unset($validatedData['picture']);
         } else {
             if ($candidate->picture && Storage::exists($candidate->picture)) {

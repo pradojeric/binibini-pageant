@@ -23,6 +23,7 @@ export default function ScoringShow({
     const submit = (e) => {
         e.preventDefault();
         post(route("select.store", pageant.id), {
+            preserveState: true,
             onSuccess: () => {
                 reset();
             },
@@ -30,14 +31,12 @@ export default function ScoringShow({
     };
 
     const handleChecked = (e) => {
-        let id = e.target.value;
+        const id = parseInt(e.target.value, 10);
         return e.target.checked
             ? setData("selectedCandidates", [...data.selectedCandidates, id])
             : setData(
                   "selectedCandidates",
-                  [...data.selectedCandidates].filter((o) => {
-                      return o, id != id;
-                  })
+                  [...data.selectedCandidates].filter((o) => o !== id)
               );
     };
 
@@ -74,7 +73,6 @@ export default function ScoringShow({
 
                             <InputError message={errors.round} />
                             <InputError message={errors.selectedCandidates} />
-
                             <form onSubmit={submit}>
                                 <div className="mt-4 gap-2 flex items-center">
                                     <InputLabel value="Round" />
@@ -111,7 +109,7 @@ export default function ScoringShow({
                                                     <Checkbox
                                                         name="selectedJudges[]"
                                                         value={candidate.id}
-                                                        defaultChecked={data.selectedCandidates.includes(
+                                                        checked={data.selectedCandidates.includes(
                                                             candidate.id
                                                         )}
                                                         onChange={handleChecked}
@@ -157,7 +155,7 @@ export default function ScoringShow({
                                 </div>
 
                                 <div className="mt-4">
-                                    <PrimaryButton onClick={submit}>
+                                    <PrimaryButton type="submit">
                                         Add
                                     </PrimaryButton>
                                 </div>

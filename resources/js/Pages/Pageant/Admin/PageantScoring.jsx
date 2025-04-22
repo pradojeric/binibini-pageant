@@ -1,52 +1,79 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import { useMemo, useCallback, Fragment } from "react";
 
 export default function ScoringShow({ auth, pageant, candidates }) {
     const { data, setData, post } = useForm({
         scores: [],
     });
 
-    // const candidates = pageant.candidates;
-    const femaleCandidates = candidates.filter(
-        (candidate) => candidate.gender == "ms"
-    );
-    const maleCandidates = candidates.filter(
-        (candidate) => candidate.gender == "mr"
-    );
+    // 1. Derive an array of active sexes from pageant.type
+    const selectedSexes = useMemo(() => {
+        if (!pageant.type) return [];
+        return pageant.type === "mr&ms" ? ["mr", "ms"] : [pageant.type];
+    }, [pageant.type]);
 
-    const handleSetData = (candidate_id, criteria_id, score) => {
-        const scoring = {
-            candidate_id: candidate_id,
-            criteria_id: criteria_id,
-            score: score,
-        };
-        const found = data.scores.find(
-            (obj) =>
-                obj.candidate_id === candidate_id &&
-                obj.criteria_id === criteria_id
-        );
+    // 2. Precompute the candidate lists by sex
+    const candidatesBySex = {
+        mr: candidates.filter((c) => c.gender === "mr"),
+        ms: candidates.filter((c) => c.gender === "ms"),
+    };
 
-        if (!found) {
-            console.log("Not Found. Adding...");
-            setData("scores", [...data.scores, scoring]);
-        } else {
-            console.log("Found. Adding...");
-            const objIndex = data.scores.findIndex(
-                (obj) =>
-                    obj.candidate_id === candidate_id &&
-                    obj.criteria_id === criteria_id
+    const handleSetData = useCallback(
+        (candidate_id, criteria_id, score) => {
+            const entry = { candidate_id, criteria_id, score };
+            const idx = data.scores.findIndex(
+                (s) =>
+                    s.candidate_id === candidate_id &&
+                    s.criteria_id === criteria_id
             );
-            data.scores[objIndex] = scoring;
+
+            const newScores =
+                idx === -1
+                    ? [...data.scores, entry]
+                    : data.scores.map((s, i) => (i === idx ? entry : s));
+
+            setData("scores", newScores);
+            console.log(newScores);
+        },
+        [data.scores, setData]
+    );
+
+    // Function to check if all candidates have been scored
+    const allCandidatesScored = () => {
+        // Create a set to store candidate ids that have been scored
+        let scoredCandidates = new Set();
+
+        // Iterate through the scores array
+        for (let score of data.scores) {
+            scoredCandidates.add(score.candidate_id);
         }
+
+        // Check if all candidates have been scored
+        for (let candidate of candidates) {
+            if (!scoredCandidates.has(candidate.id)) {
+                return false; // If any candidate has not been scored, return false
+            }
+        }
+        return true; // All candidates have been scored
     };
 
     const submit = (e) => {
         e.preventDefault();
 
-        post(route("scoring.admin.store", pageant.id));
+        if (!allCandidatesScored()) {
+            alert("All candidates must be scored");
+            return;
+        }
+
+        post(route("scoring.admin.store", pageant.id), {
+            onError: (errors) => {
+                console.log(errors);
+            },
+        });
     };
 
     return (
@@ -61,7 +88,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
             <Head title="Pageant" />
 
             <div
-                className="py-12 bg-fixed bg-cover"
+                className="py-12 bg-fixed bg-contain bg-center"
                 style={{
                     backgroundImage: `url(/storage/${pageant.background})`,
                 }}
@@ -73,27 +100,32 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                 <div className="flex justify-between mb-2">
                                     <div>
                                         <div className="uppercase">
+                                            Rounds: {pageant.current_round}
+                                        </div>
+                                        <div className="uppercase">
                                             Pageant Type: {pageant.type}
                                         </div>
-                                    </div>
-                                    <div>
-                                        <PrimaryButton>Save</PrimaryButton>
                                     </div>
                                 </div>
                                 <hr />
 
-                                {(pageant.type == "mr" ||
-                                    pageant.type == "mr&ms") && (
+                                {selectedSexes.map((sex, idx) => (
+                                    // Using a fragment so the <hr> can live between Mr & Ms
+                                    <Fragment key={sex}>
                                         <div>
                                             <h2 className="uppercase font-bold text-lg tracking-wide">
-                                                Mr Candidates
+                                                {sex === "mr"
+                                                    ? "Mr Candidates"
+                                                    : "Ms Candidates"}
                                             </h2>
                                             <div className="grid grid-cols-4 gap-8 mt-4">
-                                                {maleCandidates.map((candidate) => {
-                                                    return (
+                                                {candidatesBySex[sex].map(
+                                                    (candidate) => (
                                                         <CandidateBox
                                                             key={candidate.id}
-                                                            candidate={candidate}
+                                                            candidate={
+                                                                candidate
+                                                            }
                                                             criterias={
                                                                 pageant.criterias
                                                             }
@@ -101,44 +133,20 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                                                 handleSetData
                                                             }
                                                         />
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                {pageant.type == "mr&ms" && (
-                                    <hr className="my-4" />
-                                )}
-
-                                {(pageant.type == "ms" ||
-                                    pageant.type == "mr&ms") && (
-                                        <div>
-                                            <h2 className="uppercase font-bold text-lg tracking-wide">
-                                                Ms Candidates
-                                            </h2>
-                                            <div className="grid grid-cols-4 gap-8 mt-4">
-                                                {femaleCandidates.map(
-                                                    (candidate) => {
-                                                        return (
-                                                            <CandidateBox
-                                                                key={candidate.id}
-                                                                candidate={
-                                                                    candidate
-                                                                }
-                                                                criterias={
-                                                                    pageant.criterias
-                                                                }
-                                                                onInputData={
-                                                                    handleSetData
-                                                                }
-                                                            />
-                                                        );
-                                                    }
+                                                    )
                                                 )}
                                             </div>
                                         </div>
-                                    )}
+                                        {/* Insert a divider only after the first section when both sexes */}
+                                        {idx === 0 &&
+                                            selectedSexes.length > 1 && (
+                                                <hr className="my-4" />
+                                            )}
+                                    </Fragment>
+                                ))}
+                                <div className="mt-5 flex justify-end">
+                                    <PrimaryButton>Save</PrimaryButton>
+                                </div>
                             </form>
                         </div>
                     </div>

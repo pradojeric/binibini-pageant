@@ -89,6 +89,7 @@ export default function CriteriaCreate({ className = "", pageant }) {
                             name="hidden_scoring"
                             value={true}
                             id="hidden_scoring"
+                            checked={data.hidden_scoring}
                             onChange={(e) => {
                                 setData("hidden_scoring", e.target.checked);
                             }}

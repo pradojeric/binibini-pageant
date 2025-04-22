@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\CandidateCriteria;
@@ -22,11 +21,22 @@ class ScoreController extends Controller
 
     public function showDetails(Pageant $pageant)
     {
+        $criterias = $pageant->criterias()->where('hidden_scoring', false)->join('pageant_rounds', function ($join) {
+            $join->on('pageant_rounds.pageant_id', 'criterias.pageant_id')->on('pageant_rounds.round', 'criterias.round');
+        })->select('criterias.*',
+            'pageant_rounds.round_name',
+            'criterias.id as criteria_id')->get()->groupBy('round_name') // 1st level: round_name
+            ->map(function ($roundItems) {
+                // 2nd level: group
+                return $roundItems->groupBy('group');
+            });
+
         $groupCriterias = $pageant->criterias->where('hidden_scoring', false)->groupBy('round')->values()->all();
 
         return Inertia::render('Scoring/Details', [
-            'pageant' => $pageant,
+            'pageant'        => $pageant,
             'groupCriterias' => $groupCriterias,
+            'c'              => $criterias,
         ]);
     }
 
@@ -78,7 +88,7 @@ class ScoreController extends Controller
         $candidates = $pageant->pageantRounds()->where('round', $pageant->current_round)->first()->candidates;
 
         return Inertia::render('Scoring/Show', [
-            'pageant' => $pageant->load(['criterias' => function ($query) use ($pageant) {
+            'pageant'    => $pageant->load(['criterias' => function ($query) use ($pageant) {
                 $query->where('hidden_scoring', false)
                     ->where('round', $pageant->current_round)
                     ->where('group', $pageant->current_group);
@@ -123,35 +133,34 @@ class ScoreController extends Controller
     public function viewScores(Request $request, Pageant $pageant)
     {
 
-        $criterias = $pageant->criterias->where('round', $pageant->current_round)->values()->all();
-        $round = $pageant->pageantRounds()->where('round', $pageant->current_round)->first();
+        $criterias  = $pageant->criterias->where('round', $pageant->current_round)->values()->all();
+        $round      = $pageant->pageantRounds()->where('round', $pageant->current_round)->first();
         $candidates = $round ? $round->candidates : $pageant->candidates;
-        $judges = $pageant->judges;
 
         $candidatesScores = $candidates->map(function ($candidate) use ($criterias, $round) {
             $scores = [];
             foreach ($criterias as $criteria) {
-                $pivot = $criteria->candidates->where('id', $candidate->id)->sum('pivot.score');
+                $pivot                 = $criteria->candidates->where('id', $candidate->id)->sum('pivot.score');
                 $scores[$criteria->id] = $pivot ?? '';
             }
 
-            $total = array_sum($scores);
-            $candidate['scores'] = $scores;
-            $deduction = $candidate->candidatesDeduction()->find($round) ? $candidate->candidatesDeduction()->find($round)->pivot->deduction : 0;
+            $total                  = array_sum($scores);
+            $candidate['scores']    = $scores;
+            $deduction              = $candidate->candidatesDeduction()->find($round) ? $candidate->candidatesDeduction()->find($round)->pivot->deduction : 0;
             $candidate['deduction'] = $deduction;
-            $candidate['total'] = $total - $deduction;
+            $candidate['total']     = $total - $deduction;
 
             return $candidate;
         });
 
-        $maleCandidates = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
+        $maleCandidates   = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
         $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();
 
         return Inertia::render('Pageant/PageantScores', [
-            'pageant' => $pageant->load('pageantRounds'),
-            'maleCandidates' => $maleCandidates,
+            'pageant'          => $pageant->load('pageantRounds'),
+            'maleCandidates'   => $maleCandidates,
             'femaleCandidates' => $femaleCandidates,
-            'criterias' => $criterias,
+            'criterias'        => $criterias,
         ]);
     }
 
@@ -159,8 +168,8 @@ class ScoreController extends Controller
     {
 
         $candidates = $pageant->candidates;
-        $criterias = $pageant->criterias;
-        $judges = $pageant->judges;
+        $criterias  = $pageant->criterias;
+        $judges     = $pageant->judges;
 
         $candidatesScores = $candidates->map(function ($candidate) use ($criterias, $judges) {
             $scores = [];
@@ -187,23 +196,23 @@ class ScoreController extends Controller
 
             $total = array_sum(array_column($scores, 'total'));
 
-            $candidate['scores'] = $scores;
-            $deduction = $candidate->candidatesDeduction->sum('pivot.deduction');
+            $candidate['scores']    = $scores;
+            $deduction              = $candidate->candidatesDeduction->sum('pivot.deduction');
             $candidate['deduction'] = $deduction;
-            $candidate['total'] = $total - $deduction;
+            $candidate['total']     = $total - $deduction;
 
             return $candidate;
         });
 
-        $maleCandidates = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
+        $maleCandidates   = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
         $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();
 
         return Inertia::render('Pageant/PageantPrinting', [
-            'pageant' => $pageant,
-            'maleCandidates' => $maleCandidates,
+            'pageant'          => $pageant,
+            'maleCandidates'   => $maleCandidates,
             'femaleCandidates' => $femaleCandidates,
-            'criterias' => $criterias->values()->all(),
-            'judges' => $judges,
+            'criterias'        => $criterias->values()->all(),
+            'judges'           => $judges,
         ]);
     }
 }

@@ -4,8 +4,9 @@ import SelectInput from "@/Components/SelectInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
 import { Head, Link, router } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button, Typography, Select, Option } from "@material-tailwind/react";
+
 function rankItems(candidates, sortedBy = "total") {
     if (candidates.length < 1) return [];
     // Function to extract the total score from an item
@@ -77,7 +78,17 @@ export default function PageantScores({
     const [crits, setCrits] = useState(criterias);
     const [groupList, setGroupList] = useState([1]);
 
-    const headings = ["Candidate Name"];
+    // const headings = ["Candidate Name"];
+    const headings = useMemo(
+        () => [
+            "Candidate Name",
+            ...criterias.map((c) => `${c.name} (${c.percentage})`),
+            "Total",
+            ...(pageant.current_round === 1 ? ["Deduction", "Overall"] : []),
+            "Rank",
+        ],
+        [criterias, pageant.current_round]
+    );
 
     useEffect(() => {
         setFemCan(rankItems(femaleCandidates));
@@ -121,16 +132,16 @@ export default function PageantScores({
         setMaleCan(rankItems(maleCandidates, i));
     };
 
-    crits.map((criteria) => {
-        headings.push(criteria.name + ` (` + criteria.percentage + `)`);
-    });
+    // crits.map((criteria) => {
+    //     headings.push(criteria.name + ` (` + criteria.percentage + `)`);
+    // });
 
-    headings.push("Total");
-    if (pageant.current_round == 1) {
-        headings.push("Deduction");
-        headings.push("Overall");
-    }
-    headings.push("Rank");
+    // headings.push("Total");
+    // if (pageant.current_round == 1) {
+    //     headings.push("Deduction");
+    //     headings.push("Overall");
+    // }
+    // headings.push("Rank");
 
     return (
         <AuthenticatedLayout
@@ -360,7 +371,7 @@ export default function PageantScores({
                             </div>
 
                             <hr className="mt-4 mb-2" />
-                            {(pageant.type == "mr" ||
+                            {/* {(pageant.type == "mr" ||
                                 pageant.type == "mr&ms") && (
                                 <CandidateScoreList
                                     gender="Male"
@@ -377,6 +388,24 @@ export default function PageantScores({
                                     headings={headings}
                                     current_round={pageant.current_round}
                                 ></CandidateScoreList>
+                            )} */}
+                            {["mr", "ms"].map(
+                                (sex) =>
+                                    pageant.type.includes(sex) && (
+                                        <CandidateScoreList
+                                            key={sex}
+                                            gender={
+                                                sex === "mr" ? "Male" : "Female"
+                                            }
+                                            candidates={
+                                                sex === "mr" ? maleCan : femCan
+                                            }
+                                            headings={headings}
+                                            current_round={
+                                                pageant.current_round
+                                            }
+                                        />
+                                    )
                             )}
                         </div>
                     </div>

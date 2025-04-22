@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Criteria;
@@ -15,7 +14,9 @@ class CriteriaController extends Controller
     public function index(Pageant $pageant)
     {
         return Inertia::render('Pageant/Criterias/Index', [
-            'pageant' => $pageant->load('criterias'),
+            'pageant' => $pageant->load(['criterias' => function ($criteria) {
+                $criteria->orderBy('round')->orderBy('group');
+            }]),
         ]);
     }
 
@@ -34,10 +35,10 @@ class CriteriaController extends Controller
     {
         // dd($request->all());
         $validatedData = $request->validate([
-            'name' => ['required'],
-            'round' => ['required', 'numeric'],
-            'percentage' => ['required', 'numeric'],
-            'group' => ['required', 'numeric'],
+            'name'           => ['required'],
+            'round'          => ['required', 'numeric'],
+            'percentage'     => ['required', 'numeric'],
+            'group'          => ['required', 'numeric'],
             'hidden_scoring' => ['nullable'],
         ]);
 
@@ -67,10 +68,10 @@ class CriteriaController extends Controller
     public function update(Request $request, Criteria $criteria)
     {
         $validatedData = $request->validate([
-            'name' => ['required'],
-            'round' => ['required', 'numeric'],
-            'percentage' => ['required', 'numeric'],
-            'group' => ['required', 'numeric'],
+            'name'           => ['required'],
+            'round'          => ['required', 'numeric'],
+            'percentage'     => ['required', 'numeric'],
+            'group'          => ['required', 'numeric'],
             'hidden_scoring' => ['nullable'],
         ]);
 

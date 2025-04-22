@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Pageant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class PageantController extends Controller
@@ -34,40 +34,47 @@ class PageantController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        $validatedData = $request->validate([
-            'pageant' => ['required'],
-            'type' => ['required'],
-            'background' => ['nullable', 'image'],
-            'rounds' => ['required', 'numeric'],
-            'pageant_rounds' => ['required', 'array'],
+        $validated = $request->validate([
+            'pageant'                                 => 'required|string',
+            'type'                                    => 'required|in:mr,ms,mr&ms',
+            'background'                              => 'nullable|image',
+            'rounds'                                  => 'required|integer|min:1',
+            'pageant_rounds'                          => 'required|array',
+            'pageant_rounds.*.*.round'                => 'required|integer|min:1',
+            'pageant_rounds.*.*.name'                 => 'required|string|max:255',
+            'pageant_rounds.*.*.number_of_candidates' => 'required|integer|min:1',
         ]);
 
-        if (!$request->picture) {
-            unset($validatedData['background']);
-        } else {
-            $validatedData['background'] = $request->file('background')->storePubliclyAs('pageant', $request->pageant, 'public');
+        // Handle background file
+        if ($request->hasFile('background')) {
+            $validated['background'] = $request->file('background')
+                ->storePubliclyAs(
+                    'pageant',
+                    Str::slug($request->pageant) . '.' . $request->file('background')->extension(),
+                    'public'
+                );
         }
 
-        $regexString = '/m[rs]/';
-        preg_match($regexString, $request->type, $matches);
-        // dd($matches);
+        // Build the child rows
+        $selectedSexes = $request->type === 'mr&ms'
+        ? ['mr', 'ms']
+        : [$request->type];
 
-        $data = [];
-        foreach ($request->pageant_rounds as $type => $pageant_rounds) {
-
-            if (in_array($type, $matches)) {
-                foreach ($pageant_rounds as $pageant_round) {
-                    $data[] = [
-                        'pageant_type' => $type,
-                        'round' => $pageant_round['round'],
-                        'number_of_candidates' => $pageant_round['number_of_candidates'],
-                    ];
-                }
+        $roundRows = [];
+        foreach ($selectedSexes as $sex) {
+            foreach ($request->pageant_rounds[$sex] as $row) {
+                $roundRows[] = [
+                    'pageant_type'         => $sex,
+                    'round'                => (int) $row['round'],
+                    'pageant_name'         => $row['name'],
+                    'number_of_candidates' => (int) $row['number_of_candidates'],
+                ];
             }
         }
-        $pageant = Pageant::create(collect($validatedData)->except('pageant_rounds')->toArray());
-        $pageant->pageantRounds()->createMany($data);
+
+        // Persist
+        $pageant = Pageant::create(collect($validated)->except('pageant_rounds')->toArray());
+        $pageant->pageantRounds()->createMany($roundRows);
 
         return redirect()->route('pageants.index');
     }
@@ -96,14 +103,14 @@ class PageantController extends Controller
     public function update(Request $request, Pageant $pageant)
     {
         $validatedData = $request->validate([
-            'pageant' => ['required'],
-            'type' => ['required'],
-            'background' => ['nullable', 'image'],
-            'rounds' => ['required', 'numeric'],
+            'pageant'          => ['required'],
+            'type'             => ['required'],
+            'background'       => ['nullable', 'image'],
+            'rounds'           => ['required', 'numeric'],
             'separate_scoring' => ['required'],
         ]);
 
-        if (!$request->background) {
+        if (! $request->background) {
             unset($validatedData['background']);
         } else {
             if ($pageant->background && Storage::exists($pageant->background)) {
@@ -138,8 +145,8 @@ class PageantController extends Controller
         $judges = User::where('role', 'judge')->get();
 
         return Inertia::render('Pageant/JudgeSelect', [
-            'judges' => $judges,
-            'pageant' => $pageant->load(['judges']),
+            'judges'        => $judges,
+            'pageant'       => $pageant->load(['judges']),
             'pageantJudges' => $pageant->judges->pluck('id'),
         ]);
     }
@@ -172,11 +179,10 @@ class PageantController extends Controller
     public function resetScores(Pageant $pageant)
     {
 
-        foreach($pageant->criterias as $criteria)
-        {
+        foreach ($pageant->criterias as $criteria) {
             $criteria->candidates()->detach();
         }
-        foreach($pageant->pageantRounds as $round){
+        foreach ($pageant->pageantRounds as $round) {
             $round->candidatesDeduction()->detach();
             $round->candidates()->detach();
         }

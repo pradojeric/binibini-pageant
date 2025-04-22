@@ -4,7 +4,7 @@ export function TableHeader({ header }) {
             {header.map((head, index) => {
                 return (
                     <th
-                        className="px-3 py-2 text-center uppercase dark:text-white"
+                        className="px-3 py-2 text-center uppercase text-sm dark:text-white"
                         key={index}
                     >
                         {head}

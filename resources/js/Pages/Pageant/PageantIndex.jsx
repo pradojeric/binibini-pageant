@@ -64,7 +64,7 @@ export default function PageantIndex({ auth, pageants }) {
                                                         pageant.id
                                                     )}
                                                 >
-                                                    <div class="flex space-x-4">
+                                                    <div className="flex space-x-4">
                                                         <PrimaryButton>
                                                             View
                                                         </PrimaryButton>
