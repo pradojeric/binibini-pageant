@@ -5,8 +5,10 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import CandidateList from "@/Pages/Pageant/Candidates/Partials/CandidateList";
 import JudgeList from "@/Pages/Judges/Partials/JudgeList";
 import { useEffect } from "react";
+import { Button, Avatar, Typography } from "@material-tailwind/react";
 
 export default function PageantShow({ auth, pageant }) {
+    const candidates = pageant.candidates;
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -19,20 +21,35 @@ export default function PageantShow({ auth, pageant }) {
             <Head title="Pageant" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className=" mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 dark:text-white">
                             <div className="flex justify-between mb-2">
                                 <div>
-                                    <div className="uppercase">
-                                        Rounds: {pageant.rounds}
+                                    <div className="">
+                                        Rounds:{" "}
+                                        <span className="text-2xl">
+                                            {pageant.rounds}
+                                        </span>
                                     </div>
-                                    <div className="uppercase">
-                                        Pageant Type: {pageant.type}
+                                    <div className="">
+                                        Pageant Type:{" "}
+                                        <span className="uppercase">
+                                            {" "}
+                                            {pageant.type}
+                                        </span>
                                     </div>
-                                    <div className="uppercase">
-                                        Pageant Status:
-                                        {pageant.status ?? "Not started"}
+                                    <div className="">
+                                        Pageant Status:{" "}
+                                        <span
+                                            className={
+                                                pageant.status === "Not started"
+                                                    ? "text-green-600"
+                                                    : "text-green-600"
+                                            }
+                                        >
+                                            {pageant.status ?? "Not started"}
+                                        </span>
                                     </div>
 
                                     <div className="mt-2">
@@ -42,14 +59,17 @@ export default function PageantShow({ auth, pageant }) {
                                                 pageant.id
                                             )}
                                         >
-                                            <PrimaryButton>
+                                            <Button
+                                                color="green"
+                                                className="transition duration-300 ease-in-out hover:bg-green-600"
+                                            >
                                                 View Score
-                                            </PrimaryButton>
+                                            </Button>
                                         </Link>
                                     </div>
                                 </div>
 
-                                <div>
+                                {/* <div>
                                     <div>
                                         <JudgeList judges={pageant.judges} />
                                     </div>
@@ -69,10 +89,33 @@ export default function PageantShow({ auth, pageant }) {
                                             </Link>
                                         )}
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
-                            <hr />
-                            <div className="grid grid-cols-2 mt-5 gap-4">
+                            {/* <hr /> */}
+                            {/* <div className="grid grid-cols-2 mt-5 gap-4">
+                                <div>
+                                    <div className="flex justify-between mb-1 items-center">
+                                        <h2 className="font-medium text-lg uppercase">
+                                            Candidates
+                                        </h2>
+                                        {pageant.status !== "finished" && (
+                                            <Link
+                                                href={route(
+                                                    "pageants.candidates.index",
+                                                    pageant.id
+                                                )}
+                                            >
+                                                <PrimaryButton className="!px-2 !py-1">
+                                                    View
+                                                </PrimaryButton>
+                                            </Link>
+                                        )}
+                                    </div>
+                                    <hr />
+                                    <CandidateList
+                                        candidates={pageant.candidates}
+                                    />
+                                </div>
                                 <div>
                                     <div className="flex justify-between mb-1 items-center">
                                         <h2 className="font-medium text-lg uppercase">
@@ -96,28 +139,136 @@ export default function PageantShow({ auth, pageant }) {
                                         criterias={pageant.criterias}
                                     ></IndexCriteria>
                                 </div>
-                                <div>
-                                    <div className="flex justify-between mb-1 items-center">
-                                        <h2 className="font-medium text-lg uppercase">
-                                            Candidates
-                                        </h2>
-                                        {pageant.status !== "finished" && (
-                                            <Link
-                                                href={route(
-                                                    "pageants.candidates.index",
-                                                    pageant.id
-                                                )}
+                            </div> */}
+                            <div className="mt-5">
+                                <div className="grid grid-cols-12 grid-rows-5 gap-4 ">
+                                    <div className="col-span-3 row-span-5 border p-4">
+                                        <div className="flex justify-between mb-4">
+                                            <div className="font-bold mb-8">
+                                                Candidates
+                                            </div>
+
+                                            {pageant.status !== "finished" && (
+                                                <Link
+                                                    href={route(
+                                                        "pageants.candidates.index",
+                                                        pageant.id
+                                                    )}
+                                                >
+                                                    <Typography
+                                                        color="green"
+                                                        as="a"
+                                                        href=""
+                                                        variant="small"
+                                                        className="font-medium  transition duration-300 ease-in-out hover:text-green-800"
+                                                    >
+                                                        View/Add Candidates
+                                                    </Typography>
+                                                </Link>
+                                            )}
+                                        </div>
+                                        {candidates.map((candidate, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex space-x-2 mb-4 items-center"
                                             >
-                                                <PrimaryButton className="!px-2 !py-1">
-                                                    View
-                                                </PrimaryButton>
-                                            </Link>
-                                        )}
+                                                <div>
+                                                    {candidate.picture ? (
+                                                        <img
+                                                            className="rounded-full h-16 w-16 object-cover border border-black bg-white"
+                                                            src={
+                                                                `/storage/` +
+                                                                candidate.picture
+                                                            }
+                                                            alt={
+                                                                candidate.full_name
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        ""
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col space-y-0">
+                                                    <div className="text-sm">
+                                                        Candidate #
+                                                        {
+                                                            candidate.candidate_number
+                                                        }
+                                                    </div>
+                                                    <div>
+                                                        <div className="uppercase font-bold">
+                                                            {
+                                                                candidate.full_name
+                                                            }
+                                                        </div>
+                                                        <div className="text-sm text-gray-400">
+                                                            {candidate.nickname}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <hr />
-                                    <CandidateList
-                                        candidates={pageant.candidates}
-                                    />
+                                    <div className="col-span-6 row-span-5 col-start-4 border p-4 ">
+                                        <div className="flex justify-between mb-4">
+                                            <div className="font-bold mb-8">
+                                                Criteria
+                                            </div>
+                                            {pageant.status !== "finished" && (
+                                                <Link
+                                                    href={route(
+                                                        "pageants.criterias.index",
+                                                        pageant.id
+                                                    )}
+                                                >
+                                                    <Typography
+                                                        color="green"
+                                                        as="a"
+                                                        href=""
+                                                        variant="small"
+                                                        className="font-medium transition duration-300 ease-in-out hover:text-green-800"
+                                                    >
+                                                        View
+                                                    </Typography>
+                                                </Link>
+                                            )}
+                                        </div>
+                                        <IndexCriteria
+                                            criterias={pageant.criterias}
+                                        ></IndexCriteria>
+                                    </div>
+                                    <div className="col-span-3 row-span-5 col-start-10 border p-4">
+                                        <div className="flex justify-between mb-4">
+                                            <div className="font-bold mb-8">
+                                                Judges
+                                            </div>
+                                            {pageant.status !== "finished" && (
+                                                <Link
+                                                    href={route(
+                                                        "pageant.select-judges",
+                                                        {
+                                                            pageant: pageant.id,
+                                                        }
+                                                    )}
+                                                >
+                                                    <Typography
+                                                        color="green"
+                                                        as="a"
+                                                        href=""
+                                                        variant="small"
+                                                        className="font-medium transition duration-300 ease-in-out hover:text-green-800"
+                                                    >
+                                                        Select Judges
+                                                    </Typography>
+                                                </Link>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <JudgeList
+                                                judges={pageant.judges}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

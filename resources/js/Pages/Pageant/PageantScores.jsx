@@ -5,7 +5,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
 import { Head, Link, router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
-
+import { Button, Typography, Select, Option } from "@material-tailwind/react";
 function rankItems(candidates, sortedBy = "total") {
     if (candidates.length < 1) return [];
     // Function to extract the total score from an item
@@ -154,40 +154,77 @@ export default function PageantScores({
                                         pageant.id
                                     )}
                                 >
-                                    <PrimaryButton>Summary</PrimaryButton>
+                                    <Button
+                                        color="yellow"
+                                        className="transition duration-300 ease-in-out hover:bg-yellow-600"
+                                    >
+                                        Summary
+                                    </Button>
                                 </Link>
 
-                                <PrimaryButton onClick={(e) => {
-                                    if (confirm('Are you sure? Not irreversable')) {
-                                        alert('Success')
-                                        router.get(route('pageant.reset-scores', pageant.id))
-                                    }
-                                }
-                                }>Reset Score</PrimaryButton>
-
+                                <Link
+                                    href={route(
+                                        "pageant.candidates.select",
+                                        pageant.id
+                                    )}
+                                >
+                                    <Button
+                                        onClick={(e) => {
+                                            if (
+                                                confirm(
+                                                    "Are you sure? Not irreversable"
+                                                )
+                                            ) {
+                                                alert("Success");
+                                                router.get(
+                                                    route(
+                                                        "pageant.reset-scores",
+                                                        pageant.id
+                                                    )
+                                                );
+                                            }
+                                        }}
+                                        color="blue"
+                                        className="transition duration-300 ease-in-out hover:bg-blue-600"
+                                    >
+                                        Reset Score
+                                    </Button>
+                                </Link>
                                 {pageant.status != "finished" && (
                                     <Link>
-                                        <PrimaryButton>
+                                        <Button
+                                            color="red"
+                                            className="transition duration-300 ease-in-out hover:bg-red-600"
+                                        >
                                             End Pageant
-                                        </PrimaryButton>
+                                        </Button>
                                     </Link>
                                 )}
                             </div>
-                            <div className="uppercase dark:text-white text-lg">
+                            <div className=" dark:text-white text-lg">
                                 Current Round:{" "}
-                                {pageant.current_round ?? "Not Yet Started"}
+                                <span className="text-2xl">
+                                    {" "}
+                                    {pageant.current_round ?? "Not Yet Started"}
+                                </span>
                             </div>
-                            <div className="uppercase dark:text-white text-lg">
+                            <div className=" dark:text-white text-lg">
                                 Current Group:{" "}
-                                {pageant.current_group ?? "Not Yet Started"}
+                                <span className="text-2xl">
+                                    {pageant.current_group ?? "Not Yet Started"}
+                                </span>
                             </div>
-                            <div className="uppercase dark:text-white text-lg">
-                                Total Rounds: {pageant.rounds}
+                            <div className=" dark:text-white text-lg">
+                                Total Rounds:
+                                <span className="text-2xl">
+                                    {" "}
+                                    {pageant.rounds}
+                                </span>
                             </div>
 
                             <div className="flex justify-between">
                                 <div className="flex gap-2">
-                                    <form>
+                                    <form className="space-y-2">
                                         <InputLabel value="Change Round" />
                                         <SelectInput
                                             name="round"
@@ -222,7 +259,7 @@ export default function PageantScores({
                                             )}
                                         </SelectInput>
                                     </form>
-                                    <form>
+                                    <form className="space-y-2">
                                         <InputLabel value="Change Group" />
                                         <SelectInput
                                             name="group"
@@ -286,52 +323,65 @@ export default function PageantScores({
                                 </form>
                             </div>
 
-                            <div className="mt-4">
+                            <div className="mt-4 space-x-2">
                                 <Link href={route("scoring.admin", pageant.id)}>
-                                    <PrimaryButton>
+                                    <Button
+                                        color="green"
+                                        className="transition duration-300 ease-in-out hover:bg-green-600"
+                                    >
                                         Score Hidden Criteria
-                                    </PrimaryButton>
+                                    </Button>
                                 </Link>
+
                                 <Link
                                     href={route(
                                         "pageant.candidates.select",
                                         pageant.id
                                     )}
                                 >
-                                    <PrimaryButton>
+                                    <Button
+                                        color="blue"
+                                        className="transition duration-300 ease-in-out hover:bg-blue-600"
+                                    >
                                         Select Round Candidate
-                                    </PrimaryButton>
+                                    </Button>
                                 </Link>
+
                                 <Link
                                     href={route("pageant.deduct", pageant.id)}
                                 >
-                                    <PrimaryButton>Deduct Points</PrimaryButton>
+                                    <Button
+                                        color="red"
+                                        className="transition duration-300 ease-in-out hover:bg-red-600"
+                                    >
+                                        Deduct Points
+                                    </Button>
                                 </Link>
                             </div>
 
                             <hr className="mt-4 mb-2" />
                             {(pageant.type == "mr" ||
                                 pageant.type == "mr&ms") && (
-                                    <CandidateScoreList
-                                        gender="Male"
-                                        candidates={maleCan}
-                                        headings={headings}
-                                        current_round={pageant.current_round}
-                                    ></CandidateScoreList>
-                                )}
+                                <CandidateScoreList
+                                    gender="Male"
+                                    candidates={maleCan}
+                                    headings={headings}
+                                    current_round={pageant.current_round}
+                                ></CandidateScoreList>
+                            )}
                             {(pageant.type == "ms" ||
                                 pageant.type == "mr&ms") && (
-                                    <CandidateScoreList
-                                        gender="Female"
-                                        candidates={femCan}
-                                        headings={headings}
-                                        current_round={pageant.current_round}
-                                    ></CandidateScoreList>
-                                )}
+                                <CandidateScoreList
+                                    gender="Female"
+                                    candidates={femCan}
+                                    headings={headings}
+                                    current_round={pageant.current_round}
+                                ></CandidateScoreList>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout >
+        </AuthenticatedLayout>
     );
 }

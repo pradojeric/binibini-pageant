@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Candidate;
+use Inertia\Inertia;
 use App\Models\Pageant;
+use App\Models\Candidate;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 
 class CandidateController extends Controller
 {
@@ -45,10 +46,10 @@ class CandidateController extends Controller
             'description' => ['required'],
         ]);
 
-        if (!$request->picture) {
-            unset($validatedData['picture']);
-        } else {
-            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number ,'public');
+        /* 2. If a file is present, build a safe, non‑empty name */
+        if ($request->hasFile('picture')) {
+
+            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number, 'public');
         }
 
         $pageant->candidates()->create($validatedData);
@@ -94,7 +95,7 @@ class CandidateController extends Controller
             if ($candidate->picture && Storage::exists($candidate->picture)) {
                 Storage::delete($candidate->picture);
             }
-            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number ,'public');
+            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number, 'public');
         }
 
         $candidate->update($validatedData);

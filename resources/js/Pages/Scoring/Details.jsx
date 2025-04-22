@@ -32,7 +32,7 @@ export default function ScoringIndex({ auth, pageant, groupCriterias }) {
                             {groupCriterias.map((group, index) => {
                                 return (
                                     <div key={index}>
-                                        <h2 className="uppercase dark:text-white text-2xl font-bold">
+                                        <h2 className="uppercase dark:text-white text-2xl font-bold mb-4">
                                             {`Round #` + (index + 1)}
                                         </h2>
                                         <div className="grid grid-cols-4 gap-4 items-center">
