@@ -1,69 +1,42 @@
 import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
 import SelectInput from "@/Components/SelectInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
 import { Head, Link, router } from "@inertiajs/react";
 import { useState, useEffect, useMemo } from "react";
-import { Button, Typography, Select, Option } from "@material-tailwind/react";
+import { Button } from "@material-tailwind/react";
 
 function rankItems(candidates, sortedBy = "total") {
-    if (candidates.length < 1) return [];
-    // Function to extract the total score from an item
-    function getTotalScore(item, sortedBy) {
-        return sortedBy === "total" ? item.total : item.scores[sortedBy];
-    }
+    if (!candidates.length) return [];
 
-    // Function to assign the average rank for tied ranks within the sorted data
-    function assignAverageRank(startIndex, endIndex, rankSum) {
-        const averageRank = (rankSum / (endIndex - startIndex + 1)).toFixed(1);
-        for (let i = startIndex; i <= endIndex; i++) {
-            sortedData[i].rank = averageRank; // Assign the average rank as a decimal
-        }
-    }
+    // 1. Pick the right score extractor
+    const getScore = (item) =>
+        sortedBy === "total" ? item.total : item.scores[sortedBy];
 
-    const sortedData = [...candidates].sort((a, b) => {
-        return getTotalScore(b, sortedBy) - getTotalScore(a, sortedBy);
+    // 2. Sort descending (clone so we don’t mutate)
+    const sorted = [...candidates].sort((a, b) => getScore(b) - getScore(a));
+
+    // 3. Build a map: scoreValue → array of positions (1-based)
+    const scorePositions = new Map();
+    sorted.forEach((item, idx) => {
+        const sc = getScore(item);
+        const pos = idx + 1;
+        if (!scorePositions.has(sc)) scorePositions.set(sc, []);
+        scorePositions.get(sc).push(pos);
     });
 
-    let rank = 1;
-    let startIndex = 0;
-    let rankSum = 0;
-    let previousTotal = getTotalScore(sortedData[0], sortedBy);
+    // 4. Compute average rank per score
+    const scoreRank = new Map();
+    for (let [sc, positions] of scorePositions.entries()) {
+        const sum = positions.reduce((a, b) => a + b, 0);
+        scoreRank.set(sc, (sum / positions.length).toFixed(1));
+    }
 
-    sortedData.forEach((item, index) => {
-        const currentTotal = getTotalScore(item, sortedBy);
-        rankSum += rank; // Sum up ranks for a potential tie calculation
-
-        if (currentTotal === previousTotal && index !== 0) {
-            // If there's a tie, continue to the next item
-            if (index === sortedData.length - 1) {
-                // If it's the last item, assign the average rank for the tie
-                assignAverageRank(startIndex, index, rankSum);
-            }
-        } else {
-            // If the previous items were tied, calculate their average rank
-            if (index - startIndex > 1) {
-                assignAverageRank(startIndex, index - 1, rankSum - rank);
-            } else {
-                // If there was no tie, just assign the rank normally
-                sortedData[startIndex].rank = startIndex + 1;
-            }
-            // Update variables for the next set of items
-            startIndex = index;
-            rankSum = rank;
-            previousTotal = currentTotal;
-
-            // Assign rank for the last item if it's not in a tie
-            if (index === sortedData.length - 1) {
-                sortedData[index].rank = index + 1;
-            }
-        }
-
-        rank++; // Increment rank for the next item
-    });
-
-    return sortedData;
+    // 5. Attach the computed rank to each item and return
+    return sorted.map((item) => ({
+        ...item,
+        rank: scoreRank.get(getScore(item)),
+    }));
 }
 
 export default function PageantScores({
@@ -255,7 +228,9 @@ export default function PageantScores({
                                             <option value="" hidden>
                                                 Select
                                             </option>
-                                            <option value="0">Round 0</option>
+                                            <option value="0">
+                                                Not started
+                                            </option>
                                             {pageant.pageant_rounds.map(
                                                 (round, index) => {
                                                     return (
@@ -263,7 +238,7 @@ export default function PageantScores({
                                                             value={round.round}
                                                             key={`R` + index}
                                                         >
-                                                            {`Round ${round.round}`}
+                                                            {`${round.round_name}`}
                                                         </option>
                                                     );
                                                 }
