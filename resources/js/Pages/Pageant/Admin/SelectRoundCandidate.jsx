@@ -116,7 +116,7 @@ export default function ScoringShow({
                                                     />
                                                     <div className="flex space-x-4 items-center px-3 py-2">
                                                         <div>
-                                                            {candidate.picture ? (
+                                                            {candidate.picture && (
                                                                 <img
                                                                     className="rounded-full h-16 w-16 object-cover border border-black bg-white"
                                                                     src={
@@ -127,8 +127,6 @@ export default function ScoringShow({
                                                                         candidate.full_name
                                                                     }
                                                                 />
-                                                            ) : (
-                                                                ""
                                                             )}
                                                         </div>
                                                         <div className="dark:text-white">
@@ -146,6 +144,12 @@ export default function ScoringShow({
                                                                     candidate.nickname
                                                                 }
                                                             </div>
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-bold dark:text-white">
+                                                                {`(Overall Score on Previous Round
+                                                                : ${candidate.total})`}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </label>
