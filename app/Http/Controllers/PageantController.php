@@ -178,7 +178,6 @@ class PageantController extends Controller
 
     public function resetScores(Pageant $pageant)
     {
-
         foreach ($pageant->criterias as $criteria) {
             $criteria->candidates()->detach();
         }

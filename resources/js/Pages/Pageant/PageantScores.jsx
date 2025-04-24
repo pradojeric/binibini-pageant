@@ -146,34 +146,28 @@ export default function PageantScores({
                                     </Button>
                                 </Link>
 
-                                <Link
-                                    href={route(
-                                        "pageant.candidates.select",
-                                        pageant.id
-                                    )}
-                                >
-                                    <Button
-                                        onClick={(e) => {
-                                            if (
-                                                confirm(
-                                                    "Are you sure? Not irreversable"
+                                <Button
+                                    onClick={(e) => {
+                                        if (
+                                            confirm(
+                                                "Are you sure? Not irreversable"
+                                            )
+                                        ) {
+                                            alert("Success");
+                                            router.get(
+                                                route(
+                                                    "pageant.reset-scores",
+                                                    pageant.id
                                                 )
-                                            ) {
-                                                alert("Success");
-                                                router.get(
-                                                    route(
-                                                        "pageant.reset-scores",
-                                                        pageant.id
-                                                    )
-                                                );
-                                            }
-                                        }}
-                                        color="blue"
-                                        className="transition duration-300 ease-in-out hover:bg-blue-600"
-                                    >
-                                        Reset Score
-                                    </Button>
-                                </Link>
+                                            );
+                                        }
+                                    }}
+                                    color="blue"
+                                    className="transition duration-300 ease-in-out hover:bg-blue-600"
+                                >
+                                    Reset Score
+                                </Button>
+
                                 {pageant.status != "finished" && (
                                     <Link>
                                         <Button
