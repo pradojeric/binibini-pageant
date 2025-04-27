@@ -10,7 +10,6 @@ import { Button, Avatar, Typography } from "@material-tailwind/react";
 export default function PageantShow({ auth, pageant }) {
     const candidates = pageant.candidates;
 
-    console.log(pageant);
     return (
         <AuthenticatedLayout
             user={auth.user}
