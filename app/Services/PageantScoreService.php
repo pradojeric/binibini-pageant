@@ -30,6 +30,7 @@ class PageantScoreService
         // 1) Load the criteria for this round
         $criterias = $pageant->criterias()
             ->where('round', $roundNumber)
+            ->orderBy('hidden_scoring', 'desc')
             ->get();
 
         // 2) Try to fetch the PageantRound (may be null)
@@ -39,14 +40,14 @@ class PageantScoreService
 
         // 3) Decide which candidates to score
         $candidates = $round && $round->candidates()->exists()
-        ? $round->candidates()->with([
-            'criterias' => fn($q) => $q->whereIn('criterias.id', $criterias->pluck('id')),
-            'candidatesDeduction',
-        ])->get()
-        : $pageant->candidates()->with([
-            'criterias' => fn($q) => $q->whereIn('criterias.id', $criterias->pluck('id')),
-            'candidatesDeduction',
-        ])->get();
+            ? $round->candidates()->with([
+                'criterias' => fn($q) => $q->whereIn('criterias.id', $criterias->pluck('id')),
+                'candidatesDeduction',
+            ])->get()
+            : $pageant->candidates()->with([
+                'criterias' => fn($q) => $q->whereIn('criterias.id', $criterias->pluck('id')),
+                'candidatesDeduction',
+            ])->get();
 
         // 4) Map + compute scores, deductions, totals
         return $candidates->map(function ($candidate) use ($criterias, $round) {
@@ -78,55 +79,17 @@ class PageantScoreService
      */
     protected function getDetailedCandidateScores(Pageant $pageant): Collection
     {
-        // load all criteria joined to pageant_rounds (so we get round_name)
-        $criterias = $pageant
-            ->criterias()
-            ->join('pageant_rounds', function ($join) {
-                $join->on('pageant_rounds.pageant_id', '=', 'criterias.pageant_id')
-                    ->on('pageant_rounds.round', '=', 'criterias.round');
-            })
-            ->select('criterias.*', 'pageant_rounds.round_name as round_name')
-            ->get();
+
+        // load judges and candidates
+        $judges     = $pageant->judges;
+        $candidates = $pageant->candidates;
+        $criterias  = $this->getDetailedCriterias($pageant); // replace original
 
         // build map round→round_name
         $roundNames = $pageant->pageantRounds
             ->pluck('round_name', 'round')
             ->toArray();
 
-        // insert Subtotal markers per round
-        $grouped  = $criterias->groupBy('round');
-        $extended = collect();
-        foreach ($grouped as $roundNum => $items) {
-            $extended = $extended->merge($items);
-            $extended->push((object) [
-                'id'             => "subtotal_{$roundNum}",
-                'pageant_id'     => $pageant->id,
-                'round'          => $roundNum,
-                'group'          => null,
-                'hidden_scoring' => false,
-                'name'           => 'Total',
-                'percentage'     => 0,
-                'round_name'     => $roundNames[$roundNum] ?? "Round {$roundNum}",
-                'is_subtotal'    => true,
-            ]);
-        }
-        // append Grand Total
-        $extended->push((object) [
-            'id'             => 'grand_total',
-            'pageant_id'     => $pageant->id,
-            'round'          => null,
-            'group'          => null,
-            'hidden_scoring' => false,
-            'name'           => '',
-            'percentage'     => 0,
-            'round_name'     => 'Grand Total',
-            'is_grand_total' => true,
-        ]);
-
-        // load judges and candidates
-        $judges     = $pageant->judges;
-        $candidates = $pageant->candidates;
-        $criterias  = $extended; // replace original
 
         return $candidates->map(function ($candidate) use ($criterias, $judges, $roundNames) {
             $base = $candidate->toArray();
@@ -208,6 +171,7 @@ class PageantScoreService
                     ->on('pageant_rounds.round', '=', 'criterias.round');
             })
             ->select('criterias.*', 'pageant_rounds.round_name as round_name')
+            ->orderBy('criterias.hidden_scoring', 'desc')
             ->get();
 
         $roundNames = $pageant->pageantRounds

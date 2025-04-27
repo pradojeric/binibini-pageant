@@ -9,6 +9,8 @@ import { Button, Avatar, Typography } from "@material-tailwind/react";
 
 export default function PageantShow({ auth, pageant }) {
     const candidates = pageant.candidates;
+
+    console.log(pageant);
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -24,14 +26,8 @@ export default function PageantShow({ auth, pageant }) {
                 <div className=" mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 dark:text-white">
-                            <div className="flex justify-between mb-2">
+                            <div className="flex justify-between items-start mb-2">
                                 <div>
-                                    <div className="">
-                                        Rounds:{" "}
-                                        <span className="text-2xl">
-                                            {pageant.rounds}
-                                        </span>
-                                    </div>
                                     <div className="">
                                         Pageant Type:{" "}
                                         <span className="uppercase">
@@ -51,21 +47,42 @@ export default function PageantShow({ auth, pageant }) {
                                             {pageant.status ?? "Not started"}
                                         </span>
                                     </div>
-
-                                    <div className="mt-2">
-                                        <Link
-                                            href={route(
-                                                "pageant.view-scores",
-                                                pageant.id
-                                            )}
-                                        >
-                                            <Button
-                                                color="green"
-                                                className="transition duration-300 ease-in-out hover:bg-green-600"
-                                            >
-                                                View Score
-                                            </Button>
-                                        </Link>
+                                </div>
+                                <div>
+                                    <div className="">
+                                        <span className="text-xl">
+                                            {pageant.rounds + ` Rounds`}
+                                        </span>
+                                        <table className="table table-auto border border-gray-300 mt-2">
+                                            <thead>
+                                                <tr>
+                                                    <th className="px-2 py-1 text-sm tracking-wide uppercase font-semibold">
+                                                        Round
+                                                    </th>
+                                                    <th className="px-2 py-1 text-sm tracking-wide uppercase font-semibold">
+                                                        Number of Candidates
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {pageant.pageant_rounds.map(
+                                                    (round, index) => (
+                                                        <tr key={index}>
+                                                            <td className="px-2 py-0.5 text-sm">
+                                                                {
+                                                                    round.round_name
+                                                                }
+                                                            </td>
+                                                            <td className="px-2 py-0.5 text-sm text-center">
+                                                                {
+                                                                    round.number_of_candidates
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
 
@@ -90,6 +107,21 @@ export default function PageantShow({ auth, pageant }) {
                                         )}
                                     </div>
                                 </div> */}
+                            </div>
+                            <div className="mt-2">
+                                <Link
+                                    href={route(
+                                        "pageant.view-scores",
+                                        pageant.id
+                                    )}
+                                >
+                                    <Button
+                                        color="green"
+                                        className="transition duration-300 ease-in-out hover:bg-green-600"
+                                    >
+                                        View Score
+                                    </Button>
+                                </Link>
                             </div>
                             {/* <hr /> */}
                             {/* <div className="grid grid-cols-2 mt-5 gap-4">
@@ -144,7 +176,7 @@ export default function PageantShow({ auth, pageant }) {
                                 <div className="grid grid-cols-12 grid-rows-5 gap-4 ">
                                     <div className="col-span-3 row-span-5 border p-4">
                                         <div className="flex justify-between mb-4">
-                                            <div className="font-bold mb-8">
+                                            <div className="font-bold mb-4">
                                                 Candidates
                                             </div>
 
@@ -211,7 +243,7 @@ export default function PageantShow({ auth, pageant }) {
                                     </div>
                                     <div className="col-span-6 row-span-5 col-start-4 border p-4 ">
                                         <div className="flex justify-between mb-4">
-                                            <div className="font-bold mb-8">
+                                            <div className="font-bold mb-4">
                                                 Criteria
                                             </div>
                                             {pageant.status !== "finished" && (
@@ -239,7 +271,7 @@ export default function PageantShow({ auth, pageant }) {
                                     </div>
                                     <div className="col-span-3 row-span-5 col-start-10 border p-4">
                                         <div className="flex justify-between mb-4">
-                                            <div className="font-bold mb-8">
+                                            <div className="font-bold mb-4">
                                                 Judges
                                             </div>
                                             {pageant.status !== "finished" && (

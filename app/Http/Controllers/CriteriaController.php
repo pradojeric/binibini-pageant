@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Criteria;
@@ -15,7 +16,7 @@ class CriteriaController extends Controller
     {
         return Inertia::render('Pageant/Criterias/Index', [
             'pageant' => $pageant->load(['criterias' => function ($criteria) {
-                $criteria->orderBy('round')->orderBy('group');
+                $criteria->orderBy('round')->orderBy('hidden_scoring', 'desc')->orderBy('group');
             }]),
         ]);
     }
@@ -43,7 +44,6 @@ class CriteriaController extends Controller
         ]);
 
         $pageant->criterias()->create($validatedData);
-
     }
 
     /**

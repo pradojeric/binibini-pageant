@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Pageant;
@@ -57,8 +58,8 @@ class PageantController extends Controller
 
         // Build the child rows
         $selectedSexes = $request->type === 'mr&ms'
-        ? ['mr', 'ms']
-        : [$request->type];
+            ? ['mr', 'ms']
+            : [$request->type];
 
         $roundRows = [];
         foreach ($selectedSexes as $sex) {
@@ -85,7 +86,14 @@ class PageantController extends Controller
     public function show(Pageant $pageant)
     {
         return Inertia::render('Pageant/PageantShow', [
-            'pageant' => $pageant->load(['criterias', 'candidates', 'judges']),
+            'pageant' => $pageant->load([
+                'criterias' => function ($query) {
+                    return $query->orderBy('round')->orderBy('hidden_scoring', 'desc')->orderBy('group');
+                },
+                'candidates',
+                'judges',
+                'pageantRounds',
+            ]),
         ]);
     }
 

@@ -25,7 +25,6 @@ export default function CandidateList({
 
     return (
         <>
-            <h2 className="uppercase font-bold">List of Candidates</h2>
             <TableComponent header={headers}>
                 {candidates.map((candidate, index) => {
                     return (
