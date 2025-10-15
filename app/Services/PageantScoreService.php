@@ -210,9 +210,9 @@ class PageantScoreService
             ->select('criterias.*', 'pageant_rounds.round_name as round_name')
             ->get();
 
-        $roundNames = $pageant->pageantRounds
-            ->pluck('round_name', 'round')
-            ->toArray();
+            $roundNames = $pageant->pageantRounds
+                ->pluck('round_name', 'round')
+                ->toArray();
 
         // insert Subtotal markers per round
         $grouped  = $criterias->groupBy('round');
