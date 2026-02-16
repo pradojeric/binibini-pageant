@@ -1,11 +1,11 @@
+import { cn } from "@/Utils/cn";
+import { INPUT_CLASSES } from "./styles";
+
 export default function SelectInput({ children, className = "", ...props }) {
     return (
         <select
             {...props}
-            className={
-                "border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm " +
-                className
-            }
+            className={cn(INPUT_CLASSES, className)}
         >
             {children}
         </select>

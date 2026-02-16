@@ -1,6 +1,5 @@
 const withMT = require("@material-tailwind/react/utils/withMT");
 import defaultTheme from "tailwindcss/defaultTheme";
-import forms from "@tailwindcss/forms";
 
 /** @type {import('tailwindcss').Config} */
 export default withMT({
@@ -20,6 +19,6 @@ export default withMT({
         },
     },
 
-    plugins: [forms, require("flowbite/plugin")],
+    plugins: [],
     darkMode: "media",
 });

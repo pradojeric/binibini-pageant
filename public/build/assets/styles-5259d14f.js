@@ -1,0 +1,1 @@
+const r="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-500/20 rounded-lg shadow-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors duration-200 px-4 py-3";export{r as I};

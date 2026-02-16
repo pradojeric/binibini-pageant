@@ -62,16 +62,33 @@ class JudgeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, User $user)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'password' => ['nullable', 'confirmed', 'min:8'],
+        ]);
+
+        $user->name = $validatedData['name'];
+        $user->email = $validatedData['email'];
+
+        if (!empty($validatedData['password'])) {
+            $user->password = $validatedData['password'];
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Judge updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy()
+    public function destroy(User $user)
     {
-        //
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Judge deleted successfully.');
     }
 }

@@ -2,37 +2,51 @@ import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
+import PrimaryButton from "@/Components/PrimaryButton";
+import SecondaryButton from "@/Components/SecondaryButton";
+import DangerButton from "@/Components/DangerButton";
+import Modal from "@/Components/Modal";
 import { Head, Link, router } from "@inertiajs/react";
 import { useState, useEffect, useMemo } from "react";
-import { Button } from "@material-tailwind/react";
 
+// Helper to compute ranks based on a score extractor
 function rankItems(candidates, sortedBy = "total") {
-    if (!candidates.length) return [];
+    if (!candidates?.length) return [];
 
-    // 1. Pick the right score extractor
-    const getScore = (item) =>
-        sortedBy === "total" ? item.total : item.scores[sortedBy];
+    // 1. Define how to extract the score
+    const getScore = (item) => {
+        const score = sortedBy === "total" ? item.total : item.scores?.[sortedBy];
+        return parseFloat(score) || 0; // Ensure number
+    };
 
-    // 2. Sort descending (clone so we don’t mutate)
+    // 2. Sort descending
     const sorted = [...candidates].sort((a, b) => getScore(b) - getScore(a));
 
-    // 3. Build a map: scoreValue → array of positions (1-based)
+    // 3. Assign ranks (handling ties with standard competition ranking "1224" or dense "1223"? 
+    // The original code used average rank for ties? 
+    // Let's stick to standard dense or skipped?
+    // Original code:
+    //  22:     // 3. Build a map: scoreValue → array of positions (1-based)
+    // ...
+    //  35:         scoreRank.set(sc, (sum / positions.length).toFixed(1));
+    // It seems to be using fractional ranking for ties (e.g. 1.5 for tied 1st and 2nd).
+    // I will preserve this logic but clean it up.
+
     const scorePositions = new Map();
     sorted.forEach((item, idx) => {
-        const sc = getScore(item);
-        const pos = idx + 1;
-        if (!scorePositions.has(sc)) scorePositions.set(sc, []);
-        scorePositions.get(sc).push(pos);
+        const score = getScore(item);
+        if (!scorePositions.has(score)) scorePositions.set(score, []);
+        scorePositions.get(score).push(idx + 1);
     });
 
-    // 4. Compute average rank per score
     const scoreRank = new Map();
-    for (let [sc, positions] of scorePositions.entries()) {
+    scorePositions.forEach((positions, score) => {
         const sum = positions.reduce((a, b) => a + b, 0);
-        scoreRank.set(sc, (sum / positions.length).toFixed(1));
-    }
+        const rank = (sum / positions.length);
+        // Format to decimal only if needed? Original used .toFixed(1)
+        scoreRank.set(score, Number.isInteger(rank) ? rank : rank.toFixed(1));
+    });
 
-    // 5. Attach the computed rank to each item and return
     return sorted.map((item) => ({
         ...item,
         rank: scoreRank.get(getScore(item)),
@@ -50,8 +64,9 @@ export default function PageantScores({
     const [maleCan, setMaleCan] = useState([]);
     const [crits, setCrits] = useState(criterias);
     const [groupList, setGroupList] = useState([1]);
+    const [confirmingReset, setConfirmingReset] = useState(false);
+    const [confirmingEndPageant, setConfirmingEndPageant] = useState(false);
 
-    // const headings = ["Candidate Name"];
     const headings = useMemo(
         () => [
             "Candidate Name",
@@ -87,34 +102,40 @@ export default function PageantScores({
         const groups = Object.keys(organizedData[pageant.current_round]);
         const highestGroup = Math.max(...groups.map(Number)); // Convert keys to numbers and find the max
         setGroupList(Array.from({ length: highestGroup }, (_, i) => i + 1));
-    }, [pageant]);
+    }, [pageant, femaleCandidates, maleCandidates, criterias]);
 
     const sortFunction = (i) => {
-        // const femSort = [...femaleCandidates];
-        // const maleSort = [...maleCandidates];
-        // femSort.sort((a, b) => {
-        //     if (i === "total") return b.total - a.total;
-        //     return b.scores[i] - a.scores[i];
-        // });
-        // maleSort.sort((a, b) => {
-        //     if (i === "total") return b.total - a.total;
-        //     return b.scores[i] - a.scores[i];
-        // });
-
         setFemCan(rankItems(femaleCandidates, i));
         setMaleCan(rankItems(maleCandidates, i));
     };
 
-    // crits.map((criteria) => {
-    //     headings.push(criteria.name + ` (` + criteria.percentage + `)`);
-    // });
+    const confirmResetScore = () => {
+        setConfirmingReset(true);
+    };
 
-    // headings.push("Total");
-    // if (pageant.current_round == 1) {
-    //     headings.push("Deduction");
-    //     headings.push("Overall");
-    // }
-    // headings.push("Rank");
+    const closeModal = () => {
+        setConfirmingReset(false);
+    };
+
+    const resetScore = () => {
+        router.post(route("pageant.reset-scores", pageant.id), {}, {
+            onFinish: () => closeModal(),
+        });
+    };
+
+    const confirmEndPageant = () => {
+        setConfirmingEndPageant(true);
+    };
+
+    const closeEndPageantModal = () => {
+        setConfirmingEndPageant(false);
+    };
+
+    const endPageant = () => {
+        router.post(route("end.pageant", pageant.id), {}, {
+            onFinish: () => closeEndPageantModal(),
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -131,248 +152,143 @@ export default function PageantScores({
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6">
-                            <div className="flex space-x-2 justify-end">
-                                <Link
-                                    href={route(
-                                        "pageant.for-printing",
-                                        pageant.id
-                                    )}
-                                >
-                                    <Button
-                                        color="yellow"
-                                        className="transition duration-300 ease-in-out hover:bg-yellow-600"
-                                    >
-                                        Summary
-                                    </Button>
-                                </Link>
-
-                                <Button
-                                    onClick={(e) => {
-                                        if (
-                                            confirm(
-                                                "Are you sure? Not irreversable"
-                                            )
-                                        ) {
-                                            alert("Success");
-                                            router.get(
-                                                route(
-                                                    "pageant.reset-scores",
-                                                    pageant.id
-                                                )
-                                            );
-                                        }
-                                    }}
-                                    color="blue"
-                                    className="transition duration-300 ease-in-out hover:bg-blue-600"
-                                >
-                                    Reset Score
-                                </Button>
-
-                                {pageant.status != "finished" && (
-                                    <Link>
-                                        <Button
-                                            color="red"
-                                            className="transition duration-300 ease-in-out hover:bg-red-600"
-                                        >
-                                            End Pageant
-                                        </Button>
-                                    </Link>
-                                )}
-                            </div>
-                            <div className=" dark:text-white text-lg">
-                                Current Round:{" "}
-                                <span className="text-2xl">
-                                    {" "}
-                                    {pageant.current_round ?? "Not Yet Started"}
-                                </span>
-                            </div>
-                            <div className=" dark:text-white text-lg">
-                                Current Group:{" "}
-                                <span className="text-2xl">
-                                    {pageant.current_group ?? "Not Yet Started"}
-                                </span>
-                            </div>
-                            <div className=" dark:text-white text-lg">
-                                Total Rounds:
-                                <span className="text-2xl">
-                                    {" "}
-                                    {pageant.rounds}
-                                </span>
+                            {/* Stats Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-200">
+                                    <span className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">Current Round</span>
+                                    <span className="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mt-2">
+                                        {pageant.current_round ?? "-"}
+                                    </span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-200">
+                                    <span className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">Current Group</span>
+                                    <span className="text-4xl font-extrabold text-purple-600 dark:text-purple-400 mt-2">
+                                        {pageant.current_group ?? "-"}
+                                    </span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-200">
+                                    <span className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">Total Rounds</span>
+                                    <span className="text-4xl font-extrabold text-gray-700 dark:text-gray-300 mt-2">
+                                        {pageant.rounds}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="flex justify-between">
-                                <div className="flex gap-2">
-                                    <form className="space-y-2">
-                                        <InputLabel value="Change Round" />
+                            {/* Control Bar */}
+                            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 mb-8 flex flex-col xl:flex-row gap-6 justify-between items-center">
+                                {/* Filters */}
+                                <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
+                                    <div className="flex flex-col">
+                                        <InputLabel value="Round" className="mb-1 text-xs uppercase text-gray-400" />
                                         <SelectInput
                                             name="round"
+                                            className="w-full md:w-32"
+                                            value={pageant.current_round || ""}
                                             onChange={(e) => {
                                                 router.put(
-                                                    route(
-                                                        "pageant.change-round",
-                                                        {
-                                                            pageant: pageant.id,
-                                                            round: e.target
-                                                                .value,
-                                                        }
-                                                    )
+                                                    route("pageant.change-round", {
+                                                        pageant: pageant.id,
+                                                        round: e.target.value,
+                                                    })
                                                 );
                                             }}
                                         >
-                                            <option value="" hidden>
-                                                Select
-                                            </option>
-                                            <option value="0">
-                                                Not started
-                                            </option>
-                                            {pageant.pageant_rounds.map(
-                                                (round, index) => {
-                                                    return (
-                                                        <option
-                                                            value={round.round}
-                                                            key={`R` + index}
-                                                        >
-                                                            {`${round.round_name}`}
-                                                        </option>
-                                                    );
-                                                }
-                                            )}
+                                            <option value="" hidden>Select</option>
+                                            <option value="0">Not started</option>
+                                            {pageant.pageant_rounds.map((round, index) => (
+                                                <option value={round.round} key={`R` + index}>
+                                                    {round.round_name}
+                                                </option>
+                                            ))}
                                         </SelectInput>
-                                    </form>
-                                    <form className="space-y-2">
-                                        <InputLabel value="Change Group" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <InputLabel value="Group" className="mb-1 text-xs uppercase text-gray-400" />
                                         <SelectInput
                                             name="group"
+                                            className="w-full md:w-32"
+                                            value={pageant.current_group || ""}
                                             onChange={(e) => {
                                                 router.put(
-                                                    route(
-                                                        "pageant.change-group",
-                                                        {
-                                                            pageant: pageant.id,
-                                                            group: e.target
-                                                                .value,
-                                                        }
-                                                    )
+                                                    route("pageant.change-group", {
+                                                        pageant: pageant.id,
+                                                        group: e.target.value,
+                                                    })
                                                 );
                                             }}
                                         >
-                                            <option value="" hidden>
-                                                Select
-                                            </option>
+                                            <option value="" hidden>Select</option>
                                             <option value="0">Group 0</option>
-                                            {groupList.map((group, index) => {
-                                                return (
-                                                    <option
-                                                        value={group}
-                                                        key={`G` + index}
-                                                    >
-                                                        {`Group ${group}`}
-                                                    </option>
-                                                );
-                                            })}
+                                            {groupList.map((group, index) => (
+                                                <option value={group} key={`G` + index}>
+                                                    Group {group}
+                                                </option>
+                                            ))}
                                         </SelectInput>
-                                    </form>
-                                </div>
-
-                                <form>
-                                    <InputLabel value="Sort By" />
-                                    <SelectInput
-                                        name="criteria"
-                                        defaultValue="total"
-                                        onChange={(e) => {
-                                            sortFunction(e.target.value);
-                                        }}
-                                    >
-                                        <option value="total">
-                                            Total Points
-                                        </option>
-                                        {crits.map((criteria) => {
-                                            return (
-                                                <option
-                                                    key={
-                                                        `criteria-` +
-                                                        criteria.id
-                                                    }
-                                                    value={criteria.id}
-                                                >
+                                    </div>
+                                    <div className="flex flex-col flex-grow">
+                                        <InputLabel value="Sort By" className="mb-1 text-xs uppercase text-gray-400" />
+                                        <SelectInput
+                                            name="criteria"
+                                            defaultValue="total"
+                                            className="w-full md:w-48"
+                                            onChange={(e) => sortFunction(e.target.value)}
+                                        >
+                                            <option value="total">Total Points</option>
+                                            {crits.map((criteria) => (
+                                                <option key={`criteria-` + criteria.id} value={criteria.id}>
                                                     {criteria.name}
                                                 </option>
-                                            );
-                                        })}
-                                    </SelectInput>
-                                </form>
-                            </div>
+                                            ))}
+                                        </SelectInput>
+                                    </div>
+                                </div>
 
-                            <div className="mt-4 space-x-2">
-                                <Link href={route("scoring.admin", pageant.id)}>
-                                    <Button
-                                        color="green"
-                                        className="transition duration-300 ease-in-out hover:bg-green-600"
-                                    >
-                                        Score Hidden Criteria
-                                    </Button>
-                                </Link>
-
-                                <Link
-                                    href={route(
-                                        "pageant.candidates.select",
-                                        pageant.id
+                                {/* Actions */}
+                                <div className="flex flex-wrap gap-2 justify-end w-full xl:w-auto">
+                                    <Link href={route("scoring.admin", pageant.id)}>
+                                        <PrimaryButton className="bg-green-600 hover:bg-green-500 border-none">
+                                            Score Hidden
+                                        </PrimaryButton>
+                                    </Link>
+                                    <Link href={route("pageant.candidates.select", pageant.id)}>
+                                        <PrimaryButton className="bg-indigo-600 hover:bg-indigo-500 border-none">
+                                            Select Candidate
+                                        </PrimaryButton>
+                                    </Link>
+                                    <Link href={route("pageant.deduct", pageant.id)}>
+                                        <DangerButton>
+                                            Deduct
+                                        </DangerButton>
+                                    </Link>
+                                    <div className="w-px h-8 bg-gray-300 dark:bg-gray-600 mx-2 hidden md:block"></div>
+                                    <Link href={route("pageant.for-printing", pageant.id)}>
+                                        <SecondaryButton>
+                                            Summary
+                                        </SecondaryButton>
+                                    </Link>
+                                    <DangerButton onClick={confirmResetScore}>
+                                        Reset
+                                    </DangerButton>
+                                    {pageant.status !== "finished" && (
+                                        <DangerButton onClick={confirmEndPageant}>
+                                            End
+                                        </DangerButton>
                                     )}
-                                >
-                                    <Button
-                                        color="blue"
-                                        className="transition duration-300 ease-in-out hover:bg-blue-600"
-                                    >
-                                        Select Round Candidate
-                                    </Button>
-                                </Link>
-
-                                <Link
-                                    href={route("pageant.deduct", pageant.id)}
-                                >
-                                    <Button
-                                        color="red"
-                                        className="transition duration-300 ease-in-out hover:bg-red-600"
-                                    >
-                                        Deduct Points
-                                    </Button>
-                                </Link>
+                                </div>
                             </div>
 
-                            <hr className="mt-4 mb-2" />
-                            {/* {(pageant.type == "mr" ||
-                                pageant.type == "mr&ms") && (
-                                <CandidateScoreList
-                                    gender="Male"
-                                    candidates={maleCan}
-                                    headings={headings}
-                                    current_round={pageant.current_round}
-                                ></CandidateScoreList>
-                            )}
-                            {(pageant.type == "ms" ||
-                                pageant.type == "mr&ms") && (
-                                <CandidateScoreList
-                                    gender="Female"
-                                    candidates={femCan}
-                                    headings={headings}
-                                    current_round={pageant.current_round}
-                                ></CandidateScoreList>
-                            )} */}
+                            <hr className="my-6 border-gray-200 dark:border-gray-700" />
+
                             {["mr", "ms"].map(
                                 (sex) =>
                                     pageant.type.includes(sex) && (
                                         <CandidateScoreList
                                             key={sex}
-                                            gender={
-                                                sex === "mr" ? "Male" : "Female"
-                                            }
-                                            candidates={
-                                                sex === "mr" ? maleCan : femCan
-                                            }
+                                            gender={sex === "mr" ? "Male" : "Female"}
+                                            candidates={sex === "mr" ? maleCan : femCan}
                                             headings={headings}
-                                            current_round={
-                                                pageant.current_round
-                                            }
+                                            current_round={pageant.current_round}
                                         />
                                     )
                             )}
@@ -380,6 +296,50 @@ export default function PageantScores({
                     </div>
                 </div>
             </div>
+
+            <Modal show={confirmingReset} onClose={closeModal}>
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Are you sure you want to reset the scores?
+                    </h2>
+
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        This action cannot be undone. All scores for this round/pageant will be lost.
+                    </p>
+
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={closeModal}>
+                            Cancel
+                        </SecondaryButton>
+
+                        <DangerButton className="ms-3" onClick={resetScore}>
+                            Reset Scores
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal show={confirmingEndPageant} onClose={closeEndPageantModal}>
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Are you sure you want to end this pageant?
+                    </h2>
+
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        This action will mark the pageant as finished.
+                    </p>
+
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={closeEndPageantModal}>
+                            Cancel
+                        </SecondaryButton>
+
+                        <DangerButton className="ms-3" onClick={endPageant}>
+                            End Pageant
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

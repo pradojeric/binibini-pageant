@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Pageant;
@@ -38,11 +39,10 @@ class AdminScoringController extends Controller
         $scoring = $request->scores;
 
         foreach ($scoring as $i => $scores) {
-            Auth::user()->candidateCritieras()->updateOrCreate(
+            Auth::user()->candidateCriterias()->updateOrCreate(
                 ['criteria_id' => $scores['criteria_id'], 'candidate_id' => $scores['candidate_id']],
                 ['score' => $scores['score']],
             );
-
         }
 
         return redirect()->route('pageant.view-scores', $pageant);

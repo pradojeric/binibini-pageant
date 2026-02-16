@@ -1,11 +1,12 @@
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
-import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
+import SelectInput from "@/Components/SelectInput";
 import TextArea from "@/Components/TextArea";
+import PrimaryButton from "@/Components/PrimaryButton";
 import { useForm } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 
 const GENDERS = [
     { id: "mr", value: "Mr." },
@@ -31,29 +32,6 @@ export default function CandidateCreate({ className = "", pageant }) {
 
     const picRef = useRef(null);
 
-    const {
-        candidate_number,
-        last_name,
-        first_name,
-        middle_name,
-        name_ext,
-        gender,
-        nickname,
-        description,
-        picture,
-    } = data;
-    const {
-        candidate_number: errCandidateNumber,
-        last_name: errLastName,
-        first_name: errFirstName,
-        middle_name: errMiddleName,
-        name_ext: errNameExt,
-        gender: errGender,
-        nickname: errNickname,
-        description: errDescription,
-        picture: errPicture,
-    } = errors;
-
     useEffect(() => {
         return () => {
             reset();
@@ -65,7 +43,6 @@ export default function CandidateCreate({ className = "", pageant }) {
 
         post(route("pageants.candidates.store", pageant.id), {
             onSuccess: () => {
-                alert("Success!");
                 reset();
                 if (picRef.current) {
                     picRef.current.value = "";
@@ -75,163 +52,148 @@ export default function CandidateCreate({ className = "", pageant }) {
     };
 
     return (
-        <section className={className}>
-            <h2 className="uppercase font-bold">Create</h2>
-            <form onSubmit={submit}>
-                <div className="my-2">
-                    <div className="mt-4">
-                        <InputLabel
-                            htmlFor="candidate_number"
-                            value="Candidate Number"
-                        />
-                        <TextInput
-                            type="number"
-                            className="w-full block"
-                            id="candidate_number"
-                            name="candidate_number"
-                            value={candidate_number}
-                            onChange={(e) =>
-                                setData("candidate_number", e.target.value)
-                            }
-                        />
-                        <InputError
-                            message={errCandidateNumber}
-                            className="mt-1"
-                        />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="last_name" value="Last Name" />
-                        <TextInput
-                            className="w-full block"
-                            id="last_name"
-                            name="last_name"
-                            value={last_name}
-                            onChange={(e) =>
-                                setData("last_name", e.target.value)
-                            }
-                        />
-                        <InputError message={errLastName} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="first_name" value="First Name" />
-                        <TextInput
-                            className="w-full block"
-                            id="first_name"
-                            name="first_name"
-                            value={first_name}
-                            onChange={(e) =>
-                                setData("first_name", e.target.value)
-                            }
-                        />
-                        <InputError message={errFirstName} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="middle_name" value="Middle Name" />
-                        <TextInput
-                            className="w-full block"
-                            id="middle_name"
-                            name="middle_name"
-                            value={middle_name}
-                            onChange={(e) =>
-                                setData("middle_name", e.target.value)
-                            }
-                        />
-                        <InputError message={errMiddleName} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="name_ext" value="Name Ext" />
-                        <TextInput
-                            className="w-full block"
-                            id="name_ext"
-                            name="name_ext"
-                            value={name_ext}
-                            onChange={(e) =>
-                                setData("name_ext", e.target.value)
-                            }
-                        />
-                        <InputError message={errNameExt} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="gender" value="Gender" />
-
-                        <SelectInput
-                            id="gender"
-                            name="gender"
-                            className="mt-1 block w-full"
-                            value={gender}
-                            onChange={(e) => setData("gender", e.target.value)}
-                        >
-                            <option value="" hidden>
-                                Select gender...
-                            </option>
-                            {GENDERS.map((gender) => (
-                                <option value={gender.id} key={gender.id}>
-                                    {gender.value}
-                                </option>
-                            ))}
-                        </SelectInput>
-                        <InputError message={errGender} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="nickname" value="NickName" />
-                        <TextInput
-                            className="w-full block"
-                            id="nickname"
-                            name="nickname"
-                            value={nickname}
-                            onChange={(e) =>
-                                setData("nickname", e.target.value)
-                            }
-                        />
-                        <InputError message={errNickname} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="description" value="Description" />
-                        <TextArea
-                            className="w-full block"
-                            id="description"
-                            name="description"
-                            value={description}
-                            onChange={(e) =>
-                                setData("description", e.target.value)
-                            }
-                        ></TextArea>
-                        <InputError message={errDescription} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="picture" value="Picture" />
-                        <TextInput
-                            className="w-full block"
-                            type="file"
-                            accept="image/*"
-                            id="picture"
-                            name="picture"
-                            onChange={(e) =>
-                                setData("picture", e.target.files[0])
-                            }
-                            ref={picRef}
-                        />
-                        {progress && (
-                            <progress value={progress.percentage} max="100">
-                                {progress.percentage}%
-                            </progress>
-                        )}
-                        <InputError message={errPicture} className="mt-1" />
-                    </div>
-
-                    <div className="mt-4 flex justify-end">
-                        <PrimaryButton disabled={processing}>Add</PrimaryButton>
-                    </div>
+        <form onSubmit={submit} className={`space-y-6 ${className}`}>
+            <div className="space-y-4">
+                <div>
+                    <InputLabel htmlFor="candidate_number" value="Candidate Number" />
+                    <TextInput
+                        id="candidate_number"
+                        type="number"
+                        className="mt-1 block w-full"
+                        value={data.candidate_number}
+                        onChange={(e) => setData("candidate_number", e.target.value)}
+                    />
+                    <InputError message={errors.candidate_number} className="mt-2" />
                 </div>
-            </form>
-        </section>
+
+                <div>
+                    <InputLabel htmlFor="first_name" value="First Name" />
+                    <TextInput
+                        id="first_name"
+                        className="mt-1 block w-full"
+                        value={data.first_name}
+                        onChange={(e) => setData("first_name", e.target.value)}
+                    />
+                    <InputError message={errors.first_name} className="mt-2" />
+                </div>
+                
+                <div>
+                    <InputLabel htmlFor="last_name" value="Last Name" />
+                    <TextInput
+                        id="last_name"
+                        className="mt-1 block w-full"
+                        value={data.last_name}
+                        onChange={(e) => setData("last_name", e.target.value)}
+                    />
+                    <InputError message={errors.last_name} className="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="middle_name" value="Middle Name" />
+                    <TextInput
+                        id="middle_name"
+                        className="mt-1 block w-full"
+                        value={data.middle_name}
+                        onChange={(e) => setData("middle_name", e.target.value)}
+                    />
+                    <InputError message={errors.middle_name} className="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="name_ext" value="Name Extension" />
+                    <TextInput
+                        id="name_ext"
+                        placeholder="e.g. Jr., III"
+                        className="mt-1 block w-full"
+                        value={data.name_ext}
+                        onChange={(e) => setData("name_ext", e.target.value)}
+                    />
+                    <InputError message={errors.name_ext} className="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="gender" value="Gender" />
+                    <SelectInput
+                        id="gender"
+                        className="mt-1 block w-full"
+                        value={data.gender}
+                        onChange={(e) => setData("gender", e.target.value)}
+                    >
+                        <option value="">Select Gender</option>
+                        {GENDERS.map((gender) => (
+                            <option key={gender.id} value={gender.id}>
+                                {gender.value}
+                            </option>
+                        ))}
+                    </SelectInput>
+                    <InputError message={errors.gender} className="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="nickname" value="Nickname" />
+                    <TextInput
+                        id="nickname"
+                        className="mt-1 block w-full"
+                        value={data.nickname}
+                        onChange={(e) => setData("nickname", e.target.value)}
+                    />
+                    <InputError message={errors.nickname} className="mt-2" />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="description" value="Description" />
+                    <TextArea
+                        id="description"
+                        rows={3}
+                        className="mt-1 block w-full"
+                        value={data.description}
+                        onChange={(e) => setData("description", e.target.value)}
+                    />
+                    <InputError message={errors.description} className="mt-2" />
+                </div>
+
+                <div className="md:col-span-2 space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <PhotoIcon className="w-4 h-4" />
+                        Candidate Picture
+                    </div>
+                    <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-900 hover:bg-gray-100 transition-colors">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <PhotoIcon className="w-8 h-8 mb-3 text-gray-400" />
+                                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <span className="font-semibold text-indigo-600">Click to upload</span> or drag and drop
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {data.picture ? data.picture.name : "PNG, JPG or WebP (MAX. 800x400px)"}
+                                </p>
+                            </div>
+                            <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={(e) => setData("picture", e.target.files[0])}
+                                ref={picRef}
+                            />
+                        </label>
+                    </div>
+                    {progress && (
+                        <div className="w-full mt-2 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                            <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${progress.percentage}%` }}></div>
+                        </div>
+                    )}
+                    <InputError message={errors.picture} className="mt-2" />
+                </div>
+            </div>
+
+            <div className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-700">
+                <PrimaryButton 
+                    className="flex items-center gap-2"
+                    disabled={processing}
+                >
+                    Register Candidate
+                </PrimaryButton>
+            </div>
+        </form>
     );
 }

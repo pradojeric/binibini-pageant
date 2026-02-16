@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('pageants', PageantController::class)->except(['update']);
         Route::post('/pageants/{pageant}/update', [PageantController::class, 'update'])->name('pageants.update');
 
-        Route::get('/pageants/{pageant}/end-pageant', [PageantController::class, 'endPageant'])->name('end.pageant');
+        Route::post('/pageants/{pageant}/end-pageant', [PageantController::class, 'endPageant'])->name('end.pageant');
         Route::get('/pageants/{pageant}/select-judges', [PageantController::class, 'selectJudges'])->name('pageant.select-judges');
         Route::post('/pageants/{pageant}/store-judges', [PageantController::class, 'storeJudges'])->name('pageant.store-judges');
         Route::put('/pageants/{pageant}/change-round', [PageantController::class, 'changeRound'])->name('pageant.change-round');
@@ -72,11 +72,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/pageant/{pageant}/deduct', [AdminScoringController::class, 'deduct'])->name('pageant.deduct');
         Route::post('/pageant/{pageant}/deduct/store', [AdminScoringController::class, 'storeDeduction'])->name('pageant.deduct.store');
 
-        Route::get('/pageants/reset-scores/{pageant}', [PageantController::class, 'resetScores'])->name('pageant.reset-scores');
+        Route::post('/pageants/reset-scores/{pageant}', [PageantController::class, 'resetScores'])->name('pageant.reset-scores');
         Route::get('/pageants/view-scores/{pageant}', [ScoreController::class, 'viewScores'])->name('pageant.view-scores');
         Route::get('/pageants/{pageant}/for-printing', [ScoreController::class, 'forPrinting'])->name('pageant.for-printing');
     });
-
 });
 
 require __DIR__ . '/auth.php';

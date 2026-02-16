@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pageant;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -46,6 +47,8 @@ class PageantController extends Controller
             'pageant_rounds.*.*.number_of_candidates' => 'required|integer|min:1',
         ]);
 
+
+
         // Handle background file
         if ($request->hasFile('background')) {
             $validated['background'] = $request->file('background')
@@ -67,15 +70,17 @@ class PageantController extends Controller
                 $roundRows[] = [
                     'pageant_type'         => $sex,
                     'round'                => (int) $row['round'],
-                    'pageant_name'         => $row['name'],
+                    'round_name'         => $row['name'],
                     'number_of_candidates' => (int) $row['number_of_candidates'],
                 ];
             }
         }
 
         // Persist
-        $pageant = Pageant::create(collect($validated)->except('pageant_rounds')->toArray());
-        $pageant->pageantRounds()->createMany($roundRows);
+        DB::transaction(function () use ($validated, $roundRows) {
+            $pageant = Pageant::create(collect($validated)->except('pageant_rounds')->toArray());
+            $pageant->pageantRounds()->createMany($roundRows);
+        });
 
         return redirect()->route('pageants.index');
     }
@@ -102,7 +107,9 @@ class PageantController extends Controller
      */
     public function edit(Pageant $pageant)
     {
-        return Inertia::render('Pageant/PageantEdit', ['pageant' => $pageant]);
+        return Inertia::render('Pageant/PageantEdit', [
+            'pageant' => $pageant->load('pageantRounds')
+        ]);
     }
 
     /**
@@ -110,27 +117,63 @@ class PageantController extends Controller
      */
     public function update(Request $request, Pageant $pageant)
     {
-        $validatedData = $request->validate([
-            'pageant'          => ['required'],
-            'type'             => ['required'],
-            'background'       => ['nullable', 'image'],
-            'rounds'           => ['required', 'numeric'],
-            'separate_scoring' => ['required'],
+        $validated = $request->validate([
+            'pageant'                                 => 'required|string',
+            'type'                                    => 'required|in:mr,ms,mr&ms',
+            'background'                              => 'nullable|image',
+            'rounds'                                  => 'required|integer|min:1',
+            'pageant_rounds'                          => 'required|array',
+            'pageant_rounds.*.*.round'                => 'required|integer|min:1',
+            'pageant_rounds.*.*.name'                 => 'required|string|max:255',
+            'pageant_rounds.*.*.number_of_candidates' => 'required|integer|min:1',
         ]);
 
-        if (! $request->background) {
-            unset($validatedData['background']);
-        } else {
-            if ($pageant->background && Storage::exists($pageant->background)) {
-                Storage::delete($pageant->background);
+        // Handle background file
+        if ($request->hasFile('background')) {
+            // Delete old one
+            if ($pageant->background && Storage::disk('public')->exists($pageant->background)) {
+                Storage::disk('public')->delete($pageant->background);
             }
 
-            $validatedData['background'] = $request->file('background')->storePublicly('pageant', 'public');
+            $validated['background'] = $request->file('background')
+                ->storePubliclyAs(
+                    'pageant',
+                    Str::slug($request->pageant) . '-' . time() . '.' . $request->file('background')->extension(),
+                    'public'
+                );
+        } else {
+            // Keep old if no new one provided
+            unset($validated['background']);
         }
 
-        $pageant->update($validatedData);
+        // Build the child rows
+        $selectedSexes = $request->type === 'mr&ms'
+            ? ['mr', 'ms']
+            : [$request->type];
 
-        return redirect()->route('pageants.index');
+        $roundRows = [];
+        foreach ($selectedSexes as $sex) {
+            foreach ($request->pageant_rounds[$sex] as $row) {
+                $roundRows[] = [
+                    'pageant_type'         => $sex,
+                    'round'                => (int) $row['round'],
+                    'round_name'           => $row['name'],
+                    'number_of_candidates' => (int) $row['number_of_candidates'],
+                ];
+            }
+        }
+
+        // Persist
+        DB::transaction(function () use ($pageant, $validated, $roundRows) {
+            $pageant->update(collect($validated)->except('pageant_rounds')->toArray());
+
+            // For updates, we'll delete old rounds and recreate them to keep it simple and consistent with the store logic
+            // Alternatively, you could do an upsert but sync/recreate is safer for this schema
+            $pageant->pageantRounds()->delete();
+            $pageant->pageantRounds()->createMany($roundRows);
+        });
+
+        return redirect()->route('pageants.index')->with('success', 'Pageant updated successfully.');
     }
 
     /**
@@ -146,6 +189,8 @@ class PageantController extends Controller
         $pageant->update([
             'status' => 'finished',
         ]);
+
+        return back();
     }
 
     public function selectJudges(Pageant $pageant)

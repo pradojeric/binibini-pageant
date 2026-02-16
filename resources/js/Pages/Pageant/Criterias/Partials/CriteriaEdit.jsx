@@ -1,10 +1,12 @@
-import Checkbox from "@/Components/Checkbox";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
+import Checkbox from "@/Components/Checkbox";
+import PrimaryButton from "@/Components/PrimaryButton";
+import SecondaryButton from "@/Components/SecondaryButton";
 import { useForm } from "@inertiajs/react";
 import { useEffect } from "react";
+import { CheckIcon, XMarkIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function CriteriaEdit({
     className = "",
@@ -30,7 +32,6 @@ export default function CriteriaEdit({
 
         patch(route("criterias.update", criteria.id), {
             onSuccess: () => {
-                alert("Success!");
                 handleCancelEditMode();
                 reset();
             },
@@ -38,90 +39,104 @@ export default function CriteriaEdit({
     };
 
     return (
-        <section className={className}>
-            <h2 className="uppercase font-bold">Edit</h2>
-            <form onSubmit={submit}>
-                <div className="my-2">
-                    <div className="mt-4">
-                        <InputLabel htmlFor="group" value="Group" />
-                        <TextInput
-                            className="w-full block"
-                            id="group"
-                            name="group"
-                            value={data.group}
-                            onChange={(e) => setData("group", e.target.value)}
-                        />
-                    </div>
-                    <div className="mt-4">
-                        <InputLabel htmlFor="round" value="Round" />
-                        <TextInput
-                            className="w-full block"
-                            id="round"
-                            name="round"
-                            value={data.round}
-                            onChange={(e) => setData("round", e.target.value)}
-                        />
-                    </div>
+        <form onSubmit={submit} className={`space-y-5 ${className}`}>
+            <div className="flex flex-col gap-5">
+                <div>
+                    <InputLabel htmlFor="name" value="Criteria Name" />
+                    <TextInput
+                        id="name"
+                        value={data.name}
+                        onChange={(e) => setData("name", e.target.value)}
+                        className="mt-1 block w-full"
+                        placeholder="e.g. Poise and Elegance"
+                    />
+                    <InputError message={errors.name} className="mt-2" />
+                </div>
 
-                    <div className="mt-4">
-                        <InputLabel htmlFor="name" value="Name" />
+                <div>
+                    <InputLabel htmlFor="percentage" value="Percentage" />
+                    <div className="relative mt-1">
                         <TextInput
-                            className="w-full block"
-                            id="name"
-                            name="name"
-                            value={data.name}
-                            onChange={(e) => setData("name", e.target.value)}
-                        />
-                    </div>
-
-                    <div className="mt-4">
-                        <InputLabel htmlFor="percentage" value="Percentage" />
-                        <TextInput
-                            className="w-full block"
                             id="percentage"
                             type="number"
-                            name="percentage"
                             value={data.percentage}
-                            onChange={(e) =>
-                                setData("percentage", e.target.value)
-                            }
+                            onChange={(e) => setData("percentage", e.target.value)}
+                            className="block w-full pr-10"
+                            placeholder="0"
                         />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <span className="text-gray-500 sm:text-sm font-bold">%</span>
+                        </div>
                     </div>
+                    <InputError message={errors.percentage} className="mt-2" />
+                </div>
 
-                    <div className="mt-4 flex items-center gap-2">
-                        <Checkbox
-                            name="hidden_scoring"
-                            value={true}
-                            defaultChecked={data.hidden_scoring}
-                            id="hidden_scoring"
-                            onChange={(e) => {
-                                setData("hidden_scoring", e.target.checked);
-                            }}
-                        />
-                        <InputLabel
-                            htmlFor="hidden_scoring"
-                            value="Score by Admin"
-                        />
-                    </div>
+                <div>
+                    <InputLabel htmlFor="round" value="Round" />
+                    <TextInput
+                        id="round"
+                        type="number"
+                        value={data.round}
+                        onChange={(e) => setData("round", e.target.value)}
+                        className="mt-1 block w-full"
+                        placeholder="1"
+                    />
+                    <InputError message={errors.round} className="mt-2" />
+                </div>
 
-                    <div className="mt-4 flex justify-end">
-                        <PrimaryButton
-                            type="button"
-                            disabled={processing}
-                            onClick={handleCancelEditMode}
-                        >
-                            Cancel
-                        </PrimaryButton>
-                        <PrimaryButton disabled={processing}>
-                            Update
-                        </PrimaryButton>
+                <div>
+                    <InputLabel htmlFor="group" value="Group" />
+                    <TextInput
+                        id="group"
+                        type="number"
+                        value={data.group}
+                        onChange={(e) => setData("group", e.target.value)}
+                        className="mt-1 block w-full"
+                        placeholder="1"
+                    />
+                    <InputError message={errors.group} className="mt-2" />
+                </div>
+
+                <div className="md:col-span-2">
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 transition-colors hover:bg-gray-100 dark:hover:bg-gray-900/80">
+                        <div className="flex h-6 items-center">
+                            <Checkbox
+                                id="hidden_scoring_edit"
+                                checked={data.hidden_scoring}
+                                onChange={(e) => setData("hidden_scoring", e.target.checked)}
+                            />
+                        </div>
+                        <label htmlFor="hidden_scoring_edit" className="cursor-pointer select-none">
+                            <span className="block text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
+                                Score by Admin Only
+                                <InformationCircleIcon className="w-4 h-4 text-gray-400" />
+                            </span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                If enabled, only the admin can enter scores for this criteria.
+                            </span>
+                        </label>
                     </div>
                 </div>
-                <InputError message={errors.round} />
-                <InputError message={errors.group} />
-                <InputError message={errors.name} />
-                <InputError message={errors.percentage} />
-            </form>
-        </section>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-50 dark:border-gray-800">
+                <SecondaryButton 
+                    className="flex items-center gap-2"
+                    onClick={handleCancelEditMode}
+                    disabled={processing}
+                >
+                    <XMarkIcon className="w-4 h-4" />
+                    Cancel
+                </SecondaryButton>
+                <PrimaryButton 
+                    type="submit" 
+                    className="flex items-center gap-2"
+                    disabled={processing}
+                >
+                    <CheckIcon className="w-4 h-4" />
+                    Save Changes
+                </PrimaryButton>
+            </div>
+        </form>
     );
 }

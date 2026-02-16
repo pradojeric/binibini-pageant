@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import { cn } from '@/Utils/cn';
 
 export default function Modal({ children, show = false, maxWidth = '2xl', closeable = true, onClose = () => {} }) {
     const close = () => {
@@ -33,7 +34,7 @@ export default function Modal({ children, show = false, maxWidth = '2xl', closea
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="absolute inset-0 bg-gray-500/75 dark:bg-gray-900/75" />
+                    <div className="absolute inset-0 bg-gray-500/75 dark:bg-gray-900/75 backdrop-blur-sm" />
                 </Transition.Child>
 
                 <Transition.Child
@@ -46,7 +47,10 @@ export default function Modal({ children, show = false, maxWidth = '2xl', closea
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
                     <Dialog.Panel
-                        className={`mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto ${maxWidthClass}`}
+                        className={cn(
+                            "mb-6 bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-2xl transform transition-all sm:w-full sm:mx-auto ring-1 ring-black/5 dark:ring-white/10",
+                            maxWidthClass
+                        )}
                     >
                         {children}
                     </Dialog.Panel>
