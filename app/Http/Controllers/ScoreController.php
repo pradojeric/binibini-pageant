@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Criteria;
@@ -30,20 +31,22 @@ class ScoreController extends Controller
     {
         $criterias = $pageant->criterias()->where('hidden_scoring', false)->join('pageant_rounds', function ($join) {
             $join->on('pageant_rounds.pageant_id', 'criterias.pageant_id')->on('pageant_rounds.round', 'criterias.round');
-        })->select('criterias.*',
+        })->select(
+            'criterias.*',
             'pageant_rounds.round_name',
-            'criterias.id as criteria_id')->get()->groupBy('round_name') // 1st level: round_name
+            'criterias.id as criteria_id'
+        )->get()->groupBy('round_name') // 1st level: round_name
             ->map(function ($roundItems) {
                 // 2nd level: group
                 return $roundItems->groupBy('group');
             });
 
-        $groupCriterias = $pageant->criterias->where('hidden_scoring', false)->groupBy('round')->values()->all();
+        //$groupCriterias = $pageant->criterias->where('hidden_scoring', false)->groupBy('round')->values()->all();
 
         return Inertia::render('Scoring/Details', [
             'pageant'        => $pageant,
-            'groupCriterias' => $groupCriterias,
-            'c'              => $criterias,
+            //'groupCriterias' => $groupCriterias,
+            'groupCriterias'              => $criterias,
         ]);
     }
 
@@ -131,7 +134,6 @@ class ScoreController extends Controller
                 ['criteria_id' => $scores['criteria_id'], 'candidate_id' => $scores['candidate_id']],
                 ['score' => $scores['score']],
             );
-
         }
 
         return redirect()->route('scoring.index', $pageant);
@@ -254,7 +256,7 @@ class ScoreController extends Controller
             'maleCandidates'   => $male,
             'femaleCandidates' => $female,
             // 'criterias'        => $criterias,
-            'criterias'        => $pageant->criterias()->where('round', $roundNum)->get(),
+            'criterias'        => $pageant->criterias()->where('round', $roundNum)->orderBy('hidden_scoring', 'desc')->get(),
         ]);
     }
 

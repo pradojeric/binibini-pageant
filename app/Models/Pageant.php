@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Pageant extends Model
 {
@@ -41,5 +42,20 @@ class Pageant extends Model
     public function pageantRounds(): HasMany
     {
         return $this->hasMany(PageantRound::class);
+    }
+
+    public function status(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if (is_null($value)) {
+                    return $this->current_round > 0
+                        ? 'Ongoing'
+                        : 'Not yet started';
+                }
+
+                return $value;
+            }
+        );
     }
 }

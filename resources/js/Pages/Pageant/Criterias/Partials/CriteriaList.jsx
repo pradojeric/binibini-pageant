@@ -22,7 +22,6 @@ export default function CriteriaList({ criterias, handleEditMode = () => {} }) {
 
     return (
         <>
-            <h2 className="uppercase font-bold">List of Criterias</h2>
             <TableComponent header={headers}>
                 {criterias.map((criteria, index) => (
                     <tr key={index}>

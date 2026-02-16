@@ -6,10 +6,8 @@ function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
 }
 
-export default function ScoringIndex({ auth, pageant, groupCriterias, c }) {
+export default function ScoringIndex({ auth, pageant, groupCriterias }) {
     const { flash } = usePage().props;
-
-    console.log(c);
 
     return (
         <AuthenticatedLayout
@@ -31,79 +29,88 @@ export default function ScoringIndex({ auth, pageant, groupCriterias, c }) {
                                     {flash.message}
                                 </div>
                             )}
-                            {Object.entries(c).map(([roundName, groups]) => (
-                                <div key={`round-` + roundName}>
-                                    <h2 className="uppercase dark:text-white text-2xl font-bold mb-4">
-                                        {roundName}
-                                    </h2>
+                            {Object.entries(groupCriterias).map(
+                                ([roundName, groups]) => (
+                                    <div key={`round-` + roundName}>
+                                        <h2 className="uppercase dark:text-white text-2xl font-bold mb-4">
+                                            {roundName}
+                                        </h2>
 
-                                    <div className="grid grid-cols-4 gap-4 items-center">
-                                        {/* Render each group inside that round */}
-                                        {Object.entries(groups).map(
-                                            ([groupName, items]) => (
-                                                <div key={`group-` + groupName}>
-                                                    <Link
-                                                        href={route(
-                                                            "scoring.score",
-                                                            {
-                                                                pageant:
-                                                                    pageant.id,
-                                                                criteria:
-                                                                    items[0].id,
-                                                            }
-                                                        )}
+                                        <div className="grid grid-cols-4 gap-4 items-center">
+                                            {/* Render each group inside that round */}
+                                            {Object.entries(groups).map(
+                                                ([groupName, items]) => (
+                                                    <div
+                                                        key={
+                                                            `group-` + groupName
+                                                        }
                                                     >
-                                                        <div
-                                                            className={classNames(
-                                                                `relative w-full object-cover bg-black border`,
-                                                                pageant.current_round ==
-                                                                    items[0]
-                                                                        .round &&
-                                                                    pageant.current_group ==
-                                                                        groupName
-                                                                    ? "border-green-500"
-                                                                    : "border-red-500"
+                                                        <Link
+                                                            href={route(
+                                                                "scoring.score",
+                                                                {
+                                                                    pageant:
+                                                                        pageant.id,
+                                                                    criteria:
+                                                                        items[0]
+                                                                            .id,
+                                                                }
                                                             )}
                                                         >
-                                                            <LazyLoadImage
-                                                                src={
-                                                                    `/storage/` +
-                                                                    pageant.background
-                                                                }
-                                                                placeholderSrc="/logo.png"
-                                                                alt={roundName}
-                                                            />
-                                                            <div className="py-1 px-2 bg-gray-500 absolute bottom-0 inset-x-0">
-                                                                <h3 className="text-center text-white uppercase font-bold">
-                                                                    Criterias
-                                                                </h3>
-                                                                <ul className="text-center text-white uppercase font-bold text-xs list-inside list-disc">
-                                                                    {items.map(
-                                                                        (
-                                                                            crit
-                                                                        ) => (
-                                                                            <li
-                                                                                key={
-                                                                                    `crit-` +
-                                                                                    crit.id
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    crit.name
-                                                                                }
-                                                                            </li>
-                                                                        )
-                                                                    )}
-                                                                </ul>
+                                                            <div
+                                                                className={classNames(
+                                                                    `relative w-full object-cover bg-black border`,
+                                                                    pageant.current_round ==
+                                                                        items[0]
+                                                                            .round &&
+                                                                        pageant.current_group ==
+                                                                            groupName
+                                                                        ? "border-green-500"
+                                                                        : "border-red-500"
+                                                                )}
+                                                            >
+                                                                <LazyLoadImage
+                                                                    src={
+                                                                        `/storage/` +
+                                                                        pageant.background
+                                                                    }
+                                                                    placeholderSrc="/logo.png"
+                                                                    alt={
+                                                                        roundName
+                                                                    }
+                                                                />
+                                                                <div className="py-1 px-2 bg-gray-500 absolute bottom-0 inset-x-0">
+                                                                    <h3 className="text-center text-white uppercase font-bold">
+                                                                        Criterias
+                                                                    </h3>
+                                                                    <ul className="text-center text-white uppercase font-bold text-xs list-inside list-disc">
+                                                                        {items.map(
+                                                                            (
+                                                                                crit
+                                                                            ) => (
+                                                                                <li
+                                                                                    key={
+                                                                                        `crit-` +
+                                                                                        crit.id
+                                                                                    }
+                                                                                >
+                                                                                    {
+                                                                                        crit.name
+                                                                                    }
+                                                                                </li>
+                                                                            )
+                                                                        )}
+                                                                    </ul>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </Link>
-                                                </div>
-                                            )
-                                        )}
+                                                        </Link>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            )}
                             {/* {groupCriterias.map((group, index) => {
                                 return (
                                     <div key={index}>
