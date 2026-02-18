@@ -115,26 +115,58 @@ class ScoreController extends Controller
         ]);
 
         $scoring = $request->scores;
+        $judgeId = Auth::id();
 
-        // $scoring = $scoring->groupBy('candidate_id');
+        // 1. Collect all criteria IDs from the request
+        $criteriaIds = collect($scoring)->pluck('criteria_id')->unique();
 
-        // dd($scoring);
-        foreach ($scoring as $i => $scores) {
-            // $candidate = Candidate::find($i);
+        // 2. Fetch all criteria in one query and key by ID for fast lookup
+        $criterias = Criteria::findMany($criteriaIds)->keyBy('id');
 
-            // foreach ($scores as $score) {
-            //     $data[$score['criteria_id']] = [
-            //         'score' => $score['score'],
-            //         'user_id' => Auth::id(),
-            //     ];
-            // }
+        // 3. Prepare data for batch insert/upsert
+        $upsertData = [];
+        $now = now();
 
-            // $candidate->criterias()->attach($data);
-            Auth::user()->candidateCriterias()->updateOrCreate(
-                ['criteria_id' => $scores['criteria_id'], 'candidate_id' => $scores['candidate_id']],
-                ['score' => $scores['score']],
-            );
+        foreach ($scoring as $score) {
+            $criteriaId = $score['criteria_id'];
+
+            // Skip if criteria not found (safety check)
+            if (!isset($criterias[$criteriaId])) {
+                continue;
+            }
+
+            $criteria = $criterias[$criteriaId];
+            $scoreValue = $score['score'];
+            $minScore = round($criteria->percentage / 2);
+
+            // Auto-correct score if it's below minimum or null
+            // Note: If you want to allow 0 or null as "no score", handling might differ,
+            // but preserving original logic here:
+            if ($scoreValue < $minScore || is_null($scoreValue)) {
+                $scoreValue = $minScore;
+            }
+
+            $upsertData[] = [
+                'user_id'      => $judgeId, // Assuming relation uses user_id or judge_id. User model will confirm.
+                'criteria_id'  => $criteriaId,
+                'candidate_id' => $score['candidate_id'],
+                'score'        => $scoreValue,
+                // 'created_at'   => $now, // upsert usually handles timestamps if supported or manually
+                // 'updated_at'   => $now,
+            ];
         }
+
+        // 4. Perform batch upsert
+        // We need to know the table name and the unique constraints.
+        // Assuming 'candidate_criterias' table and unique index on [user_id, criteria_id, candidate_id]
+        // If Model is CandidateCriteria, we can use that.
+        // Let's use the Model to specific.
+
+        \App\Models\CandidateCriteria::upsert(
+            $upsertData,
+            ['user_id', 'candidate_id', 'criteria_id'], // Unique keys
+            ['score'] // Columns to update if exists
+        );
 
         return redirect()->route('scoring.index', $pageant);
     }

@@ -1,16 +1,11 @@
 import { Head, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import IndexCriteria from "@/Pages/Pageant/Criterias/Partials/CriteriaList";
-import CandidateList from "@/Pages/Pageant/Candidates/Partials/CandidateList";
 import JudgeList from "@/Pages/Judges/Partials/JudgeList";
-import { 
-    Button, 
-    Card, 
-    CardBody, 
-    Typography, 
-    Chip,
-    Avatar
-} from "@material-tailwind/react";
+import Card, { CardBody } from "@/Components/Card";
+import Chip from "@/Components/Chip";
+import Avatar from "@/Components/Avatar";
+import Typography from "@/Components/Typography";
 import { 
     TrophyIcon, 
     UserGroupIcon, 
@@ -20,13 +15,13 @@ import {
     PrinterIcon,
     ArrowRightIcon,
     ClockIcon,
-    CalendarIcon,
     Square2StackIcon
 } from "@heroicons/react/24/outline";
 
 export default function PageantShow({ auth, pageant }) {
     const candidates = pageant.candidates;
 
+    // Helper to get status color for Chip component
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case "finished": return "green";
@@ -54,7 +49,7 @@ export default function PageantShow({ auth, pageant }) {
 
             <div className="space-y-8 pb-12">
                 {/* Hero / Overview Section */}
-                <Card className="w-full overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800">
+                <Card className="w-full">
                     <div className="relative h-48 md:h-64 overflow-hidden">
                         {pageant.background ? (
                             <img
@@ -72,7 +67,7 @@ export default function PageantShow({ auth, pageant }) {
                                     variant="gradient"
                                     color={getStatusColor(pageant.status)}
                                     value={pageant.status ?? "Not started"}
-                                    className="rounded-full shadow-none"
+                                    className="rounded-full shadow-md"
                                 />
                                 <Chip
                                     variant="outlined"
@@ -86,7 +81,7 @@ export default function PageantShow({ auth, pageant }) {
                             </Typography>
                         </div>
                     </div>
-                    <CardBody className="p-6">
+                    <CardBody>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
                                 <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl text-indigo-600 dark:text-indigo-400">
@@ -116,10 +111,11 @@ export default function PageantShow({ auth, pageant }) {
                                         <Typography variant="small" className="text-indigo-600/70 dark:text-indigo-400/70">View entries and tabulations</Typography>
                                     </div>
                                 </div>
-                                <Link href={route("pageant.view-scores", pageant.id)}>
-                                    <Button size="sm" color="indigo" className="rounded-lg shadow-md shadow-indigo-600/20 py-2 px-4 transition-all hover:scale-105 active:scale-95">
-                                        View Scores
-                                    </Button>
+                                <Link 
+                                    href={route("pageant.view-scores", pageant.id)}
+                                    className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition shadow-md shadow-indigo-600/20 hover:scale-105 active:scale-95"
+                                >
+                                    View Scores
                                 </Link>
                             </div>
                         </div>
@@ -130,21 +126,21 @@ export default function PageantShow({ auth, pageant }) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     
                     {/* Left: Candidates */}
-                    <Card className="lg:col-span-4 border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800 overflow-hidden flex flex-col">
+                    <Card className="lg:col-span-4 overflow-hidden flex flex-col h-full max-h-[600px]">
                         <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <UserIcon className="w-5 h-5 text-indigo-500" />
-                                <Typography variant="h6" className="font-bold text-gray-900 dark:text-white">Candidates</Typography>
+                                <Typography variant="h6" className="text-gray-900 dark:text-white">Candidates</Typography>
                             </div>
                             {pageant.status !== "finished" && (
                                 <Link href={route("pageants.candidates.index", pageant.id)}>
-                                    <Typography color="indigo" variant="small" className="font-black uppercase tracking-widest text-[10px] hover:text-indigo-800 transition-colors">
+                                    <Typography color="indigo" variant="small" className="font-black uppercase tracking-widest text-[10px] hover:text-indigo-800 transition-colors cursor-pointer">
                                         Manage
                                     </Typography>
                                 </Link>
                             )}
                         </div>
-                        <div className="flex-1 overflow-y-auto max-h-[500px] p-4 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                             <div className="space-y-4">
                                 {candidates.map((candidate, index) => (
                                     <div key={index} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
@@ -159,7 +155,6 @@ export default function PageantShow({ auth, pageant }) {
                                             ) : (
                                                 <Avatar
                                                     variant="circular"
-                                                    alt={candidate.full_name}
                                                     size="lg"
                                                     className="bg-indigo-50 text-indigo-500 font-bold"
                                                 >
@@ -189,15 +184,15 @@ export default function PageantShow({ auth, pageant }) {
                     <div className="lg:col-span-8 space-y-8">
                         
                         {/* Criteria Card */}
-                        <Card className="border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800 overflow-hidden">
+                        <Card className="overflow-hidden">
                              <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <ListBulletIcon className="w-5 h-5 text-indigo-500" />
-                                    <Typography variant="h6" className="font-bold text-gray-900 dark:text-white">Scoring Criteria</Typography>
+                                    <Typography variant="h6" className="text-gray-900 dark:text-white">Scoring Criteria</Typography>
                                 </div>
                                 {pageant.status !== "finished" && (
                                     <Link href={route("pageants.criterias.index", pageant.id)}>
-                                        <Typography color="indigo" variant="small" className="font-black uppercase tracking-widest text-[10px] hover:text-indigo-800 transition-colors">
+                                        <Typography color="indigo" variant="small" className="font-black uppercase tracking-widest text-[10px] hover:text-indigo-800 transition-colors cursor-pointer">
                                             Configure
                                         </Typography>
                                     </Link>
@@ -212,31 +207,31 @@ export default function PageantShow({ auth, pageant }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             
                             {/* Judges Card */}
-                            <Card className="border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800 overflow-hidden flex flex-col">
+                            <Card className="overflow-hidden flex flex-col h-full max-h-[500px]">
                                 <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <UserIcon className="w-5 h-5 text-indigo-500" />
-                                        <Typography variant="h6" className="font-bold text-gray-900 dark:text-white">Panel of Judges</Typography>
+                                        <Typography variant="h6" className="text-gray-900 dark:text-white">Panel of Judges</Typography>
                                     </div>
                                     {pageant.status !== "finished" && (
                                         <Link href={route("pageant.select-judges", { pageant: pageant.id })}>
-                                            <Typography color="indigo" variant="small" className="font-black uppercase tracking-widest text-[10px] hover:text-indigo-800 transition-colors">
+                                            <Typography color="indigo" variant="small" className="font-black uppercase tracking-widest text-[10px] hover:text-indigo-800 transition-colors cursor-pointer">
                                                 Select
                                             </Typography>
                                         </Link>
                                     )}
                                 </div>
-                                <CardBody className="p-0 flex-1 overflow-y-auto custom-scrollbar min-h-[300px]">
+                                <div className="p-0 flex-1 overflow-y-auto custom-scrollbar">
                                     <JudgeList judges={pageant.judges} />
-                                </CardBody>
+                                </div>
                             </Card>
 
                             {/* Rounds List Card */}
-                            <Card className="border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800 overflow-hidden">
+                            <Card className="overflow-hidden">
                                 <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <ClockIcon className="w-5 h-5 text-indigo-500" />
-                                        <Typography variant="h6" className="font-bold text-gray-900 dark:text-white">Round Breakdown</Typography>
+                                        <Typography variant="h6" className="text-gray-900 dark:text-white">Round Breakdown</Typography>
                                     </div>
                                     <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/40 rounded-full border border-indigo-100 dark:border-indigo-900/50">
                                         <Typography variant="small" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">{pageant.pageant_rounds.length} Total</Typography>
@@ -275,27 +270,29 @@ export default function PageantShow({ auth, pageant }) {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="flex flex-wrap items-center justify-between gap-6 p-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                <div className="flex flex-wrap items-center justify-between gap-6 p-8 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-gray-100 dark:bg-gray-900 rounded-xl text-gray-600 dark:text-gray-400">
                             <PrinterIcon className="w-6 h-6" />
                         </div>
                         <div>
-                            <Typography variant="h6" className="font-bold text-gray-900 dark:text-white">Reporting & Outputs</Typography>
+                            <Typography variant="h6" className="text-gray-900 dark:text-white">Reporting & Outputs</Typography>
                             <Typography variant="small" className="text-gray-500">Generate scorecards and results for printing.</Typography>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Link href={route("pageants.edit", pageant.id)}>
-                            <Button variant="text" color="blue-gray" className="flex items-center gap-2 normal-case font-bold">
-                                Edit Settings
-                            </Button>
+                        <Link 
+                            href={route("pageants.edit", pageant.id)}
+                            className="inline-flex items-center px-4 py-2 bg-transparent border border-transparent rounded-md font-bold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-100 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150"
+                        >
+                            Edit Settings
                         </Link>
-                        <Link href={route("pageant.for-printing", pageant.id)}>
-                            <Button color="indigo" className="flex items-center gap-2 rounded-xl shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
-                                <PrinterIcon className="w-4 h-4" />
-                                Print Sheets
-                            </Button>
+                        <Link 
+                            href={route("pageant.for-printing", pageant.id)}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition shadow-lg shadow-indigo-600/20 active:scale-95"
+                        >
+                            <PrinterIcon className="w-4 h-4" />
+                            Print Sheets
                         </Link>
                     </div>
                 </div>

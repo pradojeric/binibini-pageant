@@ -50,21 +50,14 @@ class AdminScoringController extends Controller
 
     public function select(Pageant $pageant)
     {
-        // we want to show scores for last round OR all candidates if none
-        $roundNum = $pageant->current_round - 1;
-        $round    = $pageant->pageantRounds()->where('round', $roundNum)->first();
+        $roundNum = $pageant->current_round;
 
-        if (! $round || $round->candidates->isEmpty()) {
-            // just show un-scored candidates list
-            $candidates = $pageant->candidates;
-        } else {
-            // fetch **scored** candidates from service
-            $scored = $this->pageantScoreService->getCandidateScores($pageant, $roundNum);
+        // fetch **scored** candidates from service
+        $scored = $this->pageantScoreService->getCandidateScores($pageant, $roundNum);
 
-            // (optional) you could still sort / paginate here,
-            // or extract only the pieces your Inertia page needs:
-            $candidates = $scored->sortByDesc('total')->values()->all();
-        }
+        // (optional) you could still sort / paginate here,
+        // or extract only the pieces your Inertia page needs:
+        $candidates = $scored->sortByDesc('total')->values()->all();
 
         return Inertia::render('Pageant/Admin/SelectRoundCandidate', [
             'pageant'    => $pageant->load('pageantRounds'),

@@ -6,7 +6,7 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 import { useMemo, useCallback, Fragment } from "react";
 
 export default function ScoringShow({ auth, pageant, candidates }) {
-    const { data, setData, post } = useForm({
+    const { data, setData, post, processing } = useForm({
         scores: [],
     });
 
@@ -37,28 +37,28 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                     : data.scores.map((s, i) => (i === idx ? entry : s));
 
             setData("scores", newScores);
-            console.log(newScores);
         },
         [data.scores, setData]
     );
 
     // Function to check if all candidates have been scored
+    // Function to check if all candidates have been scored
     const allCandidatesScored = () => {
-        // Create a set to store candidate ids that have been scored
-        let scoredCandidates = new Set();
+        const scoredKeys = new Set(
+            data.scores.map((s) => `${s.candidate_id}-${s.criteria_id}`)
+        );
 
-        // Iterate through the scores array
-        for (let score of data.scores) {
-            scoredCandidates.add(score.candidate_id);
-        }
-
-        // Check if all candidates have been scored
         for (let candidate of candidates) {
-            if (!scoredCandidates.has(candidate.id)) {
-                return false; // If any candidate has not been scored, return false
+            // Check if candidate matches the active pageant type/sex filter
+            if (selectedSexes.includes(candidate.gender)) {
+                for (let criteria of pageant.criterias) {
+                    if (!scoredKeys.has(`${candidate.id}-${criteria.id}`)) {
+                        return false;
+                    }
+                }
             }
         }
-        return true; // All candidates have been scored
+        return true;
     };
 
     const submit = (e) => {
@@ -85,67 +85,82 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                 </h2>
             }
         >
-            <Head title="Pageant" />
+            <Head title={`Scoring - ${pageant.pageant}`} />
 
             <div
-                className="py-12 bg-fixed bg-contain bg-center"
+                className="py-12 bg-fixed bg-cover bg-center min-h-screen"
                 style={{
-                    backgroundImage: `url(/storage/${pageant.background})`,
+                    backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(/storage/${pageant.background})`,
                 }}
             >
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 dark:text-white">
-                            <form onSubmit={submit}>
-                                <div className="flex justify-between mb-2">
-                                    <div>
-                                        <div className="uppercase">
-                                            Rounds: {pageant.current_round}
-                                        </div>
-                                        <div className="uppercase">
-                                            Pageant Type: {pageant.type}
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr />
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-300">
+                            <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
+                                Current Round
+                            </span>
+                            <span className="text-4xl font-black text-blue-600 dark:text-blue-400 mt-2">
+                                {pageant.current_round}
+                            </span>
+                        </div>
+                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-300">
+                            <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
+                                Pageant Type
+                            </span>
+                            <span className="text-4xl font-black text-purple-600 dark:text-purple-400 mt-2 uppercase">
+                                {pageant.type}
+                            </span>
+                        </div>
+                         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-300">
+                            <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
+                                Scored
+                            </span>
+                            <span className="text-4xl font-black text-green-600 dark:text-green-400 mt-2">
+                                {new Set(data.scores.map(s => s.candidate_id)).size} / {candidates.length}
+                            </span>
+                        </div>
+                    </div>
 
+                    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md overflow-hidden shadow-2xl sm:rounded-3xl border border-white/10">
+                        <div className="p-8">
+                            <form onSubmit={submit}>
                                 {selectedSexes.map((sex, idx) => (
-                                    // Using a fragment so the <hr> can live between Mr & Ms
                                     <Fragment key={sex}>
-                                        <div>
-                                            <h2 className="uppercase font-bold text-lg tracking-wide">
-                                                {sex === "mr"
-                                                    ? "Mr Candidates"
-                                                    : "Ms Candidates"}
-                                            </h2>
-                                            <div className="grid grid-cols-4 gap-8 mt-4">
-                                                {candidatesBySex[sex].map(
-                                                    (candidate) => (
+                                        <div className={idx > 0 ? "mt-12 pt-12 border-t border-gray-200 dark:border-gray-700" : ""}>
+                                            <div className="flex items-center gap-4 mb-8">
+                                                <h2 className="uppercase font-black text-3xl tracking-tighter dark:text-white">
+                                                    {sex === "mr" ? "Mr. Candidates" : "Ms. Candidates"}
+                                                </h2>
+                                                <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                                                {candidatesBySex[sex].length > 0 ? (
+                                                    candidatesBySex[sex].map((candidate) => (
                                                         <CandidateBox
                                                             key={candidate.id}
-                                                            candidate={
-                                                                candidate
-                                                            }
-                                                            criterias={
-                                                                pageant.criterias
-                                                            }
-                                                            onInputData={
-                                                                handleSetData
-                                                            }
+                                                            candidate={candidate}
+                                                            criterias={pageant.criterias}
+                                                            onInputData={handleSetData}
                                                         />
-                                                    )
+                                                    ))
+                                                ) : (
+                                                    <div className="col-span-full py-12 text-center">
+                                                        <p className="text-gray-500 font-medium">No candidates available.</p>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
-                                        {/* Insert a divider only after the first section when both sexes */}
-                                        {idx === 0 &&
-                                            selectedSexes.length > 1 && (
-                                                <hr className="my-4" />
-                                            )}
                                     </Fragment>
                                 ))}
-                                <div className="mt-5 flex justify-end">
-                                    <PrimaryButton>Save</PrimaryButton>
+                                <div className="mt-12 flex justify-end pt-8 border-t border-gray-200 dark:border-gray-700">
+                                    <PrimaryButton 
+                                        className="px-10 py-4 text-lg font-bold rounded-xl shadow-lg shadow-blue-500/20"
+                                        disabled={processing}
+                                    >
+                                        {processing ? "Saving..." : "Lock in Scores"}
+                                    </PrimaryButton>
                                 </div>
                             </form>
                         </div>

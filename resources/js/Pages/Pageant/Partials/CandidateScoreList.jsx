@@ -4,16 +4,17 @@ function CandidateScoreList({
     gender = "Male",
     candidates,
     headings,
+    criterias = [], // Receive criterias to map scores correctly
     current_round,
 }) {
     const renderScores = (candidate) => {
-        const scores = Object.values(candidate.scores);
-
-        return scores.map((score, index) => {
+        // Use criterias to look up scores by ID, ensuring order matches headings
+        return criterias.map((criteria) => {
+            const score = candidate.scores?.[criteria.id] ?? 0;
             return (
                 <td
                     className="text-center px-3 py-2 dark:text-white"
-                    key={index}
+                    key={criteria.id}
                 >
                     {score}
                 </td>

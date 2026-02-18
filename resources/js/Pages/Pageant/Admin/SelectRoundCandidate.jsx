@@ -131,9 +131,37 @@ export default function ScoringShow({
                                             )}
                                         </SelectInput>
                                     </div>
-                                    <PrimaryButton type="submit" className="px-6 py-2">
-                                        Save Selection
-                                    </PrimaryButton>
+                                    <div className="flex gap-2">
+                                        <SecondaryButton
+                                            type="button"
+                                            onClick={() => {
+                                                if (!data.round) return;
+                                                
+                                                const currentRound = pageant.pageant_rounds.find(
+                                                    r => r.id == data.round
+                                                );
+                                                
+                                                if (!currentRound) return;
+
+                                                const limit = currentRound.number_of_candidates;
+                                                
+                                                // Create a safe copy and sort
+                                                const topCandidates = [...candidates]
+                                                    .sort((a, b) => (b.total || 0) - (a.total || 0))
+                                                    .slice(0, limit)
+                                                    .map(c => c.id);
+
+                                                setData("selectedCandidates", topCandidates);
+                                            }}
+                                            disabled={!data.round}
+                                            className="px-4 py-2"
+                                        >
+                                            Auto Select Top
+                                        </SecondaryButton>
+                                        <PrimaryButton type="submit" className="px-6 py-2">
+                                            Save Selection
+                                        </PrimaryButton>
+                                    </div>
                                 </div>
                                 
                                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

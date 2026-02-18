@@ -1,10 +1,9 @@
-import TableComponent from "@/Components/TableComponent";
 import { useRef } from "react";
 import { forwardRef } from "react";
 
 function rankItems(candidates, sortedBy = "total") {
-    // Copy candidates and sort by the chosen total
-    const sortedData = [...candidates].sort((a, b) => {
+    // Copy candidates (shallow clone objects) and sort by the chosen total
+    const sortedData = candidates.map(c => ({ ...c })).sort((a, b) => {
         const aScore =
             sortedBy === "total" ? a.total : a.scores[sortedBy].total;
         const bScore =
@@ -49,82 +48,84 @@ function RenderTable({ criteria, allCandidates, gender, judges }) {
     const candidates = rankItems(allCandidates, criteria.id);
 
     return (
-        <div className="dark:text-white mt-2">
-            <h2 className="uppercase font-bold text-xl">{gender} Candidates</h2>
-            <TableComponent customHeader={true}>
-                <thead>
-                    <tr>
-                        <th className="px-3 py-2">Candidate</th>
-                        {!(
-                            criteria.is_subtotal ||
-                            criteria.is_grand_total ||
-                            criteria.hidden_scoring
-                        ) &&
-                            judges.map((judge) => {
-                                return (
-                                    <th
-                                        key={`judge` + judge.id}
-                                        className="px-3 py-2"
-                                    >
-                                        {judge.name}
-                                    </th>
-                                );
-                            })}
-                        <th className="px-3 py-2">Total</th>
-                        <th className="px-3 py-2">Rank</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y">
-                    {candidates.map((candidate, index) => {
-                        return (
-                            <tr key={`cand` + candidate.id}>
-                                <td>
-                                    <div className="flex space-x-4 items-center px-3 py-2">
-                                        <div className="dark:text-white">
-                                            {`#` + candidate.candidate_number}
-                                        </div>
-                                        <div>
-                                            <div className="uppercase font-bold dark:text-gray-200 whitespace-nowrap">
-                                                {
-                                                    candidate.full_name_last_name_first
-                                                }
+        <div className="mt-2 text-gray-900">
+            <h2 className="uppercase font-bold text-xl mb-2">{gender} Candidates</h2>
+            <div className="overflow-x-auto border border-gray-200 bg-white">
+                <table className="w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
+                            {!(
+                                criteria.is_subtotal ||
+                                criteria.is_grand_total ||
+                                criteria.hidden_scoring
+                            ) &&
+                                judges.map((judge) => {
+                                    return (
+                                        <th
+                                            key={`judge` + judge.id}
+                                            className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                        >
+                                            {judge.name}
+                                        </th>
+                                    );
+                                })}
+                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                        {candidates.map((candidate, index) => {
+                            return (
+                                <tr key={`cand` + candidate.id}>
+                                    <td>
+                                        <div className="flex space-x-4 items-center px-3 py-2">
+                                            <div className="text-gray-900 font-medium">
+                                                {`#` + candidate.candidate_number}
                                             </div>
-                                            <div className="text-sm dark:text-gray-400">
-                                                {candidate.nickname}
+                                            <div>
+                                                <div className="uppercase font-bold text-gray-900 whitespace-nowrap">
+                                                    {
+                                                        candidate.full_name_last_name_first
+                                                    }
+                                                </div>
+                                                <div className="text-sm text-gray-500">
+                                                    {candidate.nickname}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                                {!(
-                                    criteria.is_subtotal ||
-                                    criteria.is_grand_total ||
-                                    criteria.hidden_scoring
-                                ) &&
-                                    judges.map((judge) => {
-                                        return (
-                                            <td
-                                                key={`judge-cand` + judge.id}
-                                                className="px-3 py-1 text-center"
-                                            >
-                                                {
-                                                    candidate.scores[
-                                                        criteria.id
-                                                    ][judge.id]
-                                                }
-                                            </td>
-                                        );
-                                    })}
-                                <td className="px-3 py-1 text-center">
-                                    {candidate.scores[criteria.id]["total"]}
-                                </td>
-                                <td className="px-3 py-1 text-center">
-                                    {candidate.rank}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </TableComponent>
+                                    </td>
+                                    {!(
+                                        criteria.is_subtotal ||
+                                        criteria.is_grand_total ||
+                                        criteria.hidden_scoring
+                                    ) &&
+                                        judges.map((judge) => {
+                                            return (
+                                                <td
+                                                    key={`judge-cand` + judge.id}
+                                                    className="px-3 py-1 text-center text-gray-900"
+                                                >
+                                                    {
+                                                        candidate.scores[
+                                                            criteria.id
+                                                        ][judge.id]
+                                                    }
+                                                </td>
+                                            );
+                                        })}
+                                    <td className="px-3 py-1 text-center font-bold text-gray-900">
+                                        {candidate.scores[criteria.id]["total"]}
+                                    </td>
+                                    <td className="px-3 py-1 text-center font-bold text-gray-900">
+                                        {candidate.rank}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
@@ -162,14 +163,14 @@ export default forwardRef(function PageantPrinting(
     return (
         <div className="p-6">
             <div ref={compRef}>
-                <h1 className="uppercase font-extrabold tracking-wide text-3xl dark:text-white text-center">
+                <h1 className="uppercase font-extrabold tracking-wide text-3xl text-gray-900 text-center">
                     {pageant.pageant}
                 </h1>
 
                 {sections.map(({ list, gender }) =>
                     list.length > 0 ? (
                         <div key={gender} className="p-2 break-after-page">
-                            <div className="uppercase text-2xl font-bold dark:text-white">
+                            <div className="uppercase text-2xl font-bold text-gray-900">
                                 {!criteria.is_grand_total
                                     ? `${criteria.round_name} - ${criteria.name}`
                                     : `${criteria.round_name}`}

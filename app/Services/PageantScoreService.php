@@ -55,7 +55,8 @@ class PageantScoreService
             $scores = $criterias->mapWithKeys(fn($crit) => [
                 $crit->id => $candidate
                     ->criterias
-                    ->firstWhere('id', $crit->id)?->pivot?->score ?? 0,
+                    ->where('id', $crit->id)
+                    ->sum('pivot.score'),
             ])->all();
 
             $total  = array_sum($scores);
@@ -82,7 +83,7 @@ class PageantScoreService
 
         // load judges and candidates
         $judges     = $pageant->judges;
-        $candidates = $pageant->candidates;
+        $candidates = $pageant->candidates()->with('pageantRounds')->get();
         $criterias  = $this->getDetailedCriterias($pageant); // replace original
 
         // build map round→round_name
@@ -174,9 +175,9 @@ class PageantScoreService
             ->orderBy('criterias.hidden_scoring', 'desc')
             ->get();
 
-            $roundNames = $pageant->pageantRounds
-                ->pluck('round_name', 'round')
-                ->toArray();
+        $roundNames = $pageant->pageantRounds
+            ->pluck('round_name', 'round')
+            ->toArray();
 
         // insert Subtotal markers per round
         $grouped  = $criterias->groupBy('round');

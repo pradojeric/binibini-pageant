@@ -288,6 +288,7 @@ export default function PageantScores({
                                             gender={sex === "mr" ? "Male" : "Female"}
                                             candidates={sex === "mr" ? maleCan : femCan}
                                             headings={headings}
+                                            criterias={crits}
                                             current_round={pageant.current_round}
                                         />
                                     )
