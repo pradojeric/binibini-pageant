@@ -1,6 +1,6 @@
 import { Head, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { useReducer } from "react";
+import { useReducer, useRef } from "react";
 import SecondaryButton from "@/Components/SecondaryButton";
 import { 
     UserGroupIcon, 
@@ -33,6 +33,7 @@ function reducer(state, action) {
 }
 
 function CandidateIndex({ auth, pageant }) {
+    const formRef = useRef(null);
     const [state, dispatch] = useReducer(reducer, {
         editing: false,
         candidate: null,
@@ -40,6 +41,7 @@ function CandidateIndex({ auth, pageant }) {
 
     const handleEditMode = (candidate) => {
         dispatch({ type: "start_editing", candidate: candidate });
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
     const handleCancelEditMode = () => {
@@ -78,7 +80,7 @@ function CandidateIndex({ auth, pageant }) {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-4 sticky top-24">
+                    <div ref={formRef} className="lg:col-span-4 lg:sticky lg:top-24">
                         <div className="border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800 overflow-hidden rounded-xl">
                             <div className="p-6 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">

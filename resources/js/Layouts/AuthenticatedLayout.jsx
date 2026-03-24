@@ -4,11 +4,20 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 
 export default function Authenticated({ user, header, children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(
+        () => localStorage.getItem("sidebarCollapsed") !== "false"
+    );
+
+    const handleSetCollapsed = (value) => {
+        localStorage.setItem("sidebarCollapsed", value);
+        setSidebarCollapsed(value);
+    };
 
     return (
         <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden font-sans">
             {/* Sidebar Component */}
-            <Sidebar user={user} open={sidebarOpen} setOpen={setSidebarOpen} />
+            <Sidebar user={user} open={sidebarOpen} setOpen={setSidebarOpen}
+                     collapsed={sidebarCollapsed} setCollapsed={handleSetCollapsed} />
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">

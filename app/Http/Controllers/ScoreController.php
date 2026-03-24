@@ -57,12 +57,12 @@ class ScoreController extends Controller
         $alreadyScores = $judge->candidateCriterias->whereIn('criteria_id', $pageant->criterias->where('round', $pageant->current_round)->pluck('id'));
 
         if ($alreadyScores->count() > 0) {
-            session()->flash('message', 'Already scored');
+            session()->flash('message', 'You have already submitted your scores for this round.');
             return;
         }
 
         if ($pageant->current_round == null) {
-            session()->flash('message', 'Round not yet started');
+            session()->flash('message', 'The scoring round has not been started yet. Please wait for the staff to begin.');
             return;
         }
 
@@ -79,19 +79,19 @@ class ScoreController extends Controller
         $judge = Auth::user();
 
         if ($pageant->current_round != $criteria->round || $pageant->current_group != $criteria->group) {
-            session()->flash('message', 'Round not yet started');
+            session()->flash('message', 'This scoring round is not currently active. Please wait for the staff to open your assigned round.');
             return;
         }
 
         if ($pageant->current_round == null) {
-            session()->flash('message', 'Pageant not opened yet');
+            session()->flash('message', 'The pageant has not been opened yet. Please wait for the staff to start the event.');
             return;
         }
 
         $alreadyScores = $judge->candidateCriterias->where('criteria_id', $criteria->id);
 
         if ($alreadyScores->count() > 0) {
-            session()->flash('message', 'Already scored');
+            session()->flash('message', 'You have already submitted your scores for this round.');
             return;
         }
 
@@ -168,7 +168,9 @@ class ScoreController extends Controller
             ['score'] // Columns to update if exists
         );
 
-        return redirect()->route('scoring.index', $pageant);
+        return redirect()
+            ->route('scoring.index', $pageant)
+            ->with('message', 'Scores locked successfully! Please wait for the staff to instruct you before proceeding to the next round of scoring.');
     }
 
     public function viewScores(Request $request, Pageant $pageant)

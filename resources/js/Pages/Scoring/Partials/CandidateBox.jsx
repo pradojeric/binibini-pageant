@@ -28,10 +28,10 @@ function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
                             <span className="text-amber-400 text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">
                                 Candidate
                             </span>
-                            <h4 className="text-white font-bold text-lg leading-tight uppercase truncate">
+                            <h4 className="text-white font-bold text-xs leading-tight uppercase truncate">
                                 {candidate.full_name}
                             </h4>
-                            <p className="text-gray-300 text-xs font-medium uppercase tracking-wider opacity-80">
+                            <p className="text-gray-300 text-lg font-medium uppercase tracking-wider opacity-80">
                                 {candidate.nickname}
                             </p>
                         </div>

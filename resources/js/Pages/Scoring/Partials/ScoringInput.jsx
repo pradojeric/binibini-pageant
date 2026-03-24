@@ -11,20 +11,23 @@ function ScoringInput({ criteria, candidate, onInputData = () => {} }) {
 
     const handleChange = useCallback(
         (e) => {
-            const raw = Number(e.target.value);
+            const raw = e.target.value;
             setValue(raw);
-            // Live update parent on every change
-            onInputData(candidate.id, criteria.id, raw);
+            const num = Number(raw);
+            if (raw !== "" && !isNaN(num) && num > 0) {
+                onInputData(candidate.id, criteria.id, num);
+            }
         },
         [candidate.id, criteria.id, onInputData]
     );
 
     const handleBlur = useCallback(
         (e) => {
-            const raw = Number(e.target.value);
-            const score = Math.max(minMax.min, Math.min(minMax.max, raw));
+            const raw = e.target.value;
+            if (raw === "") return;
+            const num = Number(raw);
+            const score = Math.max(minMax.min, Math.min(minMax.max, num));
             setValue(score);
-            // Ensure parent has the clamped score
             onInputData(candidate.id, criteria.id, score);
         },
         [candidate.id, criteria.id, minMax, onInputData]

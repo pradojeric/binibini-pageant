@@ -94,31 +94,23 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                 }}
             >
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    {/* Stats Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-300">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
-                                Current Round
-                            </span>
-                            <span className="text-4xl font-black text-blue-600 dark:text-blue-400 mt-2">
-                                {pageant.current_round}
-                            </span>
-                        </div>
-                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-300">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
-                                Pageant Type
-                            </span>
-                            <span className="text-4xl font-black text-purple-600 dark:text-purple-400 mt-2 uppercase">
-                                {pageant.type}
-                            </span>
-                        </div>
-                         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 flex flex-col items-center justify-center transition-transform hover:scale-105 duration-300">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
-                                Scored
-                            </span>
-                            <span className="text-4xl font-black text-green-600 dark:text-green-400 mt-2">
-                                {new Set(data.scores.map(s => s.candidate_id)).size} / {candidates.length}
-                            </span>
+                    {/* Stats Bar */}
+                    <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3 bg-black/60 backdrop-blur-md border-b border-white/10 mb-8">
+                        <div className="flex flex-wrap items-center justify-center gap-4">
+                            <div className="flex items-center gap-3 bg-white/10 px-5 py-2 rounded-xl border border-white/10">
+                                <span className="text-xs font-bold uppercase tracking-widest text-white/60">Current Round</span>
+                                <span className="text-2xl font-black text-blue-400">{pageant.current_round}</span>
+                            </div>
+                            <div className="flex items-center gap-3 bg-white/10 px-5 py-2 rounded-xl border border-white/10">
+                                <span className="text-xs font-bold uppercase tracking-widest text-white/60">Pageant Type</span>
+                                <span className="text-2xl font-black text-purple-400 uppercase">{pageant.type}</span>
+                            </div>
+                            <div className="flex items-center gap-3 bg-white/10 px-5 py-2 rounded-xl border border-white/10">
+                                <span className="text-xs font-bold uppercase tracking-widest text-white/60">Scored</span>
+                                <span className="text-2xl font-black text-green-400">
+                                    {new Set(data.scores.map(s => s.candidate_id)).size} / {candidates.length}
+                                </span>
+                            </div>
                         </div>
                     </div>
 

@@ -1,3 +1,4 @@
+import Alert from "@/Components/Alert";
 import PrimaryButton from "@/Components/PrimaryButton";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
@@ -23,9 +24,7 @@ export default function ScoringIndex({ auth, pageants }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6">
                             {flash.message && (
-                                <div className="block w-full p-2 rounded-sm bg-green-500 text-white mb-6">
-                                    {flash.message}
-                                </div>
+                                <Alert className="mb-6">{flash.message}</Alert>
                             )}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {pageants.map((pageant) => {
