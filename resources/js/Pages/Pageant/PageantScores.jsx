@@ -8,6 +8,7 @@ import DangerButton from "@/Components/DangerButton";
 import Modal from "@/Components/Modal";
 import { Head, Link, router } from "@inertiajs/react";
 import { useState, useEffect, useMemo } from "react";
+import { usePageantChannel } from "@/hooks/usePageantChannel";
 
 // Helper to compute ranks based on a score extractor
 function rankItems(candidates, sortedBy = "total") {
@@ -66,6 +67,8 @@ export default function PageantScores({
     const [groupList, setGroupList] = useState([1]);
     const [confirmingReset, setConfirmingReset] = useState(false);
     const [confirmingEndPageant, setConfirmingEndPageant] = useState(false);
+
+    usePageantChannel(pageant.id, ['.score.submitted', '.scores.reset', '.round.changed', '.group.changed']);
 
     const headings = useMemo(
         () => [

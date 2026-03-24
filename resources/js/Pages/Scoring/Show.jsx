@@ -4,8 +4,11 @@ import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { useMemo, useCallback, Fragment } from "react";
+import { usePageantChannel } from "@/hooks/usePageantChannel";
 
 export default function ScoringShow({ auth, pageant, candidates }) {
+    usePageantChannel(pageant.id, ['.round.changed', '.group.changed', '.scores.reset', '.pageant.ended']);
+
     const { data, setData, post, processing } = useForm({
         scores: [],
     });

@@ -1,9 +1,12 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { usePageantChannel } from "@/hooks/usePageantChannel";
 
 export default function ScoringDetails({ auth, pageant, groupCriterias }) {
     const { flash } = usePage().props;
+
+    usePageantChannel(pageant.id, ['.round.changed', '.group.changed', '.pageant.ended']);
 
     return (
         <AuthenticatedLayout

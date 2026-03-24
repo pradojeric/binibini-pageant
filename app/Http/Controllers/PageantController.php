@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GroupChanged;
+use App\Events\PageantEnded;
+use App\Events\RoundChanged;
+use App\Events\ScoresReset;
 use App\Models\Pageant;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -190,6 +194,8 @@ class PageantController extends Controller
             'status' => 'finished',
         ]);
 
+        broadcast(new PageantEnded($pageant->id))->toOthers();
+
         return back();
     }
 
@@ -215,11 +221,15 @@ class PageantController extends Controller
     {
         $pageant->update(['current_round' => $request->round]);
         $pageant->update(['current_group' => 0]);
+
+        broadcast(new RoundChanged($pageant->id, (int) $request->round, 0))->toOthers();
     }
 
     public function changeGroup(Request $request, Pageant $pageant)
     {
         $pageant->update(['current_group' => $request->group]);
+
+        broadcast(new GroupChanged($pageant->id, (int) $request->group))->toOthers();
     }
 
     public function calculateResult(Pageant $pageant)
@@ -238,6 +248,8 @@ class PageantController extends Controller
             $round->candidatesDeduction()->detach();
             $round->candidates()->detach();
         }
+
+        broadcast(new ScoresReset($pageant->id))->toOthers();
 
         return back()->with('message', 'Successfully reset score');
     }

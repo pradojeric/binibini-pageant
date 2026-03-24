@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ScoreSubmitted;
 use App\Models\Pageant;
 use App\Services\PageantScoreService;
 use Illuminate\Http\Request;
@@ -44,6 +45,8 @@ class AdminScoringController extends Controller
                 ['score' => $scores['score']],
             );
         }
+
+        broadcast(new ScoreSubmitted($pageant->id))->toOthers();
 
         return redirect()->route('pageant.view-scores', $pageant);
     }

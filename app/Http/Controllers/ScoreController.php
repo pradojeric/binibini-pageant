@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ScoreSubmitted;
 use App\Models\Criteria;
 use App\Models\Pageant;
 use App\Services\PageantScoreService;
@@ -167,6 +168,8 @@ class ScoreController extends Controller
             ['user_id', 'candidate_id', 'criteria_id'], // Unique keys
             ['score'] // Columns to update if exists
         );
+
+        broadcast(new ScoreSubmitted($pageant->id))->toOthers();
 
         return redirect()
             ->route('scoring.index', $pageant)
