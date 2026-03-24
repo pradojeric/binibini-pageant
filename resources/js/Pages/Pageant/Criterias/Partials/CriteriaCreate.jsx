@@ -37,6 +37,7 @@ export default function CriteriaCreate({ className = "", pageant }) {
             <div className="flex flex-col gap-5">
                 <div>
                     <InputLabel htmlFor="name" value="Criteria Name" />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">The name judges will see when scoring.</p>
                     <TextInput
                         id="name"
                         value={data.name}
@@ -49,6 +50,7 @@ export default function CriteriaCreate({ className = "", pageant }) {
 
                 <div>
                     <InputLabel htmlFor="percentage" value="Percentage" />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">The maximum score for this criteria. Judges can score between half this value and the full value.</p>
                     <div className="relative mt-1">
                         <TextInput
                             id="percentage"
@@ -67,6 +69,7 @@ export default function CriteriaCreate({ className = "", pageant }) {
 
                 <div>
                     <InputLabel htmlFor="round" value="Round" />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Criteria are organized into rounds. Judges score one round at a time.</p>
                     <TextInput
                         id="round"
                         type="number"
@@ -80,6 +83,7 @@ export default function CriteriaCreate({ className = "", pageant }) {
 
                 <div>
                     <InputLabel htmlFor="group" value="Group" />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Within a round, criteria are split into groups. Judges will only see and score one group of criteria at a time. Use different group numbers to separate criteria into batches.</p>
                     <TextInput
                         id="group"
                         type="number"
