@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -111,6 +111,13 @@ export default function ScoringShow({
                                                     ...previousData,
                                                     round: val,
                                                 }));
+                                                if (val) {
+                                                    router.get(
+                                                        route("pageant.candidates.select", pageant.id),
+                                                        { round: val },
+                                                        { preserveState: true }
+                                                    );
+                                                }
                                             }}
                                         >
                                             <option value="" hidden>

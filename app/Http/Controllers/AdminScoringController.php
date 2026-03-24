@@ -51,20 +51,40 @@ class AdminScoringController extends Controller
         return redirect()->route('pageant.view-scores', $pageant);
     }
 
-    public function select(Pageant $pageant)
+    public function select(Pageant $pageant, Request $request)
     {
-        $roundNum = $pageant->current_round;
+        $candidates = collect();
+        $selected = [];
 
-        // fetch **scored** candidates from service
-        $scored = $this->pageantScoreService->getCandidateScores($pageant, $roundNum);
+        if ($request->has('round')) {
+            $round = $pageant->pageantRounds()->where('id', $request->round)->first();
+            if ($round) {
+                $selected = $round->candidates()->pluck('candidates.id')->toArray();
+                $previousRoundNum = $round->round - 1;
+                if ($previousRoundNum >= 1) {
+                    $candidates = $this->pageantScoreService
+                        ->getCandidateScores($pageant, $previousRoundNum)
+                        ->sortByDesc('total')->values();
+                } else {
+                    $candidates = $pageant->candidates
+                        ->sortBy('candidate_number')
+                        ->map(fn($c) => array_merge($c->toArray(), ['scores' => [], 'deduction' => 0, 'total' => 0]))
+                        ->values();
+                }
+            }
+        }
 
-        // (optional) you could still sort / paginate here,
-        // or extract only the pieces your Inertia page needs:
-        $candidates = $scored->sortByDesc('total')->values()->all();
+        if ($candidates->isEmpty() && !$request->has('round')) {
+            $candidates = $pageant->candidates
+                ->sortBy('candidate_number')
+                ->map(fn($c) => array_merge($c->toArray(), ['scores' => [], 'deduction' => 0, 'total' => 0]))
+                ->values();
+        }
 
         return Inertia::render('Pageant/Admin/SelectRoundCandidate', [
             'pageant'    => $pageant->load('pageantRounds'),
-            'candidates' => $candidates,
+            'candidates' => $candidates->values()->all(),
+            'selected'   => $selected,
         ]);
     }
 
@@ -90,7 +110,9 @@ class AdminScoringController extends Controller
             ->values() // re-index
             ->all();
 
-        $round->candidates()->syncWithoutDetaching($shuffled);
+        $round->candidates()->sync($shuffled);
+        $pageant->current_round = $round->round;
+        $pageant->save();
 
         return redirect()->route('pageant.view-scores', $pageant);
     }
