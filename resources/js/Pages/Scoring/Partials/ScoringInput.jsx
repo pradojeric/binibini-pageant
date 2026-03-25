@@ -2,12 +2,12 @@ import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import { useState, useMemo, useCallback } from "react";
 
-function ScoringInput({ criteria, candidate, onInputData = () => {} }) {
-    const [value, setValue] = useState("");
+function ScoringInput({ criteria, candidate, onInputData = () => {}, initialValue = "", isAdmin = false }) {
+    const [value, setValue] = useState(initialValue);
     const minMax = useMemo(() => {
-        const min = Math.round(criteria.percentage / 2);
+        const min = isAdmin ? 0 : Math.round(criteria.percentage / 2);
         return { min, max: criteria.percentage };
-    }, [criteria.percentage]);
+    }, [criteria.percentage, isAdmin]);
 
     const handleChange = useCallback(
         (e) => {

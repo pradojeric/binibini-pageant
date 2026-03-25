@@ -1,0 +1,1 @@
+import{r as t,j as u}from"./app-f71a04e0.js";import{c as a}from"./cn-0998f52b.js";import{I as c}from"./styles-5259d14f.js";const E=t.forwardRef(function({type:e="text",className:o="",isFocused:f=!1,...n},r){const s=r||t.useRef();return t.useEffect(()=>{f&&s.current.focus()},[]),u.jsx("input",{...n,type:e,className:a(c,o),ref:s})});export{E as T};

@@ -2,7 +2,6 @@ import { useRef } from "react";
 import { forwardRef } from "react";
 
 function rankItems(candidates, sortedBy = "total") {
-    // Copy candidates (shallow clone objects) and sort by the chosen total
     const sortedData = candidates.map(c => ({ ...c })).sort((a, b) => {
         const aScore =
             sortedBy === "total" ? a.total : a.scores[sortedBy].total;
@@ -11,17 +10,14 @@ function rankItems(candidates, sortedBy = "total") {
         return bScore - aScore;
     });
 
-    // Assign ranks, averaging ties in a single pass
     let i = 0;
     while (i < sortedData.length) {
-        // Determine the score at the start of the group
         const groupScore =
             sortedBy === "total"
                 ? sortedData[i].total
                 : sortedData[i].scores[sortedBy].total;
         let j = i;
         let rankSum = 0;
-        // Find end of tie group and sum rank positions
         while (
             j < sortedData.length &&
             (sortedBy === "total"
@@ -31,21 +27,42 @@ function rankItems(candidates, sortedBy = "total") {
             rankSum += j + 1;
             j++;
         }
-        // Compute average rank for the tie group
         const averageRank = (rankSum / (j - i)).toFixed(1);
-        // Assign average rank to each item in the group
         for (let k = i; k < j; k++) {
             sortedData[k].rank = averageRank;
         }
-        // Move to next group
         i = j;
     }
 
     return sortedData;
 }
 
-function RenderTable({ criteria, allCandidates, gender, judges }) {
+function RenderTable({ criteria, allCandidates, gender, judges, criterias }) {
     const candidates = rankItems(allCandidates, criteria.id);
+
+    const isSubtotal = criteria.is_subtotal;
+    const isGrandTotal = criteria.is_grand_total;
+    const isRegular = !isSubtotal && !isGrandTotal;
+
+    // For subtotal: get individual criteria in this round
+    const roundCriterias = isSubtotal
+        ? criterias.filter(c => c.round === criteria.round && !c.is_subtotal && !c.is_grand_total)
+        : [];
+
+    // For grand total: get all subtotal entries
+    const subtotalEntries = isGrandTotal
+        ? criterias.filter(c => c.is_subtotal)
+        : [];
+
+    // Check if any candidate has deductions
+    const hasDeductions = isSubtotal
+        ? candidates.some(c => {
+            const roundName = criteria.round_name;
+            return (c.roundDeductions?.[roundName] ?? 0) > 0;
+        })
+        : isGrandTotal
+        ? candidates.some(c => (c.totalDeduction ?? 0) > 0)
+        : false;
 
     return (
         <div className="mt-2 text-gray-900">
@@ -55,27 +72,58 @@ function RenderTable({ criteria, allCandidates, gender, judges }) {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
-                            {!(
-                                criteria.is_subtotal ||
-                                criteria.is_grand_total ||
-                                criteria.hidden_scoring
-                            ) &&
-                                judges.map((judge) => {
-                                    return (
-                                        <th
-                                            key={`judge` + judge.id}
-                                            className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                        >
-                                            {judge.name}
-                                        </th>
-                                    );
-                                })}
+
+                            {/* Regular criteria: show judge columns */}
+                            {isRegular && !criteria.hidden_scoring &&
+                                judges.map((judge) => (
+                                    <th
+                                        key={`judge` + judge.id}
+                                        className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    >
+                                        {judge.name}
+                                    </th>
+                                ))}
+
+                            {/* Subtotal: show per-criteria columns */}
+                            {isSubtotal &&
+                                roundCriterias.map((c) => (
+                                    <th
+                                        key={`crit-${c.id}`}
+                                        className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    >
+                                        {c.name}
+                                    </th>
+                                ))}
+
+                            {/* Grand total: show per-round columns */}
+                            {isGrandTotal &&
+                                subtotalEntries.map((s) => (
+                                    <th
+                                        key={`round-${s.id}`}
+                                        className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    >
+                                        {s.round_name}
+                                    </th>
+                                ))}
+
+                            {/* Deduction column if applicable */}
+                            {hasDeductions && (
+                                <th className="px-3 py-2 text-center text-xs font-medium text-red-500 uppercase tracking-wider">
+                                    Deduction
+                                </th>
+                            )}
+
                             <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                             <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                        {candidates.map((candidate, index) => {
+                        {candidates.map((candidate) => {
+                            const roundDeduction = isSubtotal
+                                ? (candidate.roundDeductions?.[criteria.round_name] ?? 0)
+                                : 0;
+                            const totalDeduction = candidate.totalDeduction ?? 0;
+
                             return (
                                 <tr key={`cand` + candidate.id}>
                                     <td>
@@ -85,9 +133,7 @@ function RenderTable({ criteria, allCandidates, gender, judges }) {
                                             </div>
                                             <div>
                                                 <div className="uppercase font-bold text-gray-900 whitespace-nowrap">
-                                                    {
-                                                        candidate.full_name_last_name_first
-                                                    }
+                                                    {candidate.full_name_last_name_first}
                                                 </div>
                                                 <div className="text-sm text-gray-500">
                                                     {candidate.nickname}
@@ -95,25 +141,55 @@ function RenderTable({ criteria, allCandidates, gender, judges }) {
                                             </div>
                                         </div>
                                     </td>
-                                    {!(
-                                        criteria.is_subtotal ||
-                                        criteria.is_grand_total ||
-                                        criteria.hidden_scoring
-                                    ) &&
-                                        judges.map((judge) => {
+
+                                    {/* Regular: judge scores */}
+                                    {isRegular && !criteria.hidden_scoring &&
+                                        judges.map((judge) => (
+                                            <td
+                                                key={`judge-cand` + judge.id}
+                                                className="px-3 py-1 text-center text-gray-900"
+                                            >
+                                                {candidate.scores[criteria.id][judge.id]}
+                                            </td>
+                                        ))}
+
+                                    {/* Subtotal: per-criteria totals */}
+                                    {isSubtotal &&
+                                        roundCriterias.map((c) => (
+                                            <td
+                                                key={`crit-score-${c.id}`}
+                                                className="px-3 py-1 text-center text-gray-900"
+                                            >
+                                                {candidate.scores[c.id]?.total ?? 0}
+                                            </td>
+                                        ))}
+
+                                    {/* Grand total: per-round subtotals (raw, before deduction) */}
+                                    {isGrandTotal &&
+                                        subtotalEntries.map((s) => {
+                                            const subtotalScore = candidate.scores[s.id]?.total ?? 0;
+                                            const ded = candidate.roundDeductions?.[s.round_name] ?? 0;
+                                            // subtotal already has deduction subtracted, add it back for raw display
+                                            const rawScore = subtotalScore + ded;
                                             return (
                                                 <td
-                                                    key={`judge-cand` + judge.id}
+                                                    key={`round-score-${s.id}`}
                                                     className="px-3 py-1 text-center text-gray-900"
                                                 >
-                                                    {
-                                                        candidate.scores[
-                                                            criteria.id
-                                                        ][judge.id]
-                                                    }
+                                                    {rawScore}
                                                 </td>
                                             );
                                         })}
+
+                                    {/* Deduction value */}
+                                    {hasDeductions && (
+                                        <td className="px-3 py-1 text-center text-red-600 font-medium">
+                                            {isSubtotal && roundDeduction > 0 ? `-${roundDeduction}` : ''}
+                                            {isGrandTotal && totalDeduction > 0 ? `-${totalDeduction}` : ''}
+                                            {((isSubtotal && roundDeduction === 0) || (isGrandTotal && totalDeduction === 0)) ? '0' : ''}
+                                        </td>
+                                    )}
+
                                     <td className="px-3 py-1 text-center font-bold text-gray-900">
                                         {candidate.scores[criteria.id]["total"]}
                                     </td>
@@ -148,18 +224,6 @@ export default forwardRef(function PageantPrinting(
         { list: femaleCandidates, gender: "female" },
     ];
 
-    const renderScores = (candidates, criteria, gender) => {
-        return (
-            <RenderTable
-                key={`male` + criteria.id}
-                criteria={criteria}
-                allCandidates={candidates}
-                judges={judges}
-                gender={gender}
-            />
-        );
-    };
-
     return (
         <div className="p-6">
             <div ref={compRef}>
@@ -177,7 +241,13 @@ export default forwardRef(function PageantPrinting(
                             </div>
                             <hr />
                             <div className="my-2">
-                                {renderScores(list, criteria, gender)}
+                                <RenderTable
+                                    criteria={criteria}
+                                    allCandidates={list}
+                                    judges={judges}
+                                    gender={gender}
+                                    criterias={criterias}
+                                />
                             </div>
                         </div>
                     ) : null
@@ -186,5 +256,3 @@ export default forwardRef(function PageantPrinting(
         </div>
     );
 });
-
-// export default forwardRef(PageantPrinting, ref);

@@ -159,6 +159,8 @@ class PageantScoreService
             return array_merge($base, [
                 'scores' => $scores,
                 'gender' => $candidate->gender, // so you can sortByDesc('total')
+                'roundDeductions' => $roundDeds->toArray(),
+                'totalDeduction' => $roundDeds->sum(),
             ]);
         });
     }

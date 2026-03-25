@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
         ]);
         Route::resource('pageants', PageantController::class)->except(['update']);
         Route::post('/pageants/{pageant}/update', [PageantController::class, 'update'])->name('pageants.update');
+        Route::delete('/pageant-rounds/{pageantRound}', [PageantController::class, 'deleteRound'])->name('pageant-rounds.destroy');
 
         Route::post('/pageants/{pageant}/end-pageant', [PageantController::class, 'endPageant'])->name('end.pageant');
         Route::get('/pageants/{pageant}/select-judges', [PageantController::class, 'selectJudges'])->name('pageant.select-judges');

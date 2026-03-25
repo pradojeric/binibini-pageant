@@ -4,7 +4,8 @@ import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
-import { useEffect } from "react";
+import { useState } from "react";
+import OrderSelectionModal from "./_partial/OrderSelectionModal";
 import Checkbox from "@/Components/Checkbox";
 import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
@@ -16,19 +17,30 @@ export default function ScoringShow({
     candidates,
     selected = [],
 }) {
+    const [showOrderModal, setShowOrderModal] = useState(false);
+
     const { data, setData, post, errors, reset } = useForm({
         round: "",
         selectedCandidates: selected,
     });
 
-    const submit = (e) => {
+    const openOrderModal = (e) => {
         e.preventDefault();
-        post(route("select.store", pageant.id), {
-            preserveState: true,
-            onSuccess: () => {
-                reset();
-            },
-        });
+        setShowOrderModal(true);
+    };
+
+    const handleConfirmOrder = (orderedIds) => {
+        setShowOrderModal(false);
+        router.post(
+            route("select.store", pageant.id),
+            { round: data.round, selectedCandidates: orderedIds },
+            {
+                preserveState: true,
+                onSuccess: () => {
+                    reset();
+                },
+            }
+        );
     };
 
     const handleChecked = (e) => {
@@ -97,7 +109,7 @@ export default function ScoringShow({
                         <div className="p-6">
                             <InputError message={errors.round} />
                             <InputError message={errors.selectedCandidates} />
-                            <form onSubmit={submit}>
+                            <form onSubmit={openOrderModal}>
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                                     <div className="flex items-center gap-3 w-full md:w-auto">
                                         <InputLabel value="Select Round:" className="text-lg" />
@@ -235,6 +247,13 @@ export default function ScoringShow({
                     </div>
                 </div>
             </div>
+            <OrderSelectionModal
+                show={showOrderModal}
+                onClose={() => setShowOrderModal(false)}
+                candidates={candidates}
+                selectedIds={data.selectedCandidates}
+                onConfirm={handleConfirmOrder}
+            />
         </AuthenticatedLayout>
     );
 }

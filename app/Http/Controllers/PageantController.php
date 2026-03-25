@@ -7,6 +7,7 @@ use App\Events\PageantEnded;
 use App\Events\RoundChanged;
 use App\Events\ScoresReset;
 use App\Models\Pageant;
+use App\Models\PageantRound;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -112,7 +113,9 @@ class PageantController extends Controller
     public function edit(Pageant $pageant)
     {
         return Inertia::render('Pageant/PageantEdit', [
-            'pageant' => $pageant->load('pageantRounds')
+            'pageant' => $pageant->load(['pageantRounds' => function ($query) {
+                $query->withCount(['candidates', 'candidatesDeduction']);
+            }])
         ]);
     }
 
@@ -125,8 +128,8 @@ class PageantController extends Controller
             'pageant'                                 => 'required|string',
             'type'                                    => 'required|in:mr,ms,mr&ms',
             'background'                              => 'nullable|image',
-            'rounds'                                  => 'required|integer|min:1',
             'pageant_rounds'                          => 'required|array',
+            'pageant_rounds.*.*.id'                   => 'nullable|integer',
             'pageant_rounds.*.*.round'                => 'required|integer|min:1',
             'pageant_rounds.*.*.name'                 => 'required|string|max:255',
             'pageant_rounds.*.*.number_of_candidates' => 'required|integer|min:1',
@@ -134,7 +137,6 @@ class PageantController extends Controller
 
         // Handle background file
         if ($request->hasFile('background')) {
-            // Delete old one
             if ($pageant->background && Storage::disk('public')->exists($pageant->background)) {
                 Storage::disk('public')->delete($pageant->background);
             }
@@ -146,35 +148,43 @@ class PageantController extends Controller
                     'public'
                 );
         } else {
-            // Keep old if no new one provided
             unset($validated['background']);
         }
 
-        // Build the child rows
         $selectedSexes = $request->type === 'mr&ms'
             ? ['mr', 'ms']
             : [$request->type];
 
-        $roundRows = [];
-        foreach ($selectedSexes as $sex) {
-            foreach ($request->pageant_rounds[$sex] as $row) {
-                $roundRows[] = [
-                    'pageant_type'         => $sex,
-                    'round'                => (int) $row['round'],
-                    'round_name'           => $row['name'],
-                    'number_of_candidates' => (int) $row['number_of_candidates'],
-                ];
-            }
-        }
-
-        // Persist
-        DB::transaction(function () use ($pageant, $validated, $roundRows) {
+        DB::transaction(function () use ($pageant, $validated, $selectedSexes, $request) {
             $pageant->update(collect($validated)->except('pageant_rounds')->toArray());
 
-            // For updates, we'll delete old rounds and recreate them to keep it simple and consistent with the store logic
-            // Alternatively, you could do an upsert but sync/recreate is safer for this schema
-            $pageant->pageantRounds()->delete();
-            $pageant->pageantRounds()->createMany($roundRows);
+            // Update rounds count based on actual rounds
+            $maxRound = 0;
+
+            foreach ($selectedSexes as $sex) {
+                foreach ($request->pageant_rounds[$sex] as $row) {
+                    $roundData = [
+                        'pageant_type'         => $sex,
+                        'round'                => (int) $row['round'],
+                        'round_name'           => $row['name'],
+                        'number_of_candidates' => (int) $row['number_of_candidates'],
+                    ];
+
+                    if (!empty($row['id'])) {
+                        // Update existing round
+                        PageantRound::where('id', $row['id'])
+                            ->where('pageant_id', $pageant->id)
+                            ->update($roundData);
+                    } else {
+                        // Create new round
+                        $pageant->pageantRounds()->create($roundData);
+                    }
+
+                    $maxRound = max($maxRound, (int) $row['round']);
+                }
+            }
+
+            $pageant->update(['rounds' => $maxRound]);
         });
 
         return redirect()->route('pageants.index')->with('success', 'Pageant updated successfully.');
@@ -186,6 +196,26 @@ class PageantController extends Controller
     public function destroy(Pageant $pageant)
     {
         //
+    }
+
+    public function deleteRound(Request $request, PageantRound $pageantRound)
+    {
+        $hasData = $pageantRound->candidates()->exists() || $pageantRound->candidatesDeduction()->exists();
+
+        if ($hasData && !$request->boolean('confirmed')) {
+            return response()->json([
+                'requires_confirmation' => true,
+                'message' => 'This round has scoring data. Deleting it will remove all associated scores and deductions.',
+            ], 422);
+        }
+
+        DB::transaction(function () use ($pageantRound) {
+            $pageantRound->candidates()->detach();
+            $pageantRound->candidatesDeduction()->detach();
+            $pageantRound->delete();
+        });
+
+        return response()->json(['message' => 'Round deleted successfully.']);
     }
 
     public function endPageant(Pageant $pageant)

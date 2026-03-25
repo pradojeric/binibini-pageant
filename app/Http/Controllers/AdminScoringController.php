@@ -22,11 +22,24 @@ class AdminScoringController extends Controller
     public function show(Pageant $pageant)
     {
         $candidates = $pageant->candidates;
+
+        $hiddenCriteriaIds = $pageant->criterias()->where('hidden_scoring', true)->pluck('id');
+
+        $existingScores = [];
+        $userScores = Auth::user()->candidateCriterias()
+            ->whereIn('criteria_id', $hiddenCriteriaIds)
+            ->get(['candidate_id', 'criteria_id', 'score']);
+
+        foreach ($userScores as $score) {
+            $existingScores[$score->candidate_id][$score->criteria_id] = $score->score;
+        }
+
         return Inertia::render('Pageant/Admin/PageantScoring', [
-            'pageant'    => $pageant->load(['criterias' => function ($query) use ($pageant) {
+            'pageant'    => $pageant->load(['criterias' => function ($query) {
                 $query->where('hidden_scoring', true);
             }, 'judges']),
             'candidates' => $candidates,
+            'existingScores' => $existingScores,
         ]);
     }
 
@@ -48,7 +61,7 @@ class AdminScoringController extends Controller
 
         broadcast(new ScoreSubmitted($pageant->id))->toOthers();
 
-        return redirect()->route('pageant.view-scores', $pageant);
+        return redirect()->route('scoring.admin', $pageant);
     }
 
     public function select(Pageant $pageant, Request $request)
@@ -59,7 +72,7 @@ class AdminScoringController extends Controller
         if ($request->has('round')) {
             $round = $pageant->pageantRounds()->where('id', $request->round)->first();
             if ($round) {
-                $selected = $round->candidates()->pluck('candidates.id')->toArray();
+                $selected = $round->candidates()->orderByPivot('order')->pluck('candidates.id')->toArray();
                 $previousRoundNum = $round->round - 1;
                 if ($previousRoundNum >= 1) {
                     $candidates = $this->pageantScoreService
@@ -101,16 +114,12 @@ class AdminScoringController extends Controller
             'selectedCandidates' => ['required', 'array', 'size:' . $round->number_of_candidates],
         ]);
 
-        $shuffled = collect($request->selectedCandidates)
-            ->when(
-                $round->round !== 1,
-                fn($c) => $c->shuffle(),
-                fn($c) => $c->sort()
-            )
-            ->values() // re-index
+        $syncData = collect($request->selectedCandidates)
+            ->values()
+            ->mapWithKeys(fn($id, $index) => [$id => ['order' => $index + 1]])
             ->all();
 
-        $round->candidates()->sync($shuffled);
+        $round->candidates()->sync($syncData);
         $pageant->current_round = $round->round;
         $pageant->save();
 

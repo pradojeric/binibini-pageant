@@ -2,7 +2,7 @@ import ScoringInput from "@/Pages/Scoring/Partials/ScoringInput";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
-function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
+function CandidateBox({ candidate, criterias, onInputData = () => {}, existingScores = {}, isAdmin = false }) {
     return (
         <div className="group">
             <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.03]">
@@ -46,6 +46,8 @@ function CandidateBox({ candidate, criterias, onInputData = () => {} }) {
                                 criteria={criteria}
                                 candidate={candidate}
                                 onInputData={onInputData}
+                                initialValue={existingScores[criteria.id] ?? ""}
+                                isAdmin={isAdmin}
                             />
                         ))}
                     </div>

@@ -1,30 +1,35 @@
-import { Head, useForm } from "@inertiajs/react";
+import { Head, useForm, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import SelectInput from "@/Components/SelectInput";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { useMemo } from "react";
-import { 
-    TrophyIcon, 
-    QueueListIcon, 
-    PhotoIcon, 
+import { useMemo, useState } from "react";
+import {
+    TrophyIcon,
+    QueueListIcon,
+    PhotoIcon,
     Squares2X2Icon,
     UserIcon,
-    ArrowRightIcon
+    ArrowRightIcon,
+    PlusIcon,
+    TrashIcon,
 } from "@heroicons/react/24/outline";
 
 export default function PageantEdit({ auth, pageant }) {
-    // Transform flat pageant_rounds from backend into the object format used by the form
+    const [confirmDelete, setConfirmDelete] = useState(null);
+
     const initialPageantRounds = useMemo(() => {
         const rounds = { mr: [], ms: [] };
         pageant.pageant_rounds.forEach(pr => {
             if (rounds[pr.pageant_type]) {
                 rounds[pr.pageant_type].push({
+                    id: pr.id,
                     round: pr.round,
                     name: pr.round_name,
-                    number_of_candidates: pr.number_of_candidates
+                    number_of_candidates: pr.number_of_candidates,
+                    has_data: (pr.candidates_count || 0) > 0 || (pr.candidates_deduction_count || 0) > 0,
                 });
             }
         });
@@ -35,7 +40,6 @@ export default function PageantEdit({ auth, pageant }) {
         pageant: pageant.pageant,
         type: pageant.type,
         background: null,
-        rounds: pageant.rounds,
         pageant_rounds: initialPageantRounds,
     });
 
@@ -59,40 +63,6 @@ export default function PageantEdit({ auth, pageant }) {
         return isNaN(n) || n < 1 ? 1 : n;
     };
 
-    const scaffoldRounds = (roundsInt) =>
-        Array.from({ length: roundsInt }, (_, i) => ({
-            round: i + 1,
-            name: "",
-            number_of_candidates: 1,
-        }));
-
-    const handleRoundsChange = (e) => {
-        const roundsInt = toInt(e.target.value);
-        const scaffold = scaffoldRounds(roundsInt);
-        const sexes = getSexes(data.type);
-
-        const newPageantRounds = {};
-        sexes.forEach((sex) => {
-            const existing = data.pageant_rounds[sex] ?? [];
-            const updated = [];
-
-            for (let i = 0; i < roundsInt; i++) {
-                updated.push(
-                    existing[i]
-                        ? { ...existing[i], round: i + 1 }
-                        : { ...scaffold[i] }
-                );
-            }
-            newPageantRounds[sex] = updated;
-        });
-
-        setData({
-            ...data,
-            rounds: roundsInt,
-            pageant_rounds: newPageantRounds,
-        });
-    };
-
     const updateCandidateCount = (sex, idx, value) => {
         const candidateInt = toInt(value);
         setData("pageant_rounds", {
@@ -112,11 +82,90 @@ export default function PageantEdit({ auth, pageant }) {
         });
     };
 
+    const addRound = (sex) => {
+        const existing = data.pageant_rounds[sex] || [];
+        const lastRound = existing.length > 0 ? Math.max(...existing.map(r => r.round)) : 0;
+        setData("pageant_rounds", {
+            ...data.pageant_rounds,
+            [sex]: [
+                ...existing,
+                { id: null, round: lastRound + 1, name: "", number_of_candidates: 1, has_data: false },
+            ],
+        });
+    };
+
+    const removeRound = (sex, idx) => {
+        const round = data.pageant_rounds[sex][idx];
+
+        // New round (not yet saved) — just remove from state
+        if (!round.id) {
+            setData("pageant_rounds", {
+                ...data.pageant_rounds,
+                [sex]: data.pageant_rounds[sex].filter((_, i) => i !== idx),
+            });
+            return;
+        }
+
+        // Existing round — call delete endpoint
+        const doDelete = (confirmed = false) => {
+            const url = route("pageant-rounds.destroy", round.id);
+            fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({ confirmed }),
+            })
+                .then(async (res) => {
+                    if (res.status === 422) {
+                        const body = await res.json();
+                        if (body.requires_confirmation) {
+                            setConfirmDelete({ sex, idx, message: body.message });
+                            return;
+                        }
+                    }
+                    if (res.ok) {
+                        setData("pageant_rounds", {
+                            ...data.pageant_rounds,
+                            [sex]: data.pageant_rounds[sex].filter((_, i) => i !== idx),
+                        });
+                        setConfirmDelete(null);
+                    }
+                });
+        };
+
+        doDelete(false);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!confirmDelete) return;
+        const { sex, idx } = confirmDelete;
+        const round = data.pageant_rounds[sex][idx];
+        const url = route("pageant-rounds.destroy", round.id);
+
+        fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                "Accept": "application/json",
+            },
+            body: JSON.stringify({ confirmed: true }),
+        }).then((res) => {
+            if (res.ok) {
+                setData("pageant_rounds", {
+                    ...data.pageant_rounds,
+                    [sex]: data.pageant_rounds[sex].filter((_, i) => i !== idx),
+                });
+                setConfirmDelete(null);
+            }
+        });
+    };
+
     const submit = (e) => {
         e.preventDefault();
-        // Since we are uploading file with potentially POST routing, 
-        // Inertia handles this well with post() and Laravel's _method spoofing if needed.
-        // But here we'll use a direct post to the update route as established.
         post(route("pageants.update", pageant.id), {
             forceFormData: true,
         });
@@ -138,10 +187,36 @@ export default function PageantEdit({ auth, pageant }) {
         >
             <Head title={`Edit ${pageant.pageant}`} />
 
+            {/* Confirmation Modal */}
+            {confirmDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md mx-4">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Confirm Deletion</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">{confirmDelete.message}</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                type="button"
+                                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+                                onClick={() => setConfirmDelete(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+                                onClick={handleConfirmDelete}
+                            >
+                                Delete Anyway
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
                 <form onSubmit={submit} encType="multipart/form-data" className="space-y-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        
+
                         {/* Left Column: Basic Settings */}
                         <div className="lg:col-span-5 space-y-6">
                             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 space-y-6">
@@ -174,10 +249,9 @@ export default function PageantEdit({ auth, pageant }) {
                                         onChange={(e) => {
                                             const newType = e.target.value;
                                             const sexes = getSexes(newType);
-                                            const scaffold = scaffoldRounds(data.rounds);
                                             const newPageantRounds = {};
                                             sexes.forEach((sex) => {
-                                                newPageantRounds[sex] = data.pageant_rounds[sex] ?? scaffold;
+                                                newPageantRounds[sex] = data.pageant_rounds[sex] ?? [];
                                             });
                                             setData({ ...data, type: newType, pageant_rounds: newPageantRounds });
                                         }}
@@ -225,20 +299,6 @@ export default function PageantEdit({ auth, pageant }) {
                                         <p className="mt-2 text-xs text-indigo-600 font-medium truncate">Selected: {data.background.name}</p>
                                     )}
                                 </div>
-
-                                <div>
-                                    <InputLabel htmlFor="rounds" value="Number of Rounds" className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2" />
-                                    <TextInput
-                                        id="rounds"
-                                        type="number"
-                                        name="rounds"
-                                        min={1}
-                                        value={data.rounds}
-                                        className="block w-full rounded-xl border-gray-200 dark:border-gray-700 focus:ring-indigo-500 focus:border-indigo-500"
-                                        onChange={handleRoundsChange}
-                                    />
-                                    <InputError message={errors.rounds} className="mt-2" />
-                                </div>
                             </div>
 
                             <div className="flex items-center justify-between p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/50">
@@ -280,7 +340,7 @@ export default function PageantEdit({ auth, pageant }) {
                                                             {sex === "mr" ? "Male Division" : "Female Division"}
                                                         </h3>
                                                     </div>
-                                                    <span className="text-xs font-black px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-400 uppercase tracking-widest">{sexRounds.length || data.rounds} Rounds</span>
+                                                    <span className="text-xs font-black px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-400 uppercase tracking-widest">{sexRounds.length} Rounds</span>
                                                 </div>
 
                                                 <div className="p-4 overflow-x-auto">
@@ -290,11 +350,12 @@ export default function PageantEdit({ auth, pageant }) {
                                                                 <th className="px-4 py-3 text-xs uppercase tracking-widest font-black text-gray-400">#</th>
                                                                 <th className="px-4 py-3 text-xs uppercase tracking-widest font-black text-gray-400">Round Name</th>
                                                                 <th className="px-4 py-3 text-xs uppercase tracking-widest font-black text-gray-400 text-right">Candidates</th>
+                                                                <th className="px-4 py-3 text-xs uppercase tracking-widest font-black text-gray-400 text-center w-16"></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
                                                             {sexRounds.map((pr, index) => (
-                                                                <tr key={`${sex}${pr.round}`} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+                                                                <tr key={`${sex}-${index}`} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
                                                                     <td className="px-4 py-4 font-black text-gray-300 dark:text-gray-600">
                                                                         {pr.round}
                                                                     </td>
@@ -313,15 +374,37 @@ export default function PageantEdit({ auth, pageant }) {
                                                                                 type="number"
                                                                                 min={1}
                                                                                 value={pr.number_of_candidates}
-                                                                                className="w-20 text-right bg-gray-50 dark:bg-gray-700/30 border-none focus:ring-2 focus:ring-indigo-500 rounded-lg py-1 font-bold"
+                                                                                readOnly={pr.has_data}
+                                                                                className={`w-20 text-right border-none focus:ring-2 focus:ring-indigo-500 rounded-lg py-1 font-bold ${pr.has_data ? 'bg-gray-200 dark:bg-gray-600 cursor-not-allowed' : 'bg-gray-50 dark:bg-gray-700/30'}`}
                                                                                 onChange={(e) => updateCandidateCount(sex, index, e.target.value)}
                                                                             />
                                                                         </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 text-center">
+                                                                        <button
+                                                                            type="button"
+                                                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                                            onClick={() => removeRound(sex, index)}
+                                                                            title="Delete round"
+                                                                        >
+                                                                            <TrashIcon className="w-4 h-4" />
+                                                                        </button>
                                                                     </td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>
                                                     </table>
+                                                </div>
+
+                                                <div className="px-8 pb-6">
+                                                    <button
+                                                        type="button"
+                                                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-xl transition-colors w-full justify-center border border-dashed border-indigo-200 dark:border-indigo-800"
+                                                        onClick={() => addRound(sex)}
+                                                    >
+                                                        <PlusIcon className="w-4 h-4" />
+                                                        Add Round
+                                                    </button>
                                                 </div>
                                             </div>
                                         );

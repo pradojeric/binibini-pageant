@@ -1,1 +1,0 @@
-import{j as o}from"./app-9f053b42.js";import{c as s}from"./cn-0998f52b.js";import{I as e}from"./styles-5259d14f.js";function n({children:r,className:t="",...a}){return o.jsx("textarea",{...a,className:s(e,t),children:r})}export{n as T};

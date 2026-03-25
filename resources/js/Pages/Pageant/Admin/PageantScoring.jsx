@@ -4,10 +4,22 @@ import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
-import { useMemo, useCallback, Fragment } from "react";
+import { useMemo, useCallback, Fragment, useState } from "react";
 
-export default function ScoringShow({ auth, pageant, candidates }) {
-    const { data, setData, post } = useForm({
+export default function ScoringShow({ auth, pageant, candidates, existingScores = {} }) {
+    const isAdmin = auth.user.role === "admin";
+    const criterias = pageant.criterias ?? [];
+
+    const [selectedCriteriaId, setSelectedCriteriaId] = useState(
+        criterias.length > 0 ? criterias[0].id : ""
+    );
+
+    const selectedCriteria = useMemo(
+        () => criterias.filter((c) => c.id === Number(selectedCriteriaId)),
+        [criterias, selectedCriteriaId]
+    );
+
+    const { data, setData, post, processing } = useForm({
         scores: [],
     });
 
@@ -44,21 +56,16 @@ export default function ScoringShow({ auth, pageant, candidates }) {
 
     // Function to check if all candidates have been scored
     const allCandidatesScored = () => {
-        // Create a set to store candidate ids that have been scored
         let scoredCandidates = new Set();
-
-        // Iterate through the scores array
         for (let score of data.scores) {
             scoredCandidates.add(score.candidate_id);
         }
-
-        // Check if all candidates have been scored
         for (let candidate of candidates) {
             if (!scoredCandidates.has(candidate.id)) {
-                return false; // If any candidate has not been scored, return false
+                return false;
             }
         }
-        return true; // All candidates have been scored
+        return true;
     };
 
     const submit = (e) => {
@@ -114,13 +121,32 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                         </div>
                     </div>
 
-                    {/* Control Bar (Just Back Button here for now, could be improved) */}
+                    {/* Control Bar */}
                     <div className="mb-6 flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
                         <Link href={route("pageant.view-scores", pageant.id)}>
                             <SecondaryButton>
                                 &larr; Back to Scores
                             </SecondaryButton>
                         </Link>
+
+                        {/* Criteria Selector */}
+                        <div className="flex items-center gap-3">
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                Criteria:
+                            </label>
+                            <select
+                                className="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                value={selectedCriteriaId}
+                                onChange={(e) => setSelectedCriteriaId(e.target.value)}
+                            >
+                                {criterias.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.name} ({c.percentage}%)
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
                         <div className="text-gray-500 text-sm">
                            Admin Scoring Panel
                         </div>
@@ -130,7 +156,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 dark:text-white">
                             <form onSubmit={submit}>
-                                {selectedSexes.map((sex, idx) => (
+                                {selectedSexes.map((sex) => (
                                     <Fragment key={sex}>
                                         <div className="mb-8">
                                             <h2 className="uppercase font-bold text-2xl tracking-wide mb-6 border-b pb-2 border-gray-200 dark:border-gray-700">
@@ -143,16 +169,12 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                                     candidatesBySex[sex].map(
                                                         (candidate) => (
                                                             <CandidateBox
-                                                                key={candidate.id}
-                                                                candidate={
-                                                                    candidate
-                                                                }
-                                                                criterias={
-                                                                    pageant.criterias
-                                                                }
-                                                                onInputData={
-                                                                    handleSetData
-                                                                }
+                                                                key={`${candidate.id}-${selectedCriteriaId}`}
+                                                                candidate={candidate}
+                                                                criterias={selectedCriteria}
+                                                                onInputData={handleSetData}
+                                                                existingScores={existingScores[candidate.id] ?? {}}
+                                                                isAdmin={isAdmin}
                                                             />
                                                         )
                                                     )
@@ -165,10 +187,10 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                         </div>
                                     </Fragment>
                                 ))}
-                                
+
                                 <div className="mt-8 flex justify-end border-t pt-6 border-gray-100 dark:border-gray-700">
-                                    <PrimaryButton className="px-8 py-3 text-lg">
-                                        Save All Scores
+                                    <PrimaryButton className="px-8 py-3 text-lg" disabled={processing}>
+                                        {processing ? "Saving..." : "Save Scores"}
                                     </PrimaryButton>
                                 </div>
                             </form>
