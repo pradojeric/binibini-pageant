@@ -4,7 +4,7 @@ import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
-import { useMemo, useCallback, Fragment, useState } from "react";
+import { useMemo, useCallback, Fragment, useState, useEffect } from "react";
 
 export default function ScoringShow({ auth, pageant, candidates, existingScores = {} }) {
     const isAdmin = auth.user.role === "admin";
@@ -22,6 +22,22 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
     const { data, setData, post, processing } = useForm({
         scores: [],
     });
+
+    useEffect(() => {
+        const initial = [];
+        for (const [candidateId, criteriaScores] of Object.entries(existingScores)) {
+            for (const [criteriaId, score] of Object.entries(criteriaScores)) {
+                initial.push({
+                    candidate_id: Number(candidateId),
+                    criteria_id: Number(criteriaId),
+                    score: Number(score),
+                });
+            }
+        }
+        if (initial.length > 0) {
+            setData("scores", initial);
+        }
+    }, []);
 
     // 1. Derive an array of active sexes from pageant.type
     const selectedSexes = useMemo(() => {

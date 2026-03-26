@@ -259,7 +259,9 @@ class PageantController extends Controller
     {
         $pageant->update(['current_group' => $request->group]);
 
-        broadcast(new GroupChanged($pageant->id, (int) $request->group))->toOthers();
+        if ((int) $request->group !== 0) {
+            broadcast(new GroupChanged($pageant->id, (int) $pageant->current_round, (int) $request->group))->toOthers();
+        }
     }
 
     public function calculateResult(Pageant $pageant)
@@ -278,6 +280,10 @@ class PageantController extends Controller
             $round->candidatesDeduction()->detach();
             $round->candidates()->detach();
         }
+
+        $pageant->current_round = 0;
+        $pageant->current_group = 0;
+        $pageant->save();
 
         broadcast(new ScoresReset($pageant->id))->toOthers();
 

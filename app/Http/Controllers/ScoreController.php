@@ -172,7 +172,7 @@ class ScoreController extends Controller
         broadcast(new ScoreSubmitted($pageant->id))->toOthers();
 
         return redirect()
-            ->route('scoring.index', $pageant)
+            ->route('scoring.details', $pageant)
             ->with('message', 'Scores locked successfully! Please wait for the staff to instruct you before proceeding to the next round of scoring.');
     }
 

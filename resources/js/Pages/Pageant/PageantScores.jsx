@@ -11,8 +11,14 @@ import { useState, useEffect, useMemo } from "react";
 import { usePageantChannel } from "@/hooks/usePageantChannel";
 
 // Helper to compute ranks based on a score extractor
-function rankItems(candidates, sortedBy = "total") {
+function rankItems(candidates, sortedBy = "order") {
     if (!candidates?.length) return [];
+
+    // Sort by order ascending (no score-based ranking)
+    if (sortedBy === "order") {
+        const sorted = [...candidates].sort((a, b) => (a.order || 0) - (b.order || 0));
+        return sorted.map((item, idx) => ({ ...item, rank: idx + 1 }));
+    }
 
     // 1. Define how to extract the score
     const getScore = (item) => {
@@ -82,8 +88,8 @@ export default function PageantScores({
     );
 
     useEffect(() => {
-        setFemCan(rankItems(femaleCandidates));
-        setMaleCan(rankItems(maleCandidates));
+        setFemCan(rankItems(femaleCandidates, "order"));
+        setMaleCan(rankItems(maleCandidates, "order"));
         setCrits(criterias);
 
         const organizedData = criterias.reduce((acc, item) => {
@@ -233,10 +239,11 @@ export default function PageantScores({
                                         <InputLabel value="Sort By" className="mb-1 text-xs uppercase text-gray-400" />
                                         <SelectInput
                                             name="criteria"
-                                            defaultValue="total"
+                                            defaultValue="order"
                                             className="w-full md:w-48"
                                             onChange={(e) => sortFunction(e.target.value)}
                                         >
+                                            <option value="order">Order</option>
                                             <option value="total">Total Points</option>
                                             {crits.map((criteria) => (
                                                 <option key={`criteria-` + criteria.id} value={criteria.id}>

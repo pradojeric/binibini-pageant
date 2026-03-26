@@ -1,4 +1,5 @@
 import { Head, useForm } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -7,7 +8,14 @@ import { useMemo, useCallback, Fragment } from "react";
 import { usePageantChannel } from "@/hooks/usePageantChannel";
 
 export default function ScoringShow({ auth, pageant, candidates }) {
-    usePageantChannel(pageant.id, ['.round.changed', '.group.changed', '.scores.reset', '.pageant.ended']);
+    usePageantChannel(pageant.id, {
+        '.round.changed': null,
+        '.group.changed': null,
+        '.pageant.ended': null,
+        '.scores.reset': () => {
+            router.visit(route('scoring.details', pageant.id));
+        },
+    });
 
     const { data, setData, post, processing } = useForm({
         scores: [],

@@ -1,23 +1,27 @@
 import { useEffect } from 'react';
 import { router } from '@inertiajs/react';
 
-export function usePageantChannel(pageantId, events = []) {
+export function usePageantChannel(pageantId, eventsOrHandlers = {}) {
     useEffect(() => {
         if (!pageantId || !window.Echo) return;
 
         const channel = window.Echo.channel(`pageant.${pageantId}`);
 
-        const allEvents = events.length > 0 ? events : [
-            '.score.submitted',
-            '.round.changed',
-            '.group.changed',
-            '.scores.reset',
-            '.pageant.ended',
-        ];
+        // Support both array of events (backward compat) and handlers object
+        const isArray = Array.isArray(eventsOrHandlers);
+        const handlers = isArray
+            ? Object.fromEntries(eventsOrHandlers.map(e => [e, null]))
+            : eventsOrHandlers;
 
-        allEvents.forEach(event => {
-            channel.listen(event, () => {
-                router.reload({ preserveScroll: true });
+        const events = Object.keys(handlers);
+
+        events.forEach(event => {
+            channel.listen(event, (data) => {
+                if (handlers[event]) {
+                    handlers[event](data);
+                } else {
+                    router.reload({ preserveScroll: true });
+                }
             });
         });
 

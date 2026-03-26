@@ -1,0 +1,1 @@
+import{r as t,P as a}from"./app-cff46c82.js";function h(e,o={}){t.useEffect(()=>{if(!e||!window.Echo)return;const s=window.Echo.channel(`pageant.${e}`),n=Array.isArray(o)?Object.fromEntries(o.map(r=>[r,null])):o;return Object.keys(n).forEach(r=>{s.listen(r,c=>{n[r]?n[r](c):a.reload({preserveScroll:!0})})}),()=>{window.Echo.leave(`pageant.${e}`)}},[e])}export{h as u};

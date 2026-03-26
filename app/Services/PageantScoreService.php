@@ -69,6 +69,7 @@ class PageantScoreService
                 'scores'    => $scores,
                 'deduction' => $deduct,
                 'total'     => $total - $deduct,
+                'order'     => $candidate->pivot->order ?? 0,
             ]);
         });
     }

@@ -1,12 +1,35 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { usePageantChannel } from "@/hooks/usePageantChannel";
 
 export default function ScoringDetails({ auth, pageant, groupCriterias }) {
     const { flash } = usePage().props;
 
-    usePageantChannel(pageant.id, ['.round.changed', '.group.changed', '.pageant.ended']);
+    const findCriteriaForGroup = (eventRound, eventGroup) => {
+        for (const [roundName, groups] of Object.entries(groupCriterias)) {
+            for (const [groupName, items] of Object.entries(groups)) {
+                if (items[0].round == eventRound && groupName == eventGroup) {
+                    return items[0];
+                }
+            }
+        }
+        return null;
+    };
+
+    usePageantChannel(pageant.id, {
+        '.round.changed': null,
+        '.pageant.ended': null,
+        '.group.changed': (data) => {
+            const criteria = findCriteriaForGroup(data.round, data.group);
+            if (criteria) {
+                router.visit(route('scoring.score', { pageant: pageant.id, criteria: criteria.criteria_id || criteria.id }));
+            } else {
+                router.reload({ preserveScroll: true });
+            }
+        },
+    });
 
     return (
         <AuthenticatedLayout

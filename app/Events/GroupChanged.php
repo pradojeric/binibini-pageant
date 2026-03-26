@@ -10,7 +10,7 @@ class GroupChanged implements ShouldBroadcastNow
 {
     use Dispatchable;
 
-    public function __construct(public int $pageantId, public int $group)
+    public function __construct(public int $pageantId, public int $round, public int $group)
     {
     }
 
