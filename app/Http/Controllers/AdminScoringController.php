@@ -121,6 +121,7 @@ class AdminScoringController extends Controller
 
         $round->candidates()->sync($syncData);
         $pageant->current_round = $round->round;
+        $pageant->current_group = 0;
         $pageant->save();
 
         return redirect()->route('pageant.view-scores', $pageant);
