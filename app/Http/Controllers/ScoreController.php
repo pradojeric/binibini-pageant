@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ScoreSubmitted;
+use App\Models\CandidateCriteria;
 use App\Models\Criteria;
 use App\Models\Pageant;
 use App\Services\PageantScoreService;
@@ -253,9 +254,38 @@ class ScoreController extends Controller
             ->values()
             ->all();
 
-        // 6) Render
+        // 6) Build judge scoring status for current group
+        //    Only count non-hidden criteria (judges don't score hidden ones — admins do)
+        $groupCriteriaIds = $pageant->criterias()
+            ->where('round', $roundNum)
+            ->where('group', $pageant->current_group)
+            ->where('hidden_scoring', false)
+            ->pluck('id');
+
+        // Use round candidates (what judges actually score), not the full candidatesScores
+        $round = $pageant->pageantRounds()->where('round', $roundNum)->first();
+        $candidateCount = $round && $round->candidates()->exists()
+            ? $round->candidates()->count()
+            : $pageant->candidates()->count();
+
+        $expectedScores = $candidateCount * $groupCriteriaIds->count();
+
+        $judges = $pageant->judges->map(function ($judge) use ($groupCriteriaIds, $expectedScores) {
+            $actualScores = CandidateCriteria::where('user_id', $judge->id)
+                ->whereIn('criteria_id', $groupCriteriaIds)
+                ->count();
+
+            return [
+                'id'     => $judge->id,
+                'name'   => $judge->name,
+                'status' => $expectedScores > 0 && $actualScores >= $expectedScores ? 'done' : 'pending',
+            ];
+        });
+
+        // 7) Render
         return Inertia::render('Pageant/PageantScores', [
             'pageant'          => $pageant->load('pageantRounds'),
+            'judges'           => $judges,
             'maleCandidates'   => $male,
             'femaleCandidates' => $female,
             // 'criterias'        => $criterias,

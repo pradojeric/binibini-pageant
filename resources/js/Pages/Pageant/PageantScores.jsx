@@ -66,6 +66,7 @@ export default function PageantScores({
     maleCandidates = [],
     femaleCandidates = [],
     criterias,
+    judges = [],
 }) {
     const [femCan, setFemCan] = useState([]);
     const [maleCan, setMaleCan] = useState([]);
@@ -287,6 +288,37 @@ export default function PageantScores({
                                     )}
                                 </div>
                             </div>
+
+                            {/* Judge Progress */}
+                            {judges.length > 0 && (
+                                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 mb-8">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                            Judge Progress
+                                        </h3>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                            {judges.filter((j) => j.status === "done").length} / {judges.length} completed
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-3">
+                                        {judges.map((judge) => (
+                                            <div
+                                                key={judge.id}
+                                                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                                                    judge.status === "done"
+                                                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                                }`}
+                                            >
+                                                <span className={`w-2 h-2 rounded-full ${
+                                                    judge.status === "done" ? "bg-green-500" : "bg-yellow-500 animate-pulse"
+                                                }`} />
+                                                {judge.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <hr className="my-6 border-gray-200 dark:border-gray-700" />
 
