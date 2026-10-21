@@ -1,10 +1,17 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
-import { LazyLoadImage } from "react-lazy-load-image-component";
+import Image from "@/Components/Image";
 import { usePageantChannel } from "@/hooks/usePageantChannel";
 
-export default function ScoringDetails({ auth, pageant, groupCriterias }) {
+// Card badge per group state; only the active group the judge hasn't locked yet opens.
+const STATUS_BADGE = {
+    active: { label: "Active Now", className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+    submitted: { label: "Submitted", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
+    closed: { label: "Closed", className: "bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400" },
+};
+
+export default function ScoringDetails({ auth, pageant, groupCriterias, submittedCriteriaIds = [] }) {
     const { flash } = usePage().props;
 
     const findCriteriaForGroup = (eventRound, eventGroup) => {
@@ -67,17 +74,18 @@ export default function ScoringDetails({ auth, pageant, groupCriterias }) {
                                                 {Object.entries(groups).map(
                                                     ([groupName, items]) => {
                                                         const isCurrent = pageant.current_round == items[0].round && pageant.current_group == groupName;
+                                                        const isSubmitted = items.some((crit) => submittedCriteriaIds.includes(crit.id));
+                                                        const status = isSubmitted ? "submitted" : isCurrent ? "active" : "closed";
+                                                        const isOpen = status === "active";
+                                                        const Card = isOpen ? Link : "div";
+                                                        const cardProps = isOpen
+                                                            ? { href: route("scoring.score", { pageant: pageant.id, criteria: items[0].id }) }
+                                                            : { "aria-disabled": true };
                                                         return (
                                                             <div key={`group-` + groupName}>
-                                                                <Link
-                                                                    href={route(
-                                                                        "scoring.score",
-                                                                        {
-                                                                            pageant: pageant.id,
-                                                                            criteria: items[0].id,
-                                                                        }
-                                                                    )}
-                                                                    className="group block h-full"
+                                                                <Card
+                                                                    {...cardProps}
+                                                                    className={`group block h-full ${isOpen ? "" : "cursor-not-allowed opacity-70"}`}
                                                                 >
                                                                     <div className={`relative flex flex-col h-full rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
                                                                         isCurrent 
@@ -85,12 +93,10 @@ export default function ScoringDetails({ auth, pageant, groupCriterias }) {
                                                                         : "border-gray-100 dark:border-gray-800"
                                                                     }`}>
                                                                         <div className="relative h-40 bg-gray-900">
-                                                                            <LazyLoadImage
-                                                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60"
+                                                                            <Image
+                                                                                className={`w-full h-full object-cover transition-transform duration-700 opacity-60 ${isOpen ? "group-hover:scale-110" : ""}`}
                                                                                 src={`/storage/` + pageant.background}
-                                                                                placeholderSrc="/logo.png"
                                                                                 alt={roundName}
-                                                                                effect="blur"
                                                                             />
                                                                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/80" />
                                                                             
@@ -120,15 +126,15 @@ export default function ScoringDetails({ auth, pageant, groupCriterias }) {
                                                                             </div>
                                                                             
                                                                             <div className="mt-4 pt-3 border-t border-gray-50 dark:border-gray-700 flex justify-end">
-                                                                                <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${
-                                                                                    isCurrent ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-500 dark:bg-gray-900/30 dark:text-gray-500"
+                                                                                <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
+                                                                                    STATUS_BADGE[status].className
                                                                                 }`}>
-                                                                                    {isCurrent ? "Active Now" : "Available"}
+                                                                                    {STATUS_BADGE[status].label}
                                                                                 </span>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                </Link>
+                                                                </Card>
                                                             </div>
                                                         );
                                                     }

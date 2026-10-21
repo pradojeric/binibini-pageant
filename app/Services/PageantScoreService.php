@@ -33,24 +33,25 @@ class PageantScoreService
             ->orderBy('hidden_scoring', 'desc')
             ->get();
 
-        // 2) Try to fetch the PageantRound (may be null)
-        $round = $pageant->pageantRounds()
-            ->where('round', $roundNumber)
-            ->first();
+        // 2) A round has one row per division; candidates selected into any of them are in this round
+        $rounds   = $pageant->roundRows($roundNumber)->load('candidates');
+        $roundIds = $rounds->pluck('id');
+        $selected = $rounds->flatMap(fn($round) => $round->candidates->pluck('id'));
+        // Stage order set on Select Candidate; each division's row numbers its own candidates.
+        $stageOrder = $rounds->reduce(fn(array $carry, $round) => $carry + $round->candidates->pluck('pivot.order', 'id')->all(), []);
 
-        // 3) Decide which candidates to score
-        $candidates = $round && $round->candidates()->exists()
-            ? $round->candidates()->with([
+        // 3) Only candidates selected into the round are scored. Judges score nobody until
+        //    staff selects candidates (round 1 included), so an empty round shows nobody.
+        $candidates = $pageant->candidates()
+            ->with([
                 'criterias' => fn($q) => $q->whereIn('criterias.id', $criterias->pluck('id')),
                 'candidatesDeduction',
-            ])->get()
-            : $pageant->candidates()->with([
-                'criterias' => fn($q) => $q->whereIn('criterias.id', $criterias->pluck('id')),
-                'candidatesDeduction',
-            ])->get();
+            ])
+            ->whereIn('candidates.id', $selected)
+            ->get();
 
         // 4) Map + compute scores, deductions, totals
-        return $candidates->map(function ($candidate) use ($criterias, $round) {
+        return $candidates->map(function ($candidate) use ($criterias, $roundIds, $stageOrder) {
             $base   = $candidate->toArray();
             $scores = $criterias->mapWithKeys(fn($crit) => [
                 $crit->id => $candidate
@@ -62,14 +63,14 @@ class PageantScoreService
             $total  = array_sum($scores);
             $deduct = $candidate
                 ->candidatesDeduction
-                ->filter(fn($pivot) => $round && $pivot->pivot->pageant_round_id === $round->id)
+                ->filter(fn($pivot) => $roundIds->contains($pivot->pivot->pageant_round_id))
                 ->sum('pivot.deduction');
 
             return array_merge($base, [
                 'scores'    => $scores,
                 'deduction' => $deduct,
                 'total'     => $total - $deduct,
-                'order'     => $candidate->pivot->order ?? 0,
+                'order'     => $stageOrder[$candidate->id] ?? 0,
             ]);
         });
     }
@@ -92,14 +93,17 @@ class PageantScoreService
             ->pluck('round_name', 'round')
             ->toArray();
 
+        // load every criterion pivot once, instead of one query per candidate
+        $pivotsByCandidate = CandidateCriteria::whereIn('candidate_id', $candidates->pluck('id'))
+            ->whereIn('criteria_id', $criterias->pluck('id'))
+            ->get()
+            ->groupBy('candidate_id');
 
-        return $candidates->map(function ($candidate) use ($criterias, $judges, $roundNames) {
+        return $candidates->map(function ($candidate) use ($criterias, $judges, $roundNames, $pivotsByCandidate) {
             $base = $candidate->toArray();
 
-            // load all criterion pivots for this candidate
-            $byCrit = CandidateCriteria::where('candidate_id', $candidate->id)
-                ->whereIn('criteria_id', $criterias->pluck('id'))
-                ->get()
+            $byCrit = $pivotsByCandidate
+                ->get($candidate->id, collect())
                 ->groupBy('criteria_id');
 
             // sum deductions per round_name
@@ -168,19 +172,18 @@ class PageantScoreService
 
     public function getDetailedCriterias(Pageant $pageant): Collection
     {
-        $criterias = $pageant
-            ->criterias()
-            ->join('pageant_rounds', function ($join) {
-                $join->on('pageant_rounds.pageant_id', '=', 'criterias.pageant_id')
-                    ->on('pageant_rounds.round', '=', 'criterias.round');
-            })
-            ->select('criterias.*', 'pageant_rounds.round_name as round_name')
-            ->orderBy('criterias.hidden_scoring', 'desc')
-            ->get();
-
         $roundNames = $pageant->pageantRounds
             ->pluck('round_name', 'round')
             ->toArray();
+
+        // A round has one pageant_rounds row per division, so joining on it would list each
+        // criteria once per division and count its scores that many times in the totals.
+        $criterias = $pageant
+            ->criterias()
+            ->whereIn('round', array_keys($roundNames))
+            ->orderBy('hidden_scoring', 'desc')
+            ->get()
+            ->each(fn($criteria) => $criteria->round_name = $roundNames[$criteria->round]);
 
         // insert Subtotal markers per round
         $grouped  = $criterias->groupBy('round');

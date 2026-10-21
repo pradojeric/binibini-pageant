@@ -1,0 +1,1 @@
+import{j as m}from"./app-17ed53c9.js";import{c as s}from"./cn-0998f52b.js";import{P as c}from"./styles-7ae25dde.js";function u({className:t="",disabled:o,children:r,...a}){return m.jsx("button",{...a,className:s(c,o&&"opacity-50 cursor-not-allowed",!o&&"active:scale-95",t),disabled:o,children:r})}export{u as P};

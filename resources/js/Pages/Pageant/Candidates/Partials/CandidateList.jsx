@@ -1,4 +1,5 @@
 import { useForm } from "@inertiajs/react";
+import Image from "@/Components/Image";
 import TableComponent from "@/Components/TableComponent";
 import { 
     PencilIcon, 
@@ -6,6 +7,7 @@ import {
     UserIcon
 } from "@heroicons/react/24/outline";
 import { cn } from "@/Utils/cn";
+import { divisionOf } from "@/Utils/divisions";
 
 export default function CandidateList({
     candidates,
@@ -23,20 +25,12 @@ export default function CandidateList({
         }
     }
 
-    const getGenderColorClasses = (gender) => {
-        switch (gender?.toLowerCase()) {
-            case "mr": return "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-100 dark:border-blue-800";
-            case "ms": return "bg-pink-50 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300 border-pink-100 dark:border-pink-800";
-            default: return "bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 border-gray-100 dark:border-gray-800";
-        }
-    };
-
     return (
         <TableComponent customHeader={true}>
             <thead>
                 <tr className="bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 text-left">
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Candidate Info</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Gender</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Division</th>
                     {showAction && (
                         <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                     )}
@@ -48,7 +42,7 @@ export default function CandidateList({
                         <td className="px-6 py-4">
                             <div className="flex items-center gap-4">
                                 <div className="relative">
-                                    <img
+                                    <Image
                                         alt={candidate.full_name}
                                         src={candidate.picture ? `/storage/${candidate.picture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.full_name)}&background=random`}
                                         className="h-10 w-10 rounded-full object-cover border border-gray-100 dark:border-gray-800 shadow-sm"
@@ -71,10 +65,10 @@ export default function CandidateList({
                             <span
                                 className={cn(
                                     "px-2.5 py-0.5 rounded-full text-xs font-medium border",
-                                    getGenderColorClasses(candidate.gender)
+                                    divisionOf(candidate.gender).badge
                                 )}
                             >
-                                {candidate.gender}
+                                {divisionOf(candidate.gender).label}
                             </span>
                         </td>
                         {showAction && (

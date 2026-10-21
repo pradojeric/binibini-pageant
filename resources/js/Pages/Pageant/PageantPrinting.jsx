@@ -1,5 +1,7 @@
 import PrimaryButton from "@/Components/PrimaryButton";
+import Image from "@/Components/Image";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { divisionsLabel } from "@/Utils/divisions";
 import ComponentToPrint from "@/Pages/Pageant/Partials/ComponentToPrint";
 import { Listbox, Transition } from "@headlessui/react";
 import { Head, Link } from "@inertiajs/react";
@@ -22,42 +24,31 @@ import {
 export default function PageantPrinting({
     auth,
     pageant,
-    maleCandidates = [],
-    femaleCandidates = [],
+    candidatesByDivision = {},
     criterias = [],
     judges = [],
 }) {
     const componentRef = useRef(null);
     const [selected, setSelected] = useState(criterias[0]);
-    const [filteredMaleCandidates, setFilteredMaleCandidates] = useState([]);
-    const [filteredFemaleCandidates, setFilteredFemaleCandidates] = useState([]);
+    const [filteredByDivision, setFilteredByDivision] = useState({});
 
     const filterCandidates = useCallback((candidates, criteria) => {
         if (!criteria || !criteria.round) return candidates;
-        
-        // If it's a "Grand Total" or "Subtotal" that doesn't map to a specific round logic, 
-        // or if it's the very first round/preliminary where everyone is included:
-        // Adjust this logic if you have specific "preliminary" flags.
-        // For now, checks if the candidate has the round in their qualified rounds.
-        
-        return candidates.filter(candidate => {
-             // If candidate has no pageant_rounds data (e.g. legacy), assume they are in.
-             // Or strict mode: if (candidate.pageant_rounds && candidate.pageant_rounds.length > 0) ...
-             
-             // If the criteria belongs to a round, check if candidate is qualified for it
-             // We use 'round' (int) from criteria and compare with pageant_rounds.round
-             
-             // Edge case: Round 1 usually includes everyone. 
-             if (criteria.round === 1) return true;
 
-             return candidate.pageant_rounds?.some(r => r.round === criteria.round);
-        });
+        // A round's tables rank only the candidates selected into that round (round 1 included:
+        // judges score nobody until staff selects them). Grand total has no round and covers everyone.
+        return candidates.filter(candidate =>
+            candidate.pageant_rounds?.some(r => Number(r.round) === Number(criteria.round))
+        );
     }, []);
 
     useEffect(() => {
-        setFilteredMaleCandidates(filterCandidates(maleCandidates, selected));
-        setFilteredFemaleCandidates(filterCandidates(femaleCandidates, selected));
-    }, [selected, maleCandidates, femaleCandidates, filterCandidates]);
+        setFilteredByDivision(
+            Object.fromEntries(
+                Object.entries(candidatesByDivision).map(([key, list]) => [key, filterCandidates(list, selected)])
+            )
+        );
+    }, [selected, candidatesByDivision, filterCandidates]);
 
 
     const reactToPrintContent = useCallback(() => {
@@ -109,8 +100,9 @@ export default function PageantPrinting({
                 <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-100 dark:border-gray-700">
                     <div className="relative h-48 md:h-64 overflow-hidden">
                         {pageant.background ? (
-                            <img
+                            <Image
                                 src={`/storage/${pageant.background}`}
+                                loading="eager"
                                 className="w-full h-full object-cover"
                                 alt={pageant.pageant}
                             />
@@ -124,7 +116,7 @@ export default function PageantPrinting({
                                     {pageant.status}
                                 </span>
                                 <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-white/30 text-white bg-white/10">
-                                    {pageant.type}
+                                    {divisionsLabel(pageant.divisions)}
                                 </span>
                             </div>
                             <h1 className="text-4xl font-black text-white tracking-tight drop-shadow-md">
@@ -241,8 +233,7 @@ export default function PageantPrinting({
                                     <ComponentToPrint
                                         ref={componentRef}
                                         pageant={pageant}
-                                        maleCandidates={filteredMaleCandidates}
-                                        femaleCandidates={filteredFemaleCandidates}
+                                        candidatesByDivision={filteredByDivision}
                                         criterias={criterias} // Passing all criterias might be needed by internal logic? Usually singular 'criteria' is what varies
                                         criteria={selected} // Pass the selected criteria for the header/context
                                         judges={judges}

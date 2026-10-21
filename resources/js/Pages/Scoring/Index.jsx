@@ -1,9 +1,9 @@
 import Alert from "@/Components/Alert";
 import PrimaryButton from "@/Components/PrimaryButton";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { divisionsLabel } from "@/Utils/divisions";
 import { Head, Link, usePage } from "@inertiajs/react";
-import { LazyLoadImage } from "react-lazy-load-image-component";
-import "react-lazy-load-image-component/src/effects/blur.css";
+import Image from "@/Components/Image";
 
 export default function ScoringIndex({ auth, pageants }) {
     const { flash } = usePage().props;
@@ -39,15 +39,13 @@ export default function ScoringIndex({ auth, pageants }) {
                                         >
                                             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] flex flex-col h-full">
                                                 <div className="relative h-48 overflow-hidden bg-gray-900">
-                                                    <LazyLoadImage
+                                                    <Image
                                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-70"
                                                         alt={pageant.pageant}
                                                         src={
                                                             `/storage/` +
                                                             pageant.background
                                                         }
-                                                        placeholderSrc={`/logo.png`}
-                                                        effect="blur"
                                                     />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                                                     <div className="absolute bottom-4 left-4 right-4 outline-none">
@@ -61,7 +59,7 @@ export default function ScoringIndex({ auth, pageants }) {
                                                     <div className="flex justify-between items-center mb-4 text-left">
                                                         <div className="flex flex-col">
                                                             <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Type</span>
-                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">{pageant.type}</span>
+                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">{divisionsLabel(pageant.divisions)}</span>
                                                         </div>
                                                         <div className="flex flex-col items-end">
                                                             <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Rounds</span>

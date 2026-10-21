@@ -1,11 +1,13 @@
 import { Head, Link, useForm, router } from "@inertiajs/react";
+import Image from "@/Components/Image";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import OrderSelectionModal from "./_partial/OrderSelectionModal";
+import { DIVISION_KEYS, divisionOf, divisionsLabel } from "@/Utils/divisions";
 import Checkbox from "@/Components/Checkbox";
 import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
@@ -15,32 +17,54 @@ export default function ScoringShow({
     auth,
     pageant,
     candidates,
+    round = null,
     selected = [],
 }) {
     const [showOrderModal, setShowOrderModal] = useState(false);
 
-    const { data, setData, post, errors, reset } = useForm({
-        round: "",
+    const { data, setData, post, errors, reset, transform } = useForm({
+        round: round ?? "",
         selectedCandidates: selected,
     });
+
+    // Changing the round reloads with preserveState, so pull that round's saved selection in.
+    // Keyed on the round so a failed save doesn't wipe the unsaved checks.
+    useEffect(() => {
+        setData((previousData) => ({ ...previousData, selectedCandidates: selected }));
+    }, [round]);
+
+    const roundNumbers = useMemo(
+        () => [...new Set(pageant.pageant_rounds.map((r) => r.round))].sort((a, b) => a - b),
+        [pageant.pageant_rounds]
+    );
+
+    // Slots per division for the chosen round: each division's row has its own number_of_candidates.
+    const slots = Object.fromEntries(
+        pageant.pageant_rounds
+            .filter((r) => r.round == data.round)
+            .map((r) => [r.pageant_type, r.number_of_candidates])
+    );
+
+    const divisions = DIVISION_KEYS.filter((key) => pageant.divisions.includes(key));
+    const candidatesOf = (key) => candidates.filter((c) => c.gender === key);
+    const selectedCountOf = (key) =>
+        candidatesOf(key).filter((c) => data.selectedCandidates.includes(c.id)).length;
 
     const openOrderModal = (e) => {
         e.preventDefault();
         setShowOrderModal(true);
     };
 
+    // Posting through the form (not router.post) keeps validation errors on this form.
     const handleConfirmOrder = (orderedIds) => {
         setShowOrderModal(false);
-        router.post(
-            route("select.store", pageant.id),
-            { round: data.round, selectedCandidates: orderedIds },
-            {
-                preserveState: true,
-                onSuccess: () => {
-                    reset();
-                },
-            }
-        );
+        transform((formData) => ({ ...formData, selectedCandidates: orderedIds }));
+        post(route("select.store", pageant.id), {
+            preserveState: true,
+            onSuccess: () => {
+                reset();
+            },
+        });
     };
 
     const handleChecked = (e) => {
@@ -88,7 +112,7 @@ export default function ScoringShow({
                                 Pageant Type
                             </span>
                              <span className="text-4xl font-extrabold text-purple-600 dark:text-purple-400 mt-2 uppercase">
-                                {pageant.type ?? "-"}
+                                {divisionsLabel(pageant.divisions) || "-"}
                             </span>
                         </div>
                     </div>
@@ -135,19 +159,11 @@ export default function ScoringShow({
                                             <option value="" hidden>
                                                 Select Round
                                             </option>
-                                            <option value="0">Round 0</option>
-                                            {pageant.pageant_rounds.map(
-                                                (round, index) => {
-                                                    return (
-                                                        <option
-                                                            value={round.id}
-                                                            key={`R` + index}
-                                                        >
-                                                            {`Round ${round.round} (${round.number_of_candidates})`}
-                                                        </option>
-                                                    );
-                                                }
-                                            )}
+                                            {roundNumbers.map((roundNumber) => (
+                                                <option value={roundNumber} key={roundNumber}>
+                                                    {`Round ${roundNumber}`}
+                                                </option>
+                                            ))}
                                         </SelectInput>
                                     </div>
                                     <div className="flex gap-2">
@@ -155,20 +171,14 @@ export default function ScoringShow({
                                             type="button"
                                             onClick={() => {
                                                 if (!data.round) return;
-                                                
-                                                const currentRound = pageant.pageant_rounds.find(
-                                                    r => r.id == data.round
-                                                );
-                                                
-                                                if (!currentRound) return;
 
-                                                const limit = currentRound.number_of_candidates;
-                                                
-                                                // Create a safe copy and sort
-                                                const topCandidates = [...candidates]
-                                                    .sort((a, b) => (b.total || 0) - (a.total || 0))
-                                                    .slice(0, limit)
-                                                    .map(c => c.id);
+                                                // Take each division's top N by previous-round total.
+                                                const topCandidates = divisions.flatMap((key) =>
+                                                    [...candidatesOf(key)]
+                                                        .sort((a, b) => (b.total || 0) - (a.total || 0))
+                                                        .slice(0, slots[key] ?? 0)
+                                                        .map((c) => c.id)
+                                                );
 
                                                 setData("selectedCandidates", topCandidates);
                                             }}
@@ -183,8 +193,21 @@ export default function ScoringShow({
                                     </div>
                                 </div>
                                 
-                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {candidates.map((candidate) => {
+                                {divisions.map((key) => (
+                                <section key={key} aria-labelledby={`select-${key}`} className="mt-8 first:mt-4">
+                                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+                                        <h2 id={`select-${key}`} className="uppercase font-bold text-xl tracking-wide text-gray-800 dark:text-gray-200">
+                                            {divisionOf(key).label} Candidates
+                                        </h2>
+                                        {data.round && (
+                                            <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 tabular-nums">
+                                                {selectedCountOf(key)} of {slots[key] ?? 0} selected
+                                            </span>
+                                        )}
+                                    </div>
+                                    <InputError message={errors[`selectedCandidates.${key}`]} className="mb-3" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {candidatesOf(key).map((candidate) => {
                                         return (
                                             <div key={candidate.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
                                                 <label className="flex items-center gap-4 cursor-pointer w-full h-full">
@@ -200,7 +223,7 @@ export default function ScoringShow({
                                                     <div className="flex items-center gap-4 flex-1">
                                                         <div className="shrink-0 relative">
                                                             {candidate.picture ? (
-                                                                <img
+                                                                <Image
                                                                     className="rounded-full h-14 w-14 object-cover border-2 border-white shadow-sm bg-gray-100"
                                                                     src={
                                                                         `/storage/` +
@@ -242,6 +265,8 @@ export default function ScoringShow({
                                         );
                                     })}
                                 </div>
+                                </section>
+                                ))}
                             </form>
                         </div>
                     </div>

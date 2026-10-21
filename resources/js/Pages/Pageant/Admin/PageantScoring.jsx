@@ -1,10 +1,11 @@
 import { Head, useForm, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { DIVISION_KEYS, divisionOf, divisionsLabel } from "@/Utils/divisions";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import "react-lazy-load-image-component/src/effects/blur.css";
-import { useMemo, useCallback, Fragment, useState, useEffect } from "react";
+import { useMemo, useCallback, Fragment, useState } from "react";
 
 export default function ScoringShow({ auth, pageant, candidates, existingScores = {} }) {
     const isAdmin = auth.user.role === "admin";
@@ -19,37 +20,28 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
         [criterias, selectedCriteriaId]
     );
 
-    const { data, setData, post, processing } = useForm({
-        scores: [],
+    // Seeded on the first render: the inputs read their starting value only once,
+    // so filling this in an effect afterwards would leave them blank.
+    const { data, setData, post, processing, errors } = useForm({
+        scores: Object.entries(existingScores).flatMap(([candidateId, criteriaScores]) =>
+            Object.entries(criteriaScores).map(([criteriaId, score]) => ({
+                candidate_id: Number(candidateId),
+                criteria_id: Number(criteriaId),
+                score: Number(score),
+            }))
+        ),
     });
 
-    useEffect(() => {
-        const initial = [];
-        for (const [candidateId, criteriaScores] of Object.entries(existingScores)) {
-            for (const [criteriaId, score] of Object.entries(criteriaScores)) {
-                initial.push({
-                    candidate_id: Number(candidateId),
-                    criteria_id: Number(criteriaId),
-                    score: Number(score),
-                });
-            }
-        }
-        if (initial.length > 0) {
-            setData("scores", initial);
-        }
-    }, []);
+    // 1. The divisions this pageant runs, in display order
+    const selectedSexes = useMemo(
+        () => DIVISION_KEYS.filter((key) => pageant.divisions.includes(key)),
+        [pageant.divisions]
+    );
 
-    // 1. Derive an array of active sexes from pageant.type
-    const selectedSexes = useMemo(() => {
-        if (!pageant.type) return [];
-        return pageant.type === "mr&ms" ? ["mr", "ms"] : [pageant.type];
-    }, [pageant.type]);
-
-    // 2. Precompute the candidate lists by sex
-    const candidatesBySex = {
-        mr: candidates.filter((c) => c.gender === "mr"),
-        ms: candidates.filter((c) => c.gender === "ms"),
-    };
+    // 2. Precompute the candidate lists by division
+    const candidatesBySex = Object.fromEntries(
+        selectedSexes.map((key) => [key, candidates.filter((c) => c.gender === key)])
+    );
 
     const handleSetData = useCallback(
         (candidate_id, criteria_id, score) => {
@@ -60,8 +52,11 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
                     s.criteria_id === criteria_id
             );
 
+            // A null score means the box was cleared: drop the entry so it counts as missing again.
             const newScores =
-                idx === -1
+                score === null
+                    ? data.scores.filter((_, i) => i !== idx)
+                    : idx === -1
                     ? [...data.scores, entry]
                     : data.scores.map((s, i) => (i === idx ? entry : s));
 
@@ -70,33 +65,34 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
         [data.scores, setData]
     );
 
-    // Function to check if all candidates have been scored
-    const allCandidatesScored = () => {
-        let scoredCandidates = new Set();
-        for (let score of data.scores) {
-            scoredCandidates.add(score.candidate_id);
+    // Every candidate in the round needs a score for every hidden criteria, not just one of them.
+    const missingCount = useMemo(() => {
+        const scoredKeys = new Set(data.scores.map((s) => `${s.candidate_id}-${s.criteria_id}`));
+        return candidates.reduce(
+            (sum, candidate) => sum + criterias.filter((c) => !scoredKeys.has(`${candidate.id}-${c.id}`)).length,
+            0
+        );
+    }, [data.scores, candidates, criterias]);
+    const [showMissing, setShowMissing] = useState(false);
+
+    // Values typed so far, so switching criteria shows them instead of the last saved ones.
+    const scoresByCandidate = useMemo(() => {
+        const map = {};
+        for (const s of data.scores) {
+            (map[s.candidate_id] ??= {})[s.criteria_id] = s.score;
         }
-        for (let candidate of candidates) {
-            if (!scoredCandidates.has(candidate.id)) {
-                return false;
-            }
-        }
-        return true;
-    };
+        return map;
+    }, [data.scores]);
 
     const submit = (e) => {
         e.preventDefault();
 
-        if (!allCandidatesScored()) {
-            alert("All candidates must be scored");
+        if (missingCount > 0) {
+            setShowMissing(true);
             return;
         }
 
-        post(route("scoring.admin.store", pageant.id), {
-            onError: (errors) => {
-                console.log(errors);
-            },
-        });
+        post(route("scoring.admin.store", pageant.id));
     };
 
     return (
@@ -132,7 +128,7 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
                                 Pageant Type
                             </span>
                             <span className="text-4xl font-extrabold text-purple-600 dark:text-purple-400 mt-2 uppercase">
-                                {pageant.type ?? "-"}
+                                {divisionsLabel(pageant.divisions) || "-"}
                             </span>
                         </div>
                     </div>
@@ -176,9 +172,7 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
                                     <Fragment key={sex}>
                                         <div className="mb-8">
                                             <h2 className="uppercase font-bold text-2xl tracking-wide mb-6 border-b pb-2 border-gray-200 dark:border-gray-700">
-                                                {sex === "mr"
-                                                    ? "Mr. Candidates"
-                                                    : "Ms. Candidates"}
+                                                {divisionOf(sex).label} Candidates
                                             </h2>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                                 {candidatesBySex[sex].length > 0 ? (
@@ -189,14 +183,14 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
                                                                 candidate={candidate}
                                                                 criterias={selectedCriteria}
                                                                 onInputData={handleSetData}
-                                                                existingScores={existingScores[candidate.id] ?? {}}
+                                                                existingScores={scoresByCandidate[candidate.id] ?? {}}
                                                                 isAdmin={isAdmin}
                                                             />
                                                         )
                                                     )
                                                 ) : (
                                                     <div className="col-span-full text-center py-10 text-gray-500">
-                                                        No candidates found.
+                                                        No candidates selected for this round.
                                                     </div>
                                                 )}
                                             </div>
@@ -204,7 +198,17 @@ export default function ScoringShow({ auth, pageant, candidates, existingScores 
                                     </Fragment>
                                 ))}
 
-                                <div className="mt-8 flex justify-end border-t pt-6 border-gray-100 dark:border-gray-700">
+                                <div className="mt-8 flex flex-col sm:flex-row items-end sm:items-center justify-end gap-4 border-t pt-6 border-gray-100 dark:border-gray-700">
+                                    {errors.scores && (
+                                        <p role="alert" className="text-sm font-semibold text-red-600 dark:text-red-400">
+                                            {errors.scores}
+                                        </p>
+                                    )}
+                                    {showMissing && missingCount > 0 && (
+                                        <p role="alert" className="text-sm font-semibold text-red-600 dark:text-red-400">
+                                            {missingCount} {missingCount === 1 ? "score is" : "scores are"} still empty. Check each criteria in the selector.
+                                        </p>
+                                    )}
                                     <PrimaryButton className="px-8 py-3 text-lg" disabled={processing}>
                                         {processing ? "Saving..." : "Save Scores"}
                                     </PrimaryButton>

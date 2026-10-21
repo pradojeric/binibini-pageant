@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 
@@ -14,9 +14,9 @@ class ScoresReset implements ShouldBroadcastNow
     {
     }
 
-    public function broadcastOn(): Channel
+    public function broadcastOn(): PrivateChannel
     {
-        return new Channel('pageant.' . $this->pageantId);
+        return new PrivateChannel('pageant.' . $this->pageantId);
     }
 
     public function broadcastAs(): string

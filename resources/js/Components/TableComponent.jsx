@@ -22,14 +22,28 @@ function TableComponent({
     header = [],
     children,
     customHeader = false,
+    // Inside a Card the card already draws the frame.
+    bare = false,
     ...props
 }) {
     return (
-        <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-900">
+        <div
+            className={cn(
+                "overflow-x-auto",
+                !bare && "rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-900"
+            )}
+        >
             <table className={cn("w-full divide-y divide-gray-100 dark:divide-gray-800", className)} {...props}>
-                <thead>{!customHeader && <TableHeader header={header} />}</thead>
-                {customHeader && children}
-                {!customHeader && <tbody className="divide-y divide-gray-100 dark:divide-gray-800">{children}</tbody>}
+                {customHeader ? (
+                    children
+                ) : (
+                    <>
+                        <thead>
+                            <TableHeader header={header} />
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">{children}</tbody>
+                    </>
+                )}
             </table>
         </div>
     );

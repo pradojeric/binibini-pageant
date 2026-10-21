@@ -9,6 +9,8 @@ import Modal from "@/Components/Modal";
 import { Head, Link, router } from "@inertiajs/react";
 import { useState, useEffect, useMemo } from "react";
 import { usePageantChannel } from "@/hooks/usePageantChannel";
+import { DIVISION_KEYS } from "@/Utils/divisions";
+import { PRIMARY_BUTTON_CLASSES } from "@/Components/styles";
 
 // Helper to compute ranks based on a score extractor
 function rankItems(candidates, sortedBy = "order") {
@@ -60,37 +62,52 @@ function rankItems(candidates, sortedBy = "order") {
     }));
 }
 
+const rankByDivision = (candidatesByDivision, sortedBy) =>
+    Object.fromEntries(
+        Object.entries(candidatesByDivision).map(([key, list]) => [key, rankItems(list, sortedBy)])
+    );
+
 export default function PageantScores({
     auth,
     pageant,
-    maleCandidates = [],
-    femaleCandidates = [],
+    candidatesByDivision = {},
     criterias,
     judges = [],
 }) {
-    const [femCan, setFemCan] = useState([]);
-    const [maleCan, setMaleCan] = useState([]);
+    const [ranked, setRanked] = useState({});
     const [crits, setCrits] = useState(criterias);
     const [groupList, setGroupList] = useState([1]);
-    const [confirmingReset, setConfirmingReset] = useState(false);
+    // null, "scores" or "everything": which reset is waiting for confirmation
+    const [confirmingReset, setConfirmingReset] = useState(null);
     const [confirmingEndPageant, setConfirmingEndPageant] = useState(false);
 
     usePageantChannel(pageant.id, ['.score.submitted', '.scores.reset', '.round.changed', '.group.changed']);
+
+    // pageant_rounds has one row per division; list each round number once.
+    const rounds = useMemo(
+        () => [...new Map(pageant.pageant_rounds.map((r) => [r.round, r])).values()].sort((a, b) => a.round - b.round),
+        [pageant.pageant_rounds]
+    );
+
+    // Deductions apply in every round, so show the columns whenever this round has one.
+    const showDeductions = useMemo(
+        () => Object.values(candidatesByDivision).some((list) => list.some((c) => Number(c.deduction) !== 0)),
+        [candidatesByDivision]
+    );
 
     const headings = useMemo(
         () => [
             "Candidate Name",
             ...criterias.map((c) => `${c.name} (${c.percentage})`),
             "Total",
-            ...(pageant.current_round === 1 ? ["Deduction", "Overall"] : []),
+            ...(showDeductions ? ["Deduction", "Overall"] : []),
             "Rank",
         ],
-        [criterias, pageant.current_round]
+        [criterias, showDeductions]
     );
 
     useEffect(() => {
-        setFemCan(rankItems(femaleCandidates, "order"));
-        setMaleCan(rankItems(maleCandidates, "order"));
+        setRanked(rankByDivision(candidatesByDivision, "order"));
         setCrits(criterias);
 
         const organizedData = criterias.reduce((acc, item) => {
@@ -112,23 +129,19 @@ export default function PageantScores({
         const groups = Object.keys(organizedData[pageant.current_round]);
         const highestGroup = Math.max(...groups.map(Number)); // Convert keys to numbers and find the max
         setGroupList(Array.from({ length: highestGroup }, (_, i) => i + 1));
-    }, [pageant, femaleCandidates, maleCandidates, criterias]);
+    }, [pageant, candidatesByDivision, criterias]);
 
     const sortFunction = (i) => {
-        setFemCan(rankItems(femaleCandidates, i));
-        setMaleCan(rankItems(maleCandidates, i));
-    };
-
-    const confirmResetScore = () => {
-        setConfirmingReset(true);
+        setRanked(rankByDivision(candidatesByDivision, i));
     };
 
     const closeModal = () => {
-        setConfirmingReset(false);
+        setConfirmingReset(null);
     };
 
-    const resetScore = () => {
-        router.post(route("pageant.reset-scores", pageant.id), {}, {
+    const reset = () => {
+        const name = confirmingReset === "everything" ? "pageant.reset-everything" : "pageant.reset-scores";
+        router.post(route(name, pageant.id), {}, {
             onFinish: () => closeModal(),
         });
     };
@@ -205,8 +218,8 @@ export default function PageantScores({
                                         >
                                             <option value="" hidden>Select</option>
                                             <option value="0">Not started</option>
-                                            {pageant.pageant_rounds.map((round, index) => (
-                                                <option value={round.round} key={`R` + index}>
+                                            {rounds.map((round) => (
+                                                <option value={round.round} key={`R` + round.round}>
                                                     {round.round_name}
                                                 </option>
                                             ))}
@@ -216,7 +229,7 @@ export default function PageantScores({
                                         <InputLabel value="Group" className="mb-1 text-xs uppercase text-gray-400" />
                                         <SelectInput
                                             name="group"
-                                            className="w-full md:w-32"
+                                            className="w-full md:w-56"
                                             value={pageant.current_group || ""}
                                             onChange={(e) => {
                                                 router.put(
@@ -228,7 +241,7 @@ export default function PageantScores({
                                             }}
                                         >
                                             <option value="" hidden>Select</option>
-                                            <option value="0">Group 0</option>
+                                            <option value="0">Closed (no group open)</option>
                                             {groupList.map((group, index) => (
                                                 <option value={group} key={`G` + index}>
                                                     Group {group}
@@ -278,8 +291,11 @@ export default function PageantScores({
                                             Summary
                                         </SecondaryButton>
                                     </Link>
-                                    <DangerButton onClick={confirmResetScore}>
-                                        Reset
+                                    <DangerButton onClick={() => setConfirmingReset("scores")}>
+                                        Reset Scores
+                                    </DangerButton>
+                                    <DangerButton onClick={() => setConfirmingReset("everything")}>
+                                        Reset Everything
                                     </DangerButton>
                                     {pageant.status !== "finished" && (
                                         <DangerButton onClick={confirmEndPageant}>
@@ -322,32 +338,61 @@ export default function PageantScores({
 
                             <hr className="my-6 border-gray-200 dark:border-gray-700" />
 
-                            {["mr", "ms"].map(
-                                (sex) =>
-                                    pageant.type.includes(sex) && (
-                                        <CandidateScoreList
-                                            key={sex}
-                                            gender={sex === "mr" ? "Male" : "Female"}
-                                            candidates={sex === "mr" ? maleCan : femCan}
-                                            headings={headings}
-                                            criterias={crits}
-                                            current_round={pageant.current_round}
-                                        />
-                                    )
-                            )}
+                            {pageant.current_round > 0 && Object.values(candidatesByDivision).every((list) => list.length === 0) ? (
+                                <div className="py-16 text-center">
+                                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                                        No candidates are in this round yet.
+                                    </p>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                        Judges can't score until candidates are selected for it.
+                                    </p>
+                                    <Link
+                                        href={route("pageant.candidates.select", { pageant: pageant.id, round: pageant.current_round })}
+                                        className={`${PRIMARY_BUTTON_CLASSES} mt-6`}
+                                    >
+                                        Select candidates for this round
+                                    </Link>
+                                </div>
+                            ) : DIVISION_KEYS.filter((key) => pageant.divisions.includes(key)).map((key) => (
+                                <CandidateScoreList
+                                    key={key}
+                                    division={key}
+                                    candidates={ranked[key] ?? []}
+                                    headings={headings}
+                                    criterias={crits}
+                                    showDeductions={showDeductions}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <Modal show={confirmingReset} onClose={closeModal}>
+            <Modal show={confirmingReset !== null} onClose={closeModal}>
                 <div className="p-6">
                     <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                        Are you sure you want to reset the scores?
+                        {confirmingReset === "everything" ? "Reset everything?" : "Reset scores?"}
                     </h2>
 
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        This action cannot be undone. All scores for this round/pageant will be lost.
+                        This permanently erases, for every round of this pageant:
+                    </p>
+                    <ul className="mt-2 list-disc ps-5 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                        <li>all judges' scores and all hidden (staff) scores</li>
+                        {confirmingReset === "everything" && (
+                            <>
+                                <li>all deductions</li>
+                                <li>every round's selected candidates and their stage order</li>
+                            </>
+                        )}
+                    </ul>
+                    {confirmingReset === "scores" && (
+                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            Deductions and each round's selected candidates and stage order are kept.
+                        </p>
+                    )}
+                    <p className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">
+                        The pageant goes back to "Not started". This cannot be undone.
                     </p>
 
                     <div className="mt-6 flex justify-end">
@@ -355,8 +400,8 @@ export default function PageantScores({
                             Cancel
                         </SecondaryButton>
 
-                        <DangerButton className="ms-3" onClick={resetScore}>
-                            Reset Scores
+                        <DangerButton className="ms-3" onClick={reset}>
+                            {confirmingReset === "everything" ? "Erase Everything" : "Erase Scores"}
                         </DangerButton>
                     </div>
                 </div>

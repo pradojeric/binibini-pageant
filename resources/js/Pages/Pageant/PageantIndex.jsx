@@ -1,5 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Image from "@/Components/Image";
 import { Head, Link } from "@inertiajs/react";
+import { divisionsLabel } from "@/Utils/divisions";
 import { 
     TrophyIcon, 
     PlusIcon, 
@@ -20,15 +22,6 @@ export default function PageantIndex({ auth, pageants }) {
                 return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
             default:
                 return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
-        }
-    };
-
-    const getTypeLabel = (type) => {
-        switch (type) {
-            case 'ms': return 'Ms. Division';
-            case 'mr': return 'Mr. Division';
-            case 'mr&ms': return 'Mr. & Ms. Division';
-            default: return type.toUpperCase();
         }
     };
 
@@ -96,7 +89,7 @@ export default function PageantIndex({ auth, pageants }) {
                                             <div className="flex items-center gap-4">
                                                 <div className="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex-shrink-0 shadow-sm">
                                                     {pageant.background ? (
-                                                        <img 
+                                                        <Image 
                                                             src={`/storage/${pageant.background}`} 
                                                             alt={pageant.pageant}
                                                             className="w-full h-full object-cover"
@@ -113,7 +106,7 @@ export default function PageantIndex({ auth, pageants }) {
                                                     </div>
                                                     <div className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
                                                         <UserGroupIcon className="w-3 h-3" />
-                                                        {getTypeLabel(pageant.type)}
+                                                        {divisionsLabel(pageant.divisions)} Division
                                                     </div>
                                                 </div>
                                             </div>

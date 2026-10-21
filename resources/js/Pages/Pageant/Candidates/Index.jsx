@@ -100,6 +100,7 @@ function CandidateIndex({ auth, pageant }) {
                                 ) : (
                                     <CandidateEdit
                                         candidate={state.candidate}
+                                        pageant={pageant}
                                         handleCancelEditMode={handleCancelEditMode}
                                     />
                                 )}

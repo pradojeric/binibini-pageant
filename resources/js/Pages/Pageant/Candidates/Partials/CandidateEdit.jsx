@@ -6,17 +6,14 @@ import TextArea from "@/Components/TextArea";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import { useForm } from "@inertiajs/react";
+import { divisionOf } from "@/Utils/divisions";
 import { useEffect, useRef, useState } from "react";
 import { PhotoIcon, XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
-
-const GENDERS = [
-    { id: "mr", value: "Mr." },
-    { id: "ms", value: "Ms." },
-];
 
 export default function CandidateEdit({
     className = "",
     candidate,
+    pageant,
     handleCancelEditMode = () => {},
 }) {
     const picRef = useRef(null);
@@ -130,17 +127,17 @@ export default function CandidateEdit({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="gender" value="Gender" />
+                    <InputLabel htmlFor="gender" value="Division" />
                     <SelectInput
                         id="gender"
                         className="mt-1 block w-full"
                         value={data.gender}
                         onChange={(e) => setData("gender", e.target.value)}
                     >
-                        <option value="">Select Gender</option>
-                        {GENDERS.map((gender) => (
-                            <option key={gender.id} value={gender.id}>
-                                {gender.value}
+                        <option value="">Select Division</option>
+                        {(pageant?.divisions ?? []).map((key) => (
+                            <option key={key} value={key}>
+                                {divisionOf(key).label}
                             </option>
                         ))}
                     </SelectInput>

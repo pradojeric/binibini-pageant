@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from "@inertiajs/react";
+import Image from "@/Components/Image";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
@@ -8,7 +9,8 @@ import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import InputError from "@/Components/InputError";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { DIVISION_KEYS, divisionOf, divisionsLabel } from "@/Utils/divisions";
 
 export default function ScoringShow({ auth, pageant, candidates }) {
     const { data, setData, post, errors } = useForm({
@@ -16,31 +18,30 @@ export default function ScoringShow({ auth, pageant, candidates }) {
         scores: [],
     });
 
+    // A round number has one row per division; any of their ids identifies a deduction for this round.
+    const roundNumbers = useMemo(
+        () => [...new Set(pageant.pageant_rounds.map((r) => r.round))].sort((a, b) => a - b),
+        [pageant.pageant_rounds]
+    );
+
     useEffect(() => {
         if (!data.round) return;
+        const roundIds = pageant.pageant_rounds
+            .filter((r) => r.round == data.round)
+            .map((r) => r.id);
         const scores = [];
 
         candidates.forEach((candidate) => {
-            if (candidate.candidates_deduction.length > 0) {
-                const deduction = candidate.candidates_deduction.filter((c) => {
-                    return c.pivot.pageant_round_id == data.round;
-                });
-                
-                if (deduction.length < 1) return;
-
-                scores[candidate.id] = deduction[0].pivot.deduction;
-            }
+            const deduction = candidate.candidates_deduction.find((c) =>
+                roundIds.includes(c.pivot.pageant_round_id)
+            );
+            if (deduction) scores[candidate.id] = deduction.pivot.deduction;
         });
 
         setData("scores", scores);
     }, [data.round]);
 
-    const femaleCandidates = candidates.filter(
-        (candidate) => candidate.gender === "ms"
-    );
-    const maleCandidates = candidates.filter(
-        (candidate) => candidate.gender === "mr"
-    );
+    const divisions = DIVISION_KEYS.filter((key) => pageant.divisions.includes(key));
 
     const submit = (e) => {
         e.preventDefault();
@@ -57,7 +58,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                     <div className="flex space-x-4 items-center">
                         <div className="shrink-0 relative">
                             {candidate.picture ? (
-                                <img
+                                <Image
                                     className="h-12 w-12 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 transition-transform group-hover:scale-110 duration-200"
                                     src={`/storage/` + candidate.picture}
                                     alt={candidate.full_name}
@@ -138,7 +139,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                 Pageant Type
                             </span>
                              <span className="text-4xl font-extrabold text-purple-600 dark:text-purple-400 mt-2 uppercase">
-                                {pageant.type ?? "-"}
+                                {divisionsLabel(pageant.divisions) || "-"}
                             </span>
                         </div>
                     </div>
@@ -174,10 +175,9 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                                             }}
                                         >
                                             <option value="" hidden>Select Round</option>
-                                            <option value="0">Round 0</option>
-                                            {pageant.pageant_rounds.map((round, index) => (
-                                                <option value={round.id} key={`R${index}`}>
-                                                    {`Round ${round.round} (${round.number_of_candidates})`}
+                                            {roundNumbers.map((round) => (
+                                                <option value={round} key={round}>
+                                                    {`Round ${round}`}
                                                 </option>
                                             ))}
                                         </SelectInput>
@@ -189,43 +189,23 @@ export default function ScoringShow({ auth, pageant, candidates }) {
 
                                 <hr className="border-gray-100 dark:border-gray-700 mb-8" />
                                 
-                                {(pageant.type === "mr" || pageant.type === "mr&ms") && (
-                                    <div className="mb-10">
+                                {divisions.map((key, idx) => (
+                                    <div key={key} className={idx > 0 ? "mt-10 pt-8 border-t border-gray-100 dark:border-gray-700" : ""}>
                                         <h2 className="uppercase font-bold text-xl tracking-wide mb-4 text-gray-800 dark:text-gray-200">
-                                            Mr. Candidates
+                                            {divisionOf(key).label} Candidates
                                         </h2>
                                         <TableComponent
                                             header={["Candidate", "Deduction Points"]}
                                             className="w-full"
                                         >
                                             <tbody>
-                                                {maleCandidates.map((candidate, idx) =>
-                                                    renderCandidateRow(candidate, idx)
-                                                )}
+                                                {candidates
+                                                    .filter((candidate) => candidate.gender === key)
+                                                    .map((candidate, i) => renderCandidateRow(candidate, i))}
                                             </tbody>
                                         </TableComponent>
                                     </div>
-                                )}
-
-                                {pageant.type === "mr&ms" && <hr className="my-8 border-gray-100 dark:border-gray-700" />}
-
-                                {(pageant.type === "ms" || pageant.type === "mr&ms") && (
-                                    <div>
-                                        <h2 className="uppercase font-bold text-xl tracking-wide mb-4 text-gray-800 dark:text-gray-200">
-                                            Ms. Candidates
-                                        </h2>
-                                        <TableComponent
-                                            header={["Candidate", "Deduction Points"]}
-                                            className="w-full"
-                                        >
-                                            <tbody>
-                                                {femaleCandidates.map((candidate, idx) =>
-                                                    renderCandidateRow(candidate, idx)
-                                                )}
-                                            </tbody>
-                                        </TableComponent>
-                                    </div>
-                                )}
+                                ))}
                             </form>
                         </div>
                     </div>

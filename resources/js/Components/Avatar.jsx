@@ -1,4 +1,5 @@
 import { cn } from "@/Utils/cn";
+import Image from "@/Components/Image";
 
 export default function Avatar({ 
     src, 
@@ -33,7 +34,7 @@ export default function Avatar({
 
     if (src) {
         return (
-            <img
+            <Image
                 src={src}
                 alt={alt}
                 className={classes}

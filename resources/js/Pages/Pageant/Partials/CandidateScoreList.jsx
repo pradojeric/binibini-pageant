@@ -1,11 +1,13 @@
+import { divisionOf } from "@/Utils/divisions";
+import Image from "@/Components/Image";
 import TableComponent from "@/Components/TableComponent";
 
 function CandidateScoreList({
-    gender = "Male",
+    division,
     candidates,
     headings,
     criterias = [], // Receive criterias to map scores correctly
-    current_round,
+    showDeductions,
 }) {
     const renderScores = (candidate) => {
         // Use criterias to look up scores by ID, ensuring order matches headings
@@ -25,8 +27,8 @@ function CandidateScoreList({
     return (
         <>
             <h2 className="text-xl uppercase font-bold dark:text-white mb-4 flex items-center gap-2">
-                <span className={`w-2 h-8 rounded-full ${gender === 'Male' ? 'bg-blue-500' : 'bg-pink-500'}`}></span>
-                {gender + ` Candidates`}
+                <span className={`w-2 h-8 rounded-full ${divisionOf(division).bar}`} aria-hidden="true"></span>
+                {divisionOf(division).label} Candidates
             </h2>
             <TableComponent header={headings} className="min-w-full">
                         {candidates.length > 0 ? (
@@ -44,7 +46,7 @@ function CandidateScoreList({
                                             <div className="flex space-x-4 items-center">
                                                 <div className="shrink-0 relative">
                                                     {candidate.picture ? (
-                                                        <img
+                                                        <Image
                                                             className="rounded-full h-12 w-12 object-cover border-2 border-white dark:border-gray-700 shadow-sm group-hover:scale-110 transition-transform duration-200"
                                                             src={`/storage/` + candidate.picture}
                                                             alt={candidate.full_name}
@@ -69,7 +71,7 @@ function CandidateScoreList({
                                             </div>
                                         </td>
                                         {renderScores(candidate)}
-                                        {current_round === 1 && (
+                                        {showDeductions && (
                                             <>
                                                 <td className="text-center px-3 py-4 dark:text-gray-300 font-mono text-sm">
                                                     {(candidate.total + candidate.deduction).toFixed(2)}

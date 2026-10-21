@@ -1,3 +1,4 @@
+import { DIVISION_KEYS, divisionOf } from "@/Utils/divisions";
 import { useRef } from "react";
 import { forwardRef } from "react";
 
@@ -209,8 +210,7 @@ function RenderTable({ criteria, allCandidates, gender, judges, criterias }) {
 export default forwardRef(function PageantPrinting(
     {
         pageant,
-        maleCandidates = [],
-        femaleCandidates = [],
+        candidatesByDivision = {},
         criterias = [],
         criteria,
         judges = [],
@@ -219,10 +219,10 @@ export default forwardRef(function PageantPrinting(
 ) {
     const compRef = ref ? ref : useRef();
 
-    const sections = [
-        { list: maleCandidates, gender: "male" },
-        { list: femaleCandidates, gender: "female" },
-    ];
+    const sections = DIVISION_KEYS.filter((key) => candidatesByDivision[key]).map((key) => ({
+        list: candidatesByDivision[key],
+        gender: divisionOf(key).label,
+    }));
 
     return (
         <div className="p-6">

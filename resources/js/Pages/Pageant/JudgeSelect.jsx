@@ -1,4 +1,5 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Image from "@/Components/Image";
 import { Head, Link, useForm } from "@inertiajs/react";
 import SecondaryButton from "@/Components/SecondaryButton";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -112,7 +113,7 @@ export default function JudgeSelect({
                                         />
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <img
+                                        <Image
                                             src={`https://ui-avatars.com/api/?name=${encodeURIComponent(judge.name)}&background=random`}
                                             alt={judge.name}
                                             className="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-gray-700"

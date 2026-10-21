@@ -8,12 +8,15 @@ use App\Models\Pageant;
 use App\Models\PageantRound;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MsPageantSeeder extends Seeder
 {
     public function run()
     {
-        DB::transaction(function () {
+        $picture = $this->placeholderPicture();
+
+        DB::transaction(function () use ($picture) {
             // 1. Create Pageant
             $pageant = Pageant::create([
                 'pageant'       => 'Ms. Universe 2026',
@@ -81,7 +84,7 @@ class MsPageantSeeder extends Seeder
                     'gender'           => 'ms',
                     'nickname'         => fake()->firstName(),
                     'description'      => fake()->sentence(),
-                    'picture'          => 'placeholders/placeholder-image.jpg', // Placeholder image
+                    'picture'          => $picture,
                 ]);
                 $candidates[] = $candidate;
             }
@@ -109,5 +112,20 @@ class MsPageantSeeder extends Seeder
             ]);
             $this->command->info("Created Criteria for Round 2");
         });
+    }
+
+    /**
+     * Candidate pictures are served from the public disk (/storage/...), but the placeholder ships in public/,
+     * so copy it onto the disk once and return the path to store.
+     */
+    private function placeholderPicture(): string
+    {
+        $path = 'placeholders/placeholder-image.png';
+
+        if (! Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->put($path, file_get_contents(public_path($path)));
+        }
+
+        return $path;
     }
 }

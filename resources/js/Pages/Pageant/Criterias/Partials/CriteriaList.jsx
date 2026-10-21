@@ -8,7 +8,7 @@ import {
     EyeIcon
 } from "@heroicons/react/24/outline";
 
-export default function CriteriaList({ criterias, handleEditMode = () => {} }) {
+export default function CriteriaList({ criterias, handleEditMode = () => {}, bare = false }) {
     const { delete: destroy } = useForm({});
     const showAction = route().current("pageants.criterias.index");
 
@@ -22,7 +22,7 @@ export default function CriteriaList({ criterias, handleEditMode = () => {} }) {
     }
 
     return (
-        <TableComponent customHeader={true}>
+        <TableComponent customHeader={true} bare={bare}>
             <thead>
                 <tr className="bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 text-left">
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Round</th>

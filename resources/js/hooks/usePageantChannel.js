@@ -5,7 +5,7 @@ export function usePageantChannel(pageantId, eventsOrHandlers = {}) {
     useEffect(() => {
         if (!pageantId || !window.Echo) return;
 
-        const channel = window.Echo.channel(`pageant.${pageantId}`);
+        const channel = window.Echo.private(`pageant.${pageantId}`);
 
         // Support both array of events (backward compat) and handlers object
         const isArray = Array.isArray(eventsOrHandlers);
