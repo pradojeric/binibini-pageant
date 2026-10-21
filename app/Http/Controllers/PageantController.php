@@ -283,9 +283,8 @@ class PageantController extends Controller
 
         $pageant->update(['current_group' => $validated['group']]);
 
-        if ((int) $validated['group'] !== 0) {
-            broadcast(new GroupChanged($pageant->id, (int) $pageant->current_round, (int) $validated['group']))->toOthers();
-        }
+        // Group 0 is broadcast too, so judges' pages drop the closed group's "Active" state.
+        broadcast(new GroupChanged($pageant->id, (int) $pageant->current_round, (int) $validated['group']))->toOthers();
 
         return back();
     }
