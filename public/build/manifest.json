@@ -1,228 +1,220 @@
 {
-  "_Alert-12aa4ec7.js": {
-    "file": "assets/Alert-12aa4ec7.js",
+  "_Alert-b2822d1f.js": {
+    "file": "assets/Alert-b2822d1f.js",
     "imports": [
       "resources/js/app.jsx",
       "_cn-0998f52b.js"
     ]
   },
-  "_ApplicationLogo-acd407dc.js": {
-    "file": "assets/ApplicationLogo-acd407dc.js",
+  "_ApplicationLogo-25e46d32.js": {
+    "file": "assets/ApplicationLogo-25e46d32.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_ArrowUpTrayIcon-1f19cfab.js": {
-    "file": "assets/ArrowUpTrayIcon-1f19cfab.js",
+  "_ArrowUpTrayIcon-95e7d0e0.js": {
+    "file": "assets/ArrowUpTrayIcon-95e7d0e0.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_BackButton-4807c9ef.js": {
-    "file": "assets/BackButton-4807c9ef.js",
+  "_Card-1720a48c.js": {
+    "file": "assets/Card-1720a48c.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_cn-0998f52b.js"
+    ]
+  },
+  "_CheckIcon-b3f272c7.js": {
+    "file": "assets/CheckIcon-b3f272c7.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_Checkbox-04260980.js": {
+    "file": "assets/Checkbox-04260980.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_cn-0998f52b.js"
+    ]
+  },
+  "_Chip-339cdae5.js": {
+    "file": "assets/Chip-339cdae5.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_cn-0998f52b.js"
+    ]
+  },
+  "_ConfirmDeleteModal-1c784409.js": {
+    "file": "assets/ConfirmDeleteModal-1c784409.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_Modal-101a9872.js",
+      "_DangerButton-37b8bcf3.js",
+      "_SecondaryButton-93d071ae.js",
+      "_InputError-74979b03.js"
+    ]
+  },
+  "_DangerButton-37b8bcf3.js": {
+    "file": "assets/DangerButton-37b8bcf3.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_cn-0998f52b.js"
+    ]
+  },
+  "_FormField-4e74d37f.js": {
+    "file": "assets/FormField-4e74d37f.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_InputLabel-fb9a29ed.js",
+      "_InputError-74979b03.js"
+    ]
+  },
+  "_GuestLayout-ed4f91b5.js": {
+    "file": "assets/GuestLayout-ed4f91b5.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_ApplicationLogo-25e46d32.js"
+    ]
+  },
+  "_Image-55377d0b.js": {
+    "file": "assets/Image-55377d0b.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_InformationCircleIcon-1d14859c.js": {
+    "file": "assets/InformationCircleIcon-1d14859c.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_InputError-74979b03.js": {
+    "file": "assets/InputError-74979b03.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_InputLabel-fb9a29ed.js": {
+    "file": "assets/InputLabel-fb9a29ed.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_ListBulletIcon-6829ac7f.js": {
+    "file": "assets/ListBulletIcon-6829ac7f.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_Modal-101a9872.js": {
+    "file": "assets/Modal-101a9872.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_cn-0998f52b.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js"
+    ]
+  },
+  "_PageHeader-04a0a4f7.js": {
+    "file": "assets/PageHeader-04a0a4f7.js",
+    "imports": [
+      "resources/js/app.jsx",
+      "_cn-0998f52b.js",
+      "_XMarkIcon-cc5b3937.js"
+    ]
+  },
+  "_PencilSquareIcon-f0928eeb.js": {
+    "file": "assets/PencilSquareIcon-f0928eeb.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_PhotoIcon-e25d007b.js": {
+    "file": "assets/PhotoIcon-e25d007b.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_PlusIcon-05c92a17.js": {
+    "file": "assets/PlusIcon-05c92a17.js",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "_PrimaryButton-b4c4d51e.js": {
+    "file": "assets/PrimaryButton-b4c4d51e.js",
     "imports": [
       "resources/js/app.jsx",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ]
   },
-  "_Card-225f6746.js": {
-    "file": "assets/Card-225f6746.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_cn-0998f52b.js"
-    ]
-  },
-  "_CheckIcon-f95e6e2d.js": {
-    "file": "assets/CheckIcon-f95e6e2d.js",
+  "_PrinterIcon-32b0a40e.js": {
+    "file": "assets/PrinterIcon-32b0a40e.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_Checkbox-a6dae32e.js": {
-    "file": "assets/Checkbox-a6dae32e.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_cn-0998f52b.js"
-    ]
-  },
-  "_Chip-93e5abf5.js": {
-    "file": "assets/Chip-93e5abf5.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_cn-0998f52b.js"
-    ]
-  },
-  "_ConfirmDeleteModal-ea8c2b07.js": {
-    "file": "assets/ConfirmDeleteModal-ea8c2b07.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_Modal-0190568a.js",
-      "_DangerButton-a5490218.js",
-      "_SecondaryButton-d38590cb.js",
-      "_InputError-4df5406c.js"
-    ]
-  },
-  "_DangerButton-a5490218.js": {
-    "file": "assets/DangerButton-a5490218.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_cn-0998f52b.js"
-    ]
-  },
-  "_FormField-8cea2d23.js": {
-    "file": "assets/FormField-8cea2d23.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_InputLabel-c3a8573e.js",
-      "_InputError-4df5406c.js"
-    ]
-  },
-  "_GuestLayout-65933b3c.js": {
-    "file": "assets/GuestLayout-65933b3c.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_ApplicationLogo-acd407dc.js"
-    ]
-  },
-  "_Image-4c843108.js": {
-    "file": "assets/Image-4c843108.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_InformationCircleIcon-a1580337.js": {
-    "file": "assets/InformationCircleIcon-a1580337.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_InputError-4df5406c.js": {
-    "file": "assets/InputError-4df5406c.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_InputLabel-c3a8573e.js": {
-    "file": "assets/InputLabel-c3a8573e.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_ListBulletIcon-88aff092.js": {
-    "file": "assets/ListBulletIcon-88aff092.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_Modal-0190568a.js": {
-    "file": "assets/Modal-0190568a.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js"
-    ]
-  },
-  "_PageHeader-90cb6e62.js": {
-    "file": "assets/PageHeader-90cb6e62.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js"
-    ]
-  },
-  "_PencilSquareIcon-9f45053a.js": {
-    "file": "assets/PencilSquareIcon-9f45053a.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_PhotoIcon-6b8b30e5.js": {
-    "file": "assets/PhotoIcon-6b8b30e5.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_PlusIcon-4b8b6cfa.js": {
-    "file": "assets/PlusIcon-4b8b6cfa.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_PrimaryButton-e08a3f23.js": {
-    "file": "assets/PrimaryButton-e08a3f23.js",
+  "_SecondaryButton-93d071ae.js": {
+    "file": "assets/SecondaryButton-93d071ae.js",
     "imports": [
       "resources/js/app.jsx",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ]
   },
-  "_PrinterIcon-e375b81c.js": {
-    "file": "assets/PrinterIcon-e375b81c.js",
-    "imports": [
-      "resources/js/app.jsx"
-    ]
-  },
-  "_SecondaryButton-d38590cb.js": {
-    "file": "assets/SecondaryButton-d38590cb.js",
+  "_SelectInput-02763d76.js": {
+    "file": "assets/SelectInput-02763d76.js",
     "imports": [
       "resources/js/app.jsx",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ]
   },
-  "_SelectInput-e1827906.js": {
-    "file": "assets/SelectInput-e1827906.js",
-    "imports": [
-      "resources/js/app.jsx",
-      "_cn-0998f52b.js",
-      "_styles-1f49f2a8.js"
-    ]
-  },
-  "_Squares2X2Icon-0b79d65a.js": {
-    "file": "assets/Squares2X2Icon-0b79d65a.js",
+  "_Squares2X2Icon-47a4ba7f.js": {
+    "file": "assets/Squares2X2Icon-47a4ba7f.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_TableComponent-de12b772.js": {
-    "file": "assets/TableComponent-de12b772.js",
+  "_TableComponent-b3d3c044.js": {
+    "file": "assets/TableComponent-b3d3c044.js",
     "imports": [
       "resources/js/app.jsx",
       "_cn-0998f52b.js"
     ]
   },
-  "_TextInput-535fc7c9.js": {
-    "file": "assets/TextInput-535fc7c9.js",
+  "_TextInput-f6c7e092.js": {
+    "file": "assets/TextInput-f6c7e092.js",
     "imports": [
       "resources/js/app.jsx",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ]
   },
-  "_TrashIcon-314c4f43.js": {
-    "file": "assets/TrashIcon-314c4f43.js",
+  "_TrashIcon-89f8d01e.js": {
+    "file": "assets/TrashIcon-89f8d01e.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_UserGroupIcon-cb1a5b3c.js": {
-    "file": "assets/UserGroupIcon-cb1a5b3c.js",
+  "_UserGroupIcon-8e604919.js": {
+    "file": "assets/UserGroupIcon-8e604919.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_UserIcon-4dcae15f.js": {
-    "file": "assets/UserIcon-4dcae15f.js",
+  "_UserIcon-f162911c.js": {
+    "file": "assets/UserIcon-f162911c.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_XMarkIcon-eef8c16a.js": {
-    "file": "assets/XMarkIcon-eef8c16a.js",
+  "_XMarkIcon-cc5b3937.js": {
+    "file": "assets/XMarkIcon-cc5b3937.js",
     "imports": [
       "resources/js/app.jsx"
     ]
@@ -233,58 +225,58 @@
   "_divisions-8a5e72e7.js": {
     "file": "assets/divisions-8a5e72e7.js"
   },
-  "_hidden-9c52f202.js": {
-    "file": "assets/hidden-9c52f202.js",
+  "_hidden-a3bae68c.js": {
+    "file": "assets/hidden-a3bae68c.js",
     "imports": [
-      "_transition-cba122f9.js"
+      "_transition-f204d41e.js"
     ]
   },
-  "_keyboard-31598c5a.js": {
-    "file": "assets/keyboard-31598c5a.js",
+  "_keyboard-9f3bc3c4.js": {
+    "file": "assets/keyboard-9f3bc3c4.js",
     "imports": [
       "resources/js/app.jsx",
-      "_transition-cba122f9.js"
+      "_transition-f204d41e.js"
     ]
   },
   "_styles-1f49f2a8.js": {
     "file": "assets/styles-1f49f2a8.js"
   },
-  "_transition-cba122f9.js": {
-    "file": "assets/transition-cba122f9.js",
+  "_transition-f204d41e.js": {
+    "file": "assets/transition-f204d41e.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_use-owner-94119e34.js": {
-    "file": "assets/use-owner-94119e34.js",
+  "_use-owner-1feae26c.js": {
+    "file": "assets/use-owner-1feae26c.js",
     "imports": [
       "resources/js/app.jsx",
-      "_keyboard-31598c5a.js"
+      "_keyboard-9f3bc3c4.js"
     ]
   },
-  "_use-text-value-7cc83c2a.js": {
-    "file": "assets/use-text-value-7cc83c2a.js",
+  "_use-text-value-810661bb.js": {
+    "file": "assets/use-text-value-810661bb.js",
     "imports": [
       "resources/js/app.jsx",
-      "_transition-cba122f9.js"
+      "_transition-f204d41e.js"
     ]
   },
-  "_usePageantChannel-fcda6021.js": {
-    "file": "assets/usePageantChannel-fcda6021.js",
+  "_usePageantChannel-6910e6df.js": {
+    "file": "assets/usePageantChannel-6910e6df.js",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
   "resources/js/Pages/Auth/ConfirmPassword.jsx": {
-    "file": "assets/ConfirmPassword-524d00c9.js",
+    "file": "assets/ConfirmPassword-362cacee.js",
     "imports": [
       "resources/js/app.jsx",
-      "_GuestLayout-65933b3c.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
-      "_ApplicationLogo-acd407dc.js",
+      "_GuestLayout-ed4f91b5.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
+      "_ApplicationLogo-25e46d32.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -292,14 +284,14 @@
     "src": "resources/js/Pages/Auth/ConfirmPassword.jsx"
   },
   "resources/js/Pages/Auth/ForgotPassword.jsx": {
-    "file": "assets/ForgotPassword-3c092413.js",
+    "file": "assets/ForgotPassword-6f63caf0.js",
     "imports": [
       "resources/js/app.jsx",
-      "_GuestLayout-65933b3c.js",
-      "_InputError-4df5406c.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
-      "_ApplicationLogo-acd407dc.js",
+      "_GuestLayout-ed4f91b5.js",
+      "_InputError-74979b03.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
+      "_ApplicationLogo-25e46d32.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -307,32 +299,32 @@
     "src": "resources/js/Pages/Auth/ForgotPassword.jsx"
   },
   "resources/js/Pages/Auth/Login copy.jsx": {
-    "file": "assets/Login copy-52835b4f.js",
+    "file": "assets/Login copy-b615560f.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Checkbox-a6dae32e.js",
-      "_GuestLayout-65933b3c.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
+      "_Checkbox-04260980.js",
+      "_GuestLayout-ed4f91b5.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
       "_cn-0998f52b.js",
-      "_ApplicationLogo-acd407dc.js",
+      "_ApplicationLogo-25e46d32.js",
       "_styles-1f49f2a8.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Auth/Login copy.jsx"
   },
   "resources/js/Pages/Auth/Login.jsx": {
-    "file": "assets/Login-9efbbe34.js",
+    "file": "assets/Login-f051f7a4.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Checkbox-a6dae32e.js",
-      "_ApplicationLogo-acd407dc.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
+      "_Checkbox-04260980.js",
+      "_ApplicationLogo-25e46d32.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -340,15 +332,15 @@
     "src": "resources/js/Pages/Auth/Login.jsx"
   },
   "resources/js/Pages/Auth/Register.jsx": {
-    "file": "assets/Register-7b48b2f3.js",
+    "file": "assets/Register-26ddee7f.js",
     "imports": [
       "resources/js/app.jsx",
-      "_GuestLayout-65933b3c.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
-      "_ApplicationLogo-acd407dc.js",
+      "_GuestLayout-ed4f91b5.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
+      "_ApplicationLogo-25e46d32.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -356,15 +348,15 @@
     "src": "resources/js/Pages/Auth/Register.jsx"
   },
   "resources/js/Pages/Auth/ResetPassword.jsx": {
-    "file": "assets/ResetPassword-f92b0181.js",
+    "file": "assets/ResetPassword-cdb80861.js",
     "imports": [
       "resources/js/app.jsx",
-      "_GuestLayout-65933b3c.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
-      "_ApplicationLogo-acd407dc.js",
+      "_GuestLayout-ed4f91b5.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
+      "_ApplicationLogo-25e46d32.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -372,12 +364,12 @@
     "src": "resources/js/Pages/Auth/ResetPassword.jsx"
   },
   "resources/js/Pages/Auth/VerifyEmail.jsx": {
-    "file": "assets/VerifyEmail-77361707.js",
+    "file": "assets/VerifyEmail-79212544.js",
     "imports": [
       "resources/js/app.jsx",
-      "_GuestLayout-65933b3c.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_ApplicationLogo-acd407dc.js",
+      "_GuestLayout-ed4f91b5.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_ApplicationLogo-25e46d32.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -385,53 +377,53 @@
     "src": "resources/js/Pages/Auth/VerifyEmail.jsx"
   },
   "resources/js/Pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-799d21d3.js",
+    "file": "assets/Dashboard-d84e587e.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_Squares2X2Icon-0b79d65a.js",
+      "_PageHeader-04a0a4f7.js",
+      "_Squares2X2Icon-47a4ba7f.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js"
+      "_XMarkIcon-cc5b3937.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Dashboard.jsx"
   },
   "resources/js/Pages/Judges/Index.jsx": {
-    "file": "assets/Index-fbdc66c6.js",
+    "file": "assets/Index-865a94c7.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
+      "_PageHeader-04a0a4f7.js",
       "resources/js/Pages/Judges/Partials/JudgeCreate.jsx",
       "resources/js/Pages/Judges/Partials/JudgeList.jsx",
-      "_ListBulletIcon-88aff092.js",
+      "_ListBulletIcon-6829ac7f.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_InputLabel-c3a8573e.js",
-      "_TextInput-535fc7c9.js",
+      "_XMarkIcon-cc5b3937.js",
+      "_InputLabel-fb9a29ed.js",
+      "_TextInput-f6c7e092.js",
       "_styles-1f49f2a8.js",
-      "_InputError-4df5406c.js",
-      "_PrimaryButton-e08a3f23.js",
+      "_InputError-74979b03.js",
+      "_PrimaryButton-b4c4d51e.js",
       "resources/js/Pages/Judges/Partials/JudgeEdit.jsx",
-      "_Modal-0190568a.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_SecondaryButton-d38590cb.js",
-      "_PencilSquareIcon-9f45053a.js",
-      "_TrashIcon-314c4f43.js"
+      "_Modal-101a9872.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_SecondaryButton-93d071ae.js",
+      "_PencilSquareIcon-f0928eeb.js",
+      "_TrashIcon-89f8d01e.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Judges/Index.jsx"
   },
   "resources/js/Pages/Judges/Partials/JudgeCreate.jsx": {
-    "file": "assets/JudgeCreate-296c17de.js",
+    "file": "assets/JudgeCreate-384e5416.js",
     "imports": [
       "resources/js/app.jsx",
-      "_InputLabel-c3a8573e.js",
-      "_TextInput-535fc7c9.js",
-      "_InputError-4df5406c.js",
-      "_PrimaryButton-e08a3f23.js",
+      "_InputLabel-fb9a29ed.js",
+      "_TextInput-f6c7e092.js",
+      "_InputError-74979b03.js",
+      "_PrimaryButton-b4c4d51e.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -439,281 +431,276 @@
     "src": "resources/js/Pages/Judges/Partials/JudgeCreate.jsx"
   },
   "resources/js/Pages/Judges/Partials/JudgeEdit.jsx": {
-    "file": "assets/JudgeEdit-c57dc76f.js",
+    "file": "assets/JudgeEdit-2e5a5d95.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Modal-0190568a.js",
-      "_InputLabel-c3a8573e.js",
-      "_TextInput-535fc7c9.js",
-      "_InputError-4df5406c.js",
-      "_SecondaryButton-d38590cb.js",
-      "_PrimaryButton-e08a3f23.js",
+      "_Modal-101a9872.js",
+      "_InputLabel-fb9a29ed.js",
+      "_TextInput-f6c7e092.js",
+      "_InputError-74979b03.js",
+      "_SecondaryButton-93d071ae.js",
+      "_PrimaryButton-b4c4d51e.js",
       "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
       "_styles-1f49f2a8.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Judges/Partials/JudgeEdit.jsx"
   },
   "resources/js/Pages/Judges/Partials/JudgeList.jsx": {
-    "file": "assets/JudgeList-15ecfd0c.js",
+    "file": "assets/JudgeList-f73c4f91.js",
     "imports": [
       "resources/js/app.jsx",
       "resources/js/Pages/Judges/Partials/JudgeEdit.jsx",
-      "_PencilSquareIcon-9f45053a.js",
-      "_TrashIcon-314c4f43.js",
-      "_Modal-0190568a.js",
+      "_PencilSquareIcon-f0928eeb.js",
+      "_TrashIcon-89f8d01e.js",
+      "_Modal-101a9872.js",
       "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_InputLabel-c3a8573e.js",
-      "_TextInput-535fc7c9.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_InputLabel-fb9a29ed.js",
+      "_TextInput-f6c7e092.js",
       "_styles-1f49f2a8.js",
-      "_InputError-4df5406c.js",
-      "_SecondaryButton-d38590cb.js",
-      "_PrimaryButton-e08a3f23.js"
+      "_InputError-74979b03.js",
+      "_SecondaryButton-93d071ae.js",
+      "_PrimaryButton-b4c4d51e.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Judges/Partials/JudgeList.jsx"
   },
   "resources/js/Pages/Pageant/Admin/PageantDeduction.jsx": {
-    "file": "assets/PageantDeduction-b5f28684.js",
+    "file": "assets/PageantDeduction-45688bc0.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Image-4c843108.js",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TableComponent-de12b772.js",
-      "_TextInput-535fc7c9.js",
-      "_InputLabel-c3a8573e.js",
-      "_SelectInput-e1827906.js",
-      "_InputError-4df5406c.js",
+      "_Image-55377d0b.js",
+      "_PageHeader-04a0a4f7.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TableComponent-b3d3c044.js",
+      "_TextInput-f6c7e092.js",
+      "_InputLabel-fb9a29ed.js",
+      "_SelectInput-02763d76.js",
+      "_InputError-74979b03.js",
       "_divisions-8a5e72e7.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
+      "_XMarkIcon-cc5b3937.js",
       "_styles-1f49f2a8.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Admin/PageantDeduction.jsx"
   },
   "resources/js/Pages/Pageant/Admin/PageantScoring.jsx": {
-    "file": "assets/PageantScoring-c2843447.js",
+    "file": "assets/PageantScoring-a67b1a8b.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
+      "_PageHeader-04a0a4f7.js",
       "_divisions-8a5e72e7.js",
       "resources/js/Pages/Scoring/Partials/CandidateBox.jsx",
-      "_PrimaryButton-e08a3f23.js",
-      "_Alert-12aa4ec7.js",
-      "_InputLabel-c3a8573e.js",
-      "_SelectInput-e1827906.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_Alert-b2822d1f.js",
+      "_InputLabel-fb9a29ed.js",
+      "_SelectInput-02763d76.js",
       "_styles-1f49f2a8.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
+      "_XMarkIcon-cc5b3937.js",
       "resources/js/Pages/Scoring/Partials/ScoringInput.jsx",
-      "_TextInput-535fc7c9.js",
-      "_Image-4c843108.js"
+      "_TextInput-f6c7e092.js",
+      "_Image-55377d0b.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Admin/PageantScoring.jsx"
   },
   "resources/js/Pages/Pageant/Admin/SelectRoundCandidate.jsx": {
-    "file": "assets/SelectRoundCandidate-a05f5327.js",
+    "file": "assets/SelectRoundCandidate-f6acaf52.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Image-4c843108.js",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
-      "_TextInput-535fc7c9.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_SecondaryButton-d38590cb.js",
+      "_Image-55377d0b.js",
+      "_PageHeader-04a0a4f7.js",
+      "_TextInput-f6c7e092.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_SecondaryButton-93d071ae.js",
       "resources/js/Pages/Pageant/Admin/_partial/OrderSelectionModal.jsx",
       "_divisions-8a5e72e7.js",
-      "_Checkbox-a6dae32e.js",
-      "_SelectInput-e1827906.js",
-      "_InputError-4df5406c.js",
-      "_UserGroupIcon-cb1a5b3c.js",
+      "_Checkbox-04260980.js",
+      "_SelectInput-02763d76.js",
+      "_InputError-74979b03.js",
+      "_UserGroupIcon-8e604919.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
+      "_XMarkIcon-cc5b3937.js",
       "_styles-1f49f2a8.js",
-      "_Modal-0190568a.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_DangerButton-a5490218.js"
+      "_Modal-101a9872.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_DangerButton-37b8bcf3.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Admin/SelectRoundCandidate.jsx"
   },
   "resources/js/Pages/Pageant/Admin/_partial/OrderSelectionModal.jsx": {
-    "file": "assets/OrderSelectionModal-9e9e3a5a.js",
+    "file": "assets/OrderSelectionModal-9269a2d5.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Modal-0190568a.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_SecondaryButton-d38590cb.js",
-      "_DangerButton-a5490218.js",
+      "_Modal-101a9872.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_SecondaryButton-93d071ae.js",
+      "_DangerButton-37b8bcf3.js",
       "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
       "_styles-1f49f2a8.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Admin/_partial/OrderSelectionModal.jsx"
   },
   "resources/js/Pages/Pageant/Candidates/Index.jsx": {
-    "file": "assets/Index-f8ab0be3.js",
+    "file": "assets/Index-f9be39d3.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_Alert-12aa4ec7.js",
+      "_PageHeader-04a0a4f7.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_Alert-b2822d1f.js",
       "resources/js/Pages/Pageant/Partials/ImportModal.jsx",
       "resources/js/Pages/Pageant/Candidates/Partials/CandidateList.jsx",
       "resources/js/Pages/Pageant/Candidates/Partials/CandidateForm.jsx",
-      "_UserGroupIcon-cb1a5b3c.js",
-      "_ArrowUpTrayIcon-1f19cfab.js",
-      "_PencilSquareIcon-9f45053a.js",
-      "_PlusIcon-4b8b6cfa.js",
+      "_UserGroupIcon-8e604919.js",
+      "_ArrowUpTrayIcon-95e7d0e0.js",
+      "_PencilSquareIcon-f0928eeb.js",
+      "_PlusIcon-05c92a17.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
+      "_XMarkIcon-cc5b3937.js",
       "_styles-1f49f2a8.js",
-      "_Modal-0190568a.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_SecondaryButton-d38590cb.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_Image-4c843108.js",
-      "_ConfirmDeleteModal-ea8c2b07.js",
-      "_DangerButton-a5490218.js",
-      "_TableComponent-de12b772.js",
+      "_Modal-101a9872.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_SecondaryButton-93d071ae.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_Image-55377d0b.js",
+      "_ConfirmDeleteModal-1c784409.js",
+      "_DangerButton-37b8bcf3.js",
+      "_TableComponent-b3d3c044.js",
       "_divisions-8a5e72e7.js",
-      "_TrashIcon-314c4f43.js",
-      "_UserIcon-4dcae15f.js",
-      "_FormField-8cea2d23.js",
-      "_TextInput-535fc7c9.js",
-      "_SelectInput-e1827906.js",
-      "_PhotoIcon-6b8b30e5.js",
-      "_CheckIcon-f95e6e2d.js"
+      "_TrashIcon-89f8d01e.js",
+      "_UserIcon-f162911c.js",
+      "_FormField-4e74d37f.js",
+      "_TextInput-f6c7e092.js",
+      "_SelectInput-02763d76.js",
+      "_PhotoIcon-e25d007b.js",
+      "_CheckIcon-b3f272c7.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Candidates/Index.jsx"
   },
   "resources/js/Pages/Pageant/Candidates/Partials/CandidateForm.jsx": {
-    "file": "assets/CandidateForm-93ac4e65.js",
+    "file": "assets/CandidateForm-40673b0b.js",
     "imports": [
       "resources/js/app.jsx",
-      "_FormField-8cea2d23.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_TextInput-535fc7c9.js",
-      "_SelectInput-e1827906.js",
+      "_FormField-4e74d37f.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_TextInput-f6c7e092.js",
+      "_SelectInput-02763d76.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_SecondaryButton-d38590cb.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_SecondaryButton-93d071ae.js",
       "_divisions-8a5e72e7.js",
-      "_PhotoIcon-6b8b30e5.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_CheckIcon-f95e6e2d.js"
+      "_PhotoIcon-e25d007b.js",
+      "_XMarkIcon-cc5b3937.js",
+      "_CheckIcon-b3f272c7.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Candidates/Partials/CandidateForm.jsx"
   },
   "resources/js/Pages/Pageant/Candidates/Partials/CandidateList.jsx": {
-    "file": "assets/CandidateList-4ceb112f.js",
+    "file": "assets/CandidateList-e794582a.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Image-4c843108.js",
-      "_ConfirmDeleteModal-ea8c2b07.js",
-      "_TableComponent-de12b772.js",
+      "_Image-55377d0b.js",
+      "_ConfirmDeleteModal-1c784409.js",
+      "_TableComponent-b3d3c044.js",
       "_cn-0998f52b.js",
       "_divisions-8a5e72e7.js",
-      "_TrashIcon-314c4f43.js",
-      "_UserIcon-4dcae15f.js",
-      "_Modal-0190568a.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_DangerButton-a5490218.js",
-      "_SecondaryButton-d38590cb.js",
+      "_TrashIcon-89f8d01e.js",
+      "_UserIcon-f162911c.js",
+      "_Modal-101a9872.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_DangerButton-37b8bcf3.js",
+      "_SecondaryButton-93d071ae.js",
       "_styles-1f49f2a8.js",
-      "_InputError-4df5406c.js"
+      "_InputError-74979b03.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Candidates/Partials/CandidateList.jsx"
   },
   "resources/js/Pages/Pageant/Criterias/Index.jsx": {
-    "file": "assets/Index-e7ab21a2.js",
+    "file": "assets/Index-82781ef7.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_Alert-12aa4ec7.js",
+      "_PageHeader-04a0a4f7.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_Alert-b2822d1f.js",
       "resources/js/Pages/Pageant/Partials/ImportModal.jsx",
       "_cn-0998f52b.js",
       "resources/js/Pages/Pageant/Criterias/Partials/CriteriaList.jsx",
       "resources/js/Pages/Pageant/Criterias/Partials/CriteriaForm.jsx",
-      "_ListBulletIcon-88aff092.js",
-      "_ArrowUpTrayIcon-1f19cfab.js",
-      "_PencilSquareIcon-9f45053a.js",
-      "_PlusIcon-4b8b6cfa.js",
-      "_XMarkIcon-eef8c16a.js",
+      "_ListBulletIcon-6829ac7f.js",
+      "_ArrowUpTrayIcon-95e7d0e0.js",
+      "_PencilSquareIcon-f0928eeb.js",
+      "_PlusIcon-05c92a17.js",
+      "_XMarkIcon-cc5b3937.js",
       "_styles-1f49f2a8.js",
-      "_Modal-0190568a.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_SecondaryButton-d38590cb.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_ConfirmDeleteModal-ea8c2b07.js",
-      "_DangerButton-a5490218.js",
-      "_TableComponent-de12b772.js",
-      "_UserGroupIcon-cb1a5b3c.js",
-      "_TrashIcon-314c4f43.js",
-      "_FormField-8cea2d23.js",
-      "_TextInput-535fc7c9.js",
-      "_Checkbox-a6dae32e.js",
-      "_InformationCircleIcon-a1580337.js",
-      "_CheckIcon-f95e6e2d.js"
+      "_Modal-101a9872.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_SecondaryButton-93d071ae.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_ConfirmDeleteModal-1c784409.js",
+      "_DangerButton-37b8bcf3.js",
+      "_TableComponent-b3d3c044.js",
+      "_UserGroupIcon-8e604919.js",
+      "_TrashIcon-89f8d01e.js",
+      "_FormField-4e74d37f.js",
+      "_TextInput-f6c7e092.js",
+      "_Checkbox-04260980.js",
+      "_InformationCircleIcon-1d14859c.js",
+      "_CheckIcon-b3f272c7.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Criterias/Index.jsx"
   },
   "resources/js/Pages/Pageant/Criterias/Partials/CriteriaForm.jsx": {
-    "file": "assets/CriteriaForm-6aac4e8a.js",
+    "file": "assets/CriteriaForm-3a7fcea3.js",
     "imports": [
       "resources/js/app.jsx",
-      "_FormField-8cea2d23.js",
-      "_TextInput-535fc7c9.js",
-      "_Checkbox-a6dae32e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_SecondaryButton-d38590cb.js",
-      "_InformationCircleIcon-a1580337.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_CheckIcon-f95e6e2d.js",
-      "_PlusIcon-4b8b6cfa.js",
-      "_InputLabel-c3a8573e.js",
-      "_InputError-4df5406c.js",
+      "_FormField-4e74d37f.js",
+      "_TextInput-f6c7e092.js",
+      "_Checkbox-04260980.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_SecondaryButton-93d071ae.js",
+      "_InformationCircleIcon-1d14859c.js",
+      "_XMarkIcon-cc5b3937.js",
+      "_CheckIcon-b3f272c7.js",
+      "_PlusIcon-05c92a17.js",
+      "_InputLabel-fb9a29ed.js",
+      "_InputError-74979b03.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -721,223 +708,217 @@
     "src": "resources/js/Pages/Pageant/Criterias/Partials/CriteriaForm.jsx"
   },
   "resources/js/Pages/Pageant/Criterias/Partials/CriteriaList.jsx": {
-    "file": "assets/CriteriaList-a188b960.js",
+    "file": "assets/CriteriaList-ff8b9103.js",
     "imports": [
       "resources/js/app.jsx",
-      "_ConfirmDeleteModal-ea8c2b07.js",
-      "_TableComponent-de12b772.js",
-      "_UserGroupIcon-cb1a5b3c.js",
-      "_TrashIcon-314c4f43.js",
-      "_ListBulletIcon-88aff092.js",
-      "_Modal-0190568a.js",
+      "_ConfirmDeleteModal-1c784409.js",
+      "_TableComponent-b3d3c044.js",
+      "_UserGroupIcon-8e604919.js",
+      "_TrashIcon-89f8d01e.js",
+      "_ListBulletIcon-6829ac7f.js",
+      "_Modal-101a9872.js",
       "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_DangerButton-a5490218.js",
-      "_SecondaryButton-d38590cb.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_DangerButton-37b8bcf3.js",
+      "_SecondaryButton-93d071ae.js",
       "_styles-1f49f2a8.js",
-      "_InputError-4df5406c.js"
+      "_InputError-74979b03.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Criterias/Partials/CriteriaList.jsx"
   },
   "resources/js/Pages/Pageant/JudgeSelect.jsx": {
-    "file": "assets/JudgeSelect-5a8da20c.js",
+    "file": "assets/JudgeSelect-4b209b96.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_Image-4c843108.js",
-      "_BackButton-4807c9ef.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_Checkbox-a6dae32e.js",
-      "_UserGroupIcon-cb1a5b3c.js",
-      "_CheckIcon-f95e6e2d.js",
-      "_UserIcon-4dcae15f.js",
+      "_PageHeader-04a0a4f7.js",
+      "_Image-55377d0b.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_Checkbox-04260980.js",
+      "_UserGroupIcon-8e604919.js",
+      "_CheckIcon-b3f272c7.js",
+      "_UserIcon-f162911c.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
+      "_XMarkIcon-cc5b3937.js",
       "_styles-1f49f2a8.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/JudgeSelect.jsx"
   },
   "resources/js/Pages/Pageant/PageantCreate.jsx": {
-    "file": "assets/PageantCreate-83b38528.js",
+    "file": "assets/PageantCreate-c70478ad.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
+      "_PageHeader-04a0a4f7.js",
       "resources/js/Pages/Pageant/Partials/PageantForm.jsx",
-      "_BackButton-4807c9ef.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_InputLabel-c3a8573e.js",
-      "_Image-4c843108.js",
-      "_TextInput-535fc7c9.js",
+      "_XMarkIcon-cc5b3937.js",
+      "_InputLabel-fb9a29ed.js",
+      "_Image-55377d0b.js",
+      "_TextInput-f6c7e092.js",
       "_styles-1f49f2a8.js",
-      "_InputError-4df5406c.js",
-      "_Checkbox-a6dae32e.js",
-      "_PrimaryButton-e08a3f23.js",
+      "_InputError-74979b03.js",
+      "_Checkbox-04260980.js",
+      "_PrimaryButton-b4c4d51e.js",
       "_divisions-8a5e72e7.js",
-      "_Squares2X2Icon-0b79d65a.js",
-      "_PhotoIcon-6b8b30e5.js",
-      "_UserIcon-4dcae15f.js"
+      "_Squares2X2Icon-47a4ba7f.js",
+      "_PhotoIcon-e25d007b.js",
+      "_UserIcon-f162911c.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/PageantCreate.jsx"
   },
   "resources/js/Pages/Pageant/PageantEdit.jsx": {
-    "file": "assets/PageantEdit-edb2779c.js",
+    "file": "assets/PageantEdit-8f5068e6.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
+      "_PageHeader-04a0a4f7.js",
       "resources/js/Pages/Pageant/Partials/PageantForm.jsx",
-      "_BackButton-4807c9ef.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_InputLabel-c3a8573e.js",
-      "_Image-4c843108.js",
-      "_TextInput-535fc7c9.js",
+      "_XMarkIcon-cc5b3937.js",
+      "_InputLabel-fb9a29ed.js",
+      "_Image-55377d0b.js",
+      "_TextInput-f6c7e092.js",
       "_styles-1f49f2a8.js",
-      "_InputError-4df5406c.js",
-      "_Checkbox-a6dae32e.js",
-      "_PrimaryButton-e08a3f23.js",
+      "_InputError-74979b03.js",
+      "_Checkbox-04260980.js",
+      "_PrimaryButton-b4c4d51e.js",
       "_divisions-8a5e72e7.js",
-      "_Squares2X2Icon-0b79d65a.js",
-      "_PhotoIcon-6b8b30e5.js",
-      "_UserIcon-4dcae15f.js"
+      "_Squares2X2Icon-47a4ba7f.js",
+      "_PhotoIcon-e25d007b.js",
+      "_UserIcon-f162911c.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/PageantEdit.jsx"
   },
   "resources/js/Pages/Pageant/PageantIndex.jsx": {
-    "file": "assets/PageantIndex-b9c0c877.js",
+    "file": "assets/PageantIndex-2e13a94d.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_Image-4c843108.js",
+      "_PageHeader-04a0a4f7.js",
+      "_Image-55377d0b.js",
       "_divisions-8a5e72e7.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js",
-      "_PlusIcon-4b8b6cfa.js",
-      "_UserGroupIcon-cb1a5b3c.js",
-      "_PencilSquareIcon-9f45053a.js",
-      "_TrashIcon-314c4f43.js",
-      "_XMarkIcon-eef8c16a.js"
+      "_PlusIcon-05c92a17.js",
+      "_UserGroupIcon-8e604919.js",
+      "_PencilSquareIcon-f0928eeb.js",
+      "_TrashIcon-89f8d01e.js",
+      "_XMarkIcon-cc5b3937.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/PageantIndex.jsx"
   },
   "resources/js/Pages/Pageant/PageantPrinting.jsx": {
-    "file": "assets/PageantPrinting-ffb53e99.js",
+    "file": "assets/PageantPrinting-9f5c181f.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PrimaryButton-e08a3f23.js",
-      "_Image-4c843108.js",
-      "_PageHeader-90cb6e62.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_Image-55377d0b.js",
+      "_PageHeader-04a0a4f7.js",
       "_divisions-8a5e72e7.js",
       "resources/js/Pages/Pageant/Partials/ComponentToPrint.jsx",
-      "_BackButton-4807c9ef.js",
-      "_PrinterIcon-e375b81c.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_use-text-value-7cc83c2a.js",
-      "_hidden-9c52f202.js",
-      "_CheckIcon-f95e6e2d.js",
+      "_PrinterIcon-32b0a40e.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_use-text-value-810661bb.js",
+      "_hidden-a3bae68c.js",
+      "_CheckIcon-b3f272c7.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js",
-      "_XMarkIcon-eef8c16a.js"
+      "_XMarkIcon-cc5b3937.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/PageantPrinting.jsx"
   },
   "resources/js/Pages/Pageant/PageantScores.jsx": {
-    "file": "assets/PageantScores-2f3db8d1.js",
+    "file": "assets/PageantScores-2ba0e9df.js",
     "imports": [
       "resources/js/app.jsx",
-      "_InputLabel-c3a8573e.js",
-      "_SelectInput-e1827906.js",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
+      "_InputLabel-fb9a29ed.js",
+      "_SelectInput-02763d76.js",
+      "_PageHeader-04a0a4f7.js",
       "resources/js/Pages/Pageant/Partials/CandidateScoreList.jsx",
       "resources/js/Pages/Pageant/Partials/LiveControlPanel.jsx",
       "resources/js/Pages/Pageant/Partials/ScoreActionsMenu.jsx",
-      "_SecondaryButton-d38590cb.js",
-      "_DangerButton-a5490218.js",
-      "_Modal-0190568a.js",
-      "_Chip-93e5abf5.js",
-      "_Card-225f6746.js",
-      "_usePageantChannel-fcda6021.js",
+      "_SecondaryButton-93d071ae.js",
+      "_DangerButton-37b8bcf3.js",
+      "_Modal-101a9872.js",
+      "_Chip-339cdae5.js",
+      "_Card-1720a48c.js",
+      "_usePageantChannel-6910e6df.js",
       "_divisions-8a5e72e7.js",
       "_styles-1f49f2a8.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_Image-4c843108.js",
-      "_TableComponent-de12b772.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_use-text-value-7cc83c2a.js",
-      "_use-owner-94119e34.js",
-      "_TrashIcon-314c4f43.js",
-      "_hidden-9c52f202.js"
+      "_XMarkIcon-cc5b3937.js",
+      "_Image-55377d0b.js",
+      "_TableComponent-b3d3c044.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_use-text-value-810661bb.js",
+      "_use-owner-1feae26c.js",
+      "_TrashIcon-89f8d01e.js",
+      "_hidden-a3bae68c.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/PageantScores.jsx"
   },
   "resources/js/Pages/Pageant/PageantShow.jsx": {
-    "file": "assets/PageantShow-9fe33215.js",
+    "file": "assets/PageantShow-7230fd72.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Image-4c843108.js",
-      "_PageHeader-90cb6e62.js",
+      "_Image-55377d0b.js",
+      "_PageHeader-04a0a4f7.js",
       "_divisions-8a5e72e7.js",
       "_cn-0998f52b.js",
       "resources/js/Pages/Pageant/Criterias/Partials/CriteriaList.jsx",
       "resources/js/Pages/Judges/Partials/JudgeList.jsx",
-      "_Card-225f6746.js",
-      "_BackButton-4807c9ef.js",
-      "_Chip-93e5abf5.js",
+      "_Card-1720a48c.js",
+      "_Chip-339cdae5.js",
       "_styles-1f49f2a8.js",
-      "_UserGroupIcon-cb1a5b3c.js",
-      "_UserIcon-4dcae15f.js",
-      "_ListBulletIcon-88aff092.js",
-      "_PrinterIcon-e375b81c.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_ConfirmDeleteModal-ea8c2b07.js",
-      "_Modal-0190568a.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_DangerButton-a5490218.js",
-      "_SecondaryButton-d38590cb.js",
-      "_InputError-4df5406c.js",
-      "_TableComponent-de12b772.js",
-      "_TrashIcon-314c4f43.js",
+      "_UserGroupIcon-8e604919.js",
+      "_UserIcon-f162911c.js",
+      "_ListBulletIcon-6829ac7f.js",
+      "_PrinterIcon-32b0a40e.js",
+      "_XMarkIcon-cc5b3937.js",
+      "_ConfirmDeleteModal-1c784409.js",
+      "_Modal-101a9872.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_DangerButton-37b8bcf3.js",
+      "_SecondaryButton-93d071ae.js",
+      "_InputError-74979b03.js",
+      "_TableComponent-b3d3c044.js",
+      "_TrashIcon-89f8d01e.js",
       "resources/js/Pages/Judges/Partials/JudgeEdit.jsx",
-      "_InputLabel-c3a8573e.js",
-      "_TextInput-535fc7c9.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_PencilSquareIcon-9f45053a.js"
+      "_InputLabel-fb9a29ed.js",
+      "_TextInput-f6c7e092.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_PencilSquareIcon-f0928eeb.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/PageantShow.jsx"
   },
   "resources/js/Pages/Pageant/Partials/CandidateScoreList.jsx": {
-    "file": "assets/CandidateScoreList-8e6ab4fe.js",
+    "file": "assets/CandidateScoreList-1756a042.js",
     "imports": [
       "resources/js/app.jsx",
       "_divisions-8a5e72e7.js",
-      "_Image-4c843108.js",
-      "_TableComponent-de12b772.js",
+      "_Image-55377d0b.js",
+      "_TableComponent-b3d3c044.js",
       "_cn-0998f52b.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Partials/CandidateScoreList.jsx"
   },
   "resources/js/Pages/Pageant/Partials/ComponentToPrint.jsx": {
-    "file": "assets/ComponentToPrint-bff71961.js",
+    "file": "assets/ComponentToPrint-98789766.js",
     "imports": [
       "resources/js/app.jsx",
       "_divisions-8a5e72e7.js"
@@ -946,134 +927,134 @@
     "src": "resources/js/Pages/Pageant/Partials/ComponentToPrint.jsx"
   },
   "resources/js/Pages/Pageant/Partials/ImportModal.jsx": {
-    "file": "assets/ImportModal-ca47da56.js",
+    "file": "assets/ImportModal-f9645682.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Modal-0190568a.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_SecondaryButton-d38590cb.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
+      "_Modal-101a9872.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_SecondaryButton-93d071ae.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
       "_styles-1f49f2a8.js",
       "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js"
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Partials/ImportModal.jsx"
   },
   "resources/js/Pages/Pageant/Partials/LiveControlPanel.jsx": {
-    "file": "assets/LiveControlPanel-3f1b24a7.js",
+    "file": "assets/LiveControlPanel-99178943.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Card-225f6746.js",
-      "_InputLabel-c3a8573e.js",
-      "_SelectInput-e1827906.js",
-      "_Modal-0190568a.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_SecondaryButton-d38590cb.js",
+      "_Card-1720a48c.js",
+      "_InputLabel-fb9a29ed.js",
+      "_SelectInput-02763d76.js",
+      "_Modal-101a9872.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_SecondaryButton-93d071ae.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js"
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Partials/LiveControlPanel.jsx"
   },
   "resources/js/Pages/Pageant/Partials/PageantForm.jsx": {
-    "file": "assets/PageantForm-76c118a1.js",
+    "file": "assets/PageantForm-2c38bd52.js",
     "imports": [
       "resources/js/app.jsx",
-      "_InputLabel-c3a8573e.js",
-      "_Image-4c843108.js",
-      "_TextInput-535fc7c9.js",
-      "_InputError-4df5406c.js",
-      "_Checkbox-a6dae32e.js",
-      "_PrimaryButton-e08a3f23.js",
+      "_InputLabel-fb9a29ed.js",
+      "_Image-55377d0b.js",
+      "_TextInput-f6c7e092.js",
+      "_InputError-74979b03.js",
+      "_Checkbox-04260980.js",
+      "_PrimaryButton-b4c4d51e.js",
       "_cn-0998f52b.js",
       "_divisions-8a5e72e7.js",
-      "_Squares2X2Icon-0b79d65a.js",
-      "_PhotoIcon-6b8b30e5.js",
-      "_UserIcon-4dcae15f.js",
+      "_Squares2X2Icon-47a4ba7f.js",
+      "_PhotoIcon-e25d007b.js",
+      "_UserIcon-f162911c.js",
       "_styles-1f49f2a8.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Partials/PageantForm.jsx"
   },
   "resources/js/Pages/Pageant/Partials/ScoreActionsMenu.jsx": {
-    "file": "assets/ScoreActionsMenu-0878c906.js",
+    "file": "assets/ScoreActionsMenu-26c997fd.js",
     "imports": [
       "resources/js/app.jsx",
       "_styles-1f49f2a8.js",
       "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_use-text-value-7cc83c2a.js",
-      "_use-owner-94119e34.js",
-      "_TrashIcon-314c4f43.js"
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_use-text-value-810661bb.js",
+      "_use-owner-1feae26c.js",
+      "_TrashIcon-89f8d01e.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Pageant/Partials/ScoreActionsMenu.jsx"
   },
   "resources/js/Pages/Profile/Edit.jsx": {
-    "file": "assets/Edit-d8e5c1e2.js",
+    "file": "assets/Edit-69259605.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
+      "_PageHeader-04a0a4f7.js",
       "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_DangerButton-a5490218.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_Modal-0190568a.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
-      "_SecondaryButton-d38590cb.js",
+      "_XMarkIcon-cc5b3937.js",
+      "_DangerButton-37b8bcf3.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_Modal-101a9872.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
+      "_SecondaryButton-93d071ae.js",
       "_styles-1f49f2a8.js",
-      "_TextInput-535fc7c9.js",
-      "_PrimaryButton-e08a3f23.js"
+      "_TextInput-f6c7e092.js",
+      "_PrimaryButton-b4c4d51e.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Profile/Edit.jsx"
   },
   "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx": {
-    "file": "assets/DeleteUserForm-971283b0.js",
+    "file": "assets/DeleteUserForm-a8e6aded.js",
     "imports": [
       "resources/js/app.jsx",
-      "_DangerButton-a5490218.js",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_Modal-0190568a.js",
-      "_SecondaryButton-d38590cb.js",
-      "_TextInput-535fc7c9.js",
+      "_DangerButton-37b8bcf3.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_Modal-101a9872.js",
+      "_SecondaryButton-93d071ae.js",
+      "_TextInput-f6c7e092.js",
       "_cn-0998f52b.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js",
       "_styles-1f49f2a8.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx"
   },
   "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx": {
-    "file": "assets/UpdatePasswordForm-3d191d5b.js",
+    "file": "assets/UpdatePasswordForm-27f66e69.js",
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
-      "_transition-cba122f9.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
+      "_transition-f204d41e.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -1081,14 +1062,14 @@
     "src": "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx"
   },
   "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx": {
-    "file": "assets/UpdateProfileInformationForm-dbf3516b.js",
+    "file": "assets/UpdateProfileInformationForm-40205554.js",
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-4df5406c.js",
-      "_InputLabel-c3a8573e.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_TextInput-535fc7c9.js",
-      "_transition-cba122f9.js",
+      "_InputError-74979b03.js",
+      "_InputLabel-fb9a29ed.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_TextInput-f6c7e092.js",
+      "_transition-f204d41e.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -1096,58 +1077,56 @@
     "src": "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx"
   },
   "resources/js/Pages/Scoring/Details.jsx": {
-    "file": "assets/Details-5fea2517.js",
+    "file": "assets/Details-a8c08a97.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
-      "_Image-4c843108.js",
-      "_usePageantChannel-fcda6021.js",
-      "_InformationCircleIcon-a1580337.js",
+      "_PageHeader-04a0a4f7.js",
+      "_Image-55377d0b.js",
+      "_usePageantChannel-6910e6df.js",
+      "_InformationCircleIcon-1d14859c.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_styles-1f49f2a8.js"
+      "_XMarkIcon-cc5b3937.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Scoring/Details.jsx"
   },
   "resources/js/Pages/Scoring/Index.jsx": {
-    "file": "assets/Index-0525ce26.js",
+    "file": "assets/Index-11dfaf64.js",
     "imports": [
       "resources/js/app.jsx",
-      "_Alert-12aa4ec7.js",
-      "_PrimaryButton-e08a3f23.js",
-      "_PageHeader-90cb6e62.js",
+      "_Alert-b2822d1f.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_PageHeader-04a0a4f7.js",
       "_divisions-8a5e72e7.js",
-      "_Image-4c843108.js",
-      "_usePageantChannel-fcda6021.js",
+      "_Image-55377d0b.js",
+      "_usePageantChannel-6910e6df.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js",
-      "_XMarkIcon-eef8c16a.js"
+      "_XMarkIcon-cc5b3937.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Scoring/Index.jsx"
   },
   "resources/js/Pages/Scoring/Partials/CandidateBox.jsx": {
-    "file": "assets/CandidateBox-fb9513e4.js",
+    "file": "assets/CandidateBox-3d3b2b5f.js",
     "imports": [
       "resources/js/app.jsx",
       "resources/js/Pages/Scoring/Partials/ScoringInput.jsx",
-      "_Image-4c843108.js",
-      "_TextInput-535fc7c9.js",
+      "_Image-55377d0b.js",
+      "_TextInput-f6c7e092.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js",
-      "_InputLabel-c3a8573e.js"
+      "_InputLabel-fb9a29ed.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Scoring/Partials/CandidateBox.jsx"
   },
   "resources/js/Pages/Scoring/Partials/ScoringInput.jsx": {
-    "file": "assets/ScoringInput-af8f42b5.js",
+    "file": "assets/ScoringInput-5a07e1cf.js",
     "imports": [
       "resources/js/app.jsx",
-      "_TextInput-535fc7c9.js",
-      "_InputLabel-c3a8573e.js",
+      "_TextInput-f6c7e092.js",
+      "_InputLabel-fb9a29ed.js",
       "_cn-0998f52b.js",
       "_styles-1f49f2a8.js"
     ],
@@ -1162,34 +1141,33 @@
     "css": [
       "assets/Show-8e1a892c.css"
     ],
-    "file": "assets/Show-266965e6.js",
+    "file": "assets/Show-bd1367d7.js",
     "imports": [
       "resources/js/app.jsx",
-      "_PageHeader-90cb6e62.js",
-      "_BackButton-4807c9ef.js",
+      "_PageHeader-04a0a4f7.js",
       "_divisions-8a5e72e7.js",
       "resources/js/Pages/Scoring/Partials/CandidateBox.jsx",
-      "_PrimaryButton-e08a3f23.js",
-      "_SecondaryButton-d38590cb.js",
-      "_Modal-0190568a.js",
-      "_usePageantChannel-fcda6021.js",
+      "_PrimaryButton-b4c4d51e.js",
+      "_SecondaryButton-93d071ae.js",
+      "_Modal-101a9872.js",
+      "_usePageantChannel-6910e6df.js",
       "_cn-0998f52b.js",
-      "_XMarkIcon-eef8c16a.js",
-      "_styles-1f49f2a8.js",
+      "_XMarkIcon-cc5b3937.js",
       "resources/js/Pages/Scoring/Partials/ScoringInput.jsx",
-      "_TextInput-535fc7c9.js",
-      "_InputLabel-c3a8573e.js",
-      "_Image-4c843108.js",
-      "_transition-cba122f9.js",
-      "_keyboard-31598c5a.js",
-      "_hidden-9c52f202.js",
-      "_use-owner-94119e34.js"
+      "_TextInput-f6c7e092.js",
+      "_styles-1f49f2a8.js",
+      "_InputLabel-fb9a29ed.js",
+      "_Image-55377d0b.js",
+      "_transition-f204d41e.js",
+      "_keyboard-9f3bc3c4.js",
+      "_hidden-a3bae68c.js",
+      "_use-owner-1feae26c.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/Scoring/Show.jsx"
   },
   "resources/js/Pages/Welcome.jsx": {
-    "file": "assets/Welcome-ae3d228b.js",
+    "file": "assets/Welcome-dbf2ea5b.js",
     "imports": [
       "resources/js/app.jsx"
     ],
@@ -1197,12 +1175,12 @@
     "src": "resources/js/Pages/Welcome.jsx"
   },
   "resources/js/app.css": {
-    "file": "assets/app-e9b9cfe1.css",
+    "file": "assets/app-0a73cd43.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.jsx": {
     "css": [
-      "assets/app-e9b9cfe1.css"
+      "assets/app-0a73cd43.css"
     ],
     "dynamicImports": [
       "resources/js/Pages/Auth/ConfirmPassword.jsx",
@@ -1251,7 +1229,7 @@
       "resources/js/Pages/Scoring/Show.jsx",
       "resources/js/Pages/Welcome.jsx"
     ],
-    "file": "assets/app-b92e57fb.js",
+    "file": "assets/app-3ef9af03.js",
     "isEntry": true,
     "src": "resources/js/app.jsx"
   }
