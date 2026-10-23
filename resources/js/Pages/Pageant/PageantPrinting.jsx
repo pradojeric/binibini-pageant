@@ -2,7 +2,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import Image from "@/Components/Image";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { divisionsLabel } from "@/Utils/divisions";
-import ComponentToPrint from "@/Pages/Pageant/Partials/ComponentToPrint";
+import ComponentToPrint, { scoreColumnCount } from "@/Pages/Pageant/Partials/ComponentToPrint";
 import { Listbox, Transition } from "@headlessui/react";
 import PageHeader from "@/Components/PageHeader";
 import Breadcrumbs from "@/Components/Breadcrumbs";
@@ -11,9 +11,10 @@ import {
     useState,
     useRef,
     useCallback,
-    useEffect,
+    useMemo,
     Fragment,
 } from "react";
+import { flushSync } from "react-dom";
 import ReactToPrint from "react-to-print";
 import {
     PrinterIcon,
@@ -31,30 +32,47 @@ export default function PageantPrinting({
 }) {
     const componentRef = useRef(null);
     const [selected, setSelected] = useState(criterias[0]);
-    const [filteredByDivision, setFilteredByDivision] = useState({});
+    const [printedAt, setPrintedAt] = useState(() => new Date());
 
-    const filterCandidates = useCallback((candidates, criteria) => {
-        if (!criteria || !criteria.round) return candidates;
+    const filteredByDivision = useMemo(() => {
+        if (!selected?.round) return candidatesByDivision;
 
         // A round's tables rank only the candidates selected into that round (round 1 included:
         // judges score nobody until staff selects them). Grand total has no round and covers everyone.
-        return candidates.filter(candidate =>
-            candidate.pageant_rounds?.some(r => Number(r.round) === Number(criteria.round))
+        return Object.fromEntries(
+            Object.entries(candidatesByDivision).map(([key, list]) => [
+                key,
+                list.filter(candidate =>
+                    candidate.pageant_rounds?.some(r => Number(r.round) === Number(selected.round))
+                ),
+            ])
         );
+    }, [selected, candidatesByDivision]);
+
+    // Wide sheets go landscape so the Total and Rank columns are not cut off the page edge.
+    const orientation = scoreColumnCount(selected, criterias, judges) > 4 ? "landscape" : "portrait";
+
+    const pageStyle = `
+        @page {
+            size: A4 ${orientation};
+            margin: 12mm 12mm 16mm;
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font: 9px sans-serif;
+                color: #4b5563;
+            }
+        }
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    `;
+
+    const reactToPrintContent = useCallback(() => componentRef.current, []);
+
+    // Stamp the sheet with the moment it is printed, not when the page was opened.
+    const handleBeforePrint = useCallback(() => {
+        flushSync(() => setPrintedAt(new Date()));
     }, []);
-
-    useEffect(() => {
-        setFilteredByDivision(
-            Object.fromEntries(
-                Object.entries(candidatesByDivision).map(([key, list]) => [key, filterCandidates(list, selected)])
-            )
-        );
-    }, [selected, candidatesByDivision, filterCandidates]);
-
-
-    const reactToPrintContent = useCallback(() => {
-        return componentRef.current;
-    }, [componentRef.current]);
 
     const reactToPrintTrigger = useCallback(() => {
         return (
@@ -136,12 +154,17 @@ export default function PageantPrinting({
                                 </h3>
                             </div>
                             
+                            {criterias.length === 0 ? (
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    This pageant has no criteria yet. Add rounds and criteria before printing score sheets.
+                                </p>
+                            ) : (
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Select Score Sheet / Result
-                                    </label>
                                     <Listbox value={selected} onChange={setSelected}>
+                                        <Listbox.Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            Select Score Sheet / Result
+                                        </Listbox.Label>
                                         <div className="relative mt-1">
                                             <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white dark:bg-gray-700 py-3 pl-4 pr-10 text-left border border-gray-300 dark:border-gray-600 focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 sm:text-sm shadow-sm">
                                                 <span className="block truncate text-gray-900 dark:text-white font-medium">
@@ -199,14 +222,17 @@ export default function PageantPrinting({
                                     <ReactToPrint
                                         content={reactToPrintContent}
                                         documentTitle={`${pageant.pageant} - ${selected?.name || 'Results'}`}
+                                        pageStyle={pageStyle}
+                                        onBeforeGetContent={handleBeforePrint}
                                         removeAfterPrint
                                         trigger={reactToPrintTrigger}
                                     />
-                                    <p className="text-xs text-center text-gray-500 mt-3">
-                                        Click to open print dialog. Ensure layout is set to Portrait/Landscape as needed.
+                                    <p className="text-xs text-center text-gray-600 dark:text-gray-400 mt-3">
+                                        Prints on A4 {orientation}. Each division starts on a new page.
                                     </p>
                                 </div>
                             </div>
+                            )}
                         </div>
                     </div>
 
@@ -221,17 +247,22 @@ export default function PageantPrinting({
                                      <div className="w-3 h-3 rounded-full bg-green-400 ml-2"></div>
                                 </div>
                             </div>
-                            <div className="p-8 overflow-x-auto min-h-[500px] flex justify-center bg-white dark:bg-gray-800 rounded-b-lg">
-                                 {/* Wrapper for scaling/centering if needed */}
-                                <div className="w-full max-w-[210mm] border border-gray-200 dark:border-gray-700 shadow-lg bg-white">
-                                    <ComponentToPrint
-                                        ref={componentRef}
-                                        pageant={pageant}
-                                        candidatesByDivision={filteredByDivision}
-                                        criterias={criterias} // Passing all criterias might be needed by internal logic? Usually singular 'criteria' is what varies
-                                        criteria={selected} // Pass the selected criteria for the header/context
-                                        judges={judges}
-                                    />
+                            <div className="p-4 sm:p-8 overflow-x-auto min-h-[500px] flex justify-center bg-white dark:bg-gray-800 rounded-b-lg">
+                                {/* Sized to the sheet's paper width so the preview wraps like the print does. */}
+                                <div className={`w-full ${orientation === "landscape" ? "max-w-[297mm]" : "max-w-[210mm]"} border border-gray-200 dark:border-gray-700 shadow-lg bg-white`}>
+                                    {selected ? (
+                                        <ComponentToPrint
+                                            ref={componentRef}
+                                            pageant={pageant}
+                                            candidatesByDivision={filteredByDivision}
+                                            criterias={criterias}
+                                            criteria={selected}
+                                            judges={judges}
+                                            printedAt={printedAt}
+                                        />
+                                    ) : (
+                                        <p className="py-24 text-center text-sm text-gray-600">Nothing to preview yet.</p>
+                                    )}
                                 </div>
                             </div>
                          </div>
