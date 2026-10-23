@@ -1,12 +1,16 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import SecondaryButton from "@/Components/SecondaryButton";
+import PrimaryButton from "@/Components/PrimaryButton";
+import Alert from "@/Components/Alert";
+import ImportModal from "@/Pages/Pageant/Partials/ImportModal";
 import {
     ListBulletIcon,
     ArrowLeftIcon,
     PlusIcon,
-    PencilSquareIcon
+    PencilSquareIcon,
+    ArrowUpTrayIcon
 } from "@heroicons/react/24/outline";
 import CriteriaList from "@/Pages/Pageant/Criterias/Partials/CriteriaList";
 import CriteriaCreate from "@/Pages/Pageant/Criterias/Partials/CriteriaCreate";
@@ -33,6 +37,8 @@ function reducer(state, action) {
 }
 
 function CriteriaIndex({ auth, pageant }) {
+    const { flash } = usePage().props;
+    const [importing, setImporting] = useState(false);
     const [state, dispatch] = useReducer(reducer, {
         editing: false,
         criteria: null,
@@ -75,7 +81,21 @@ function CriteriaIndex({ auth, pageant }) {
                             Back to Pageant
                         </SecondaryButton>
                     </Link>
+                    <PrimaryButton type="button" onClick={() => setImporting(true)} className="flex items-center gap-2">
+                        <ArrowUpTrayIcon className="w-4 h-4" />
+                        Import
+                    </PrimaryButton>
                 </div>
+
+                {flash.message && <Alert role="status">{flash.message}</Alert>}
+
+                <ImportModal
+                    show={importing}
+                    onClose={() => setImporting(false)}
+                    pageant={pageant}
+                    type="criterias"
+                    title="Import Criteria"
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <div className="lg:col-span-4 sticky top-24">

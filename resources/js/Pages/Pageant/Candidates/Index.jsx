@@ -1,12 +1,16 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { useReducer, useRef } from "react";
+import { useReducer, useRef, useState } from "react";
 import SecondaryButton from "@/Components/SecondaryButton";
+import PrimaryButton from "@/Components/PrimaryButton";
+import Alert from "@/Components/Alert";
+import ImportModal from "@/Pages/Pageant/Partials/ImportModal";
 import { 
     UserGroupIcon, 
     ArrowLeftIcon,
     PlusIcon,
-    PencilSquareIcon
+    PencilSquareIcon,
+    ArrowUpTrayIcon
 } from "@heroicons/react/24/outline";
 import CandidateCreate from "@/Pages/Pageant/Candidates/Partials/CandidateCreate";
 import CandidateList from "@/Pages/Pageant/Candidates/Partials/CandidateList";
@@ -33,6 +37,8 @@ function reducer(state, action) {
 }
 
 function CandidateIndex({ auth, pageant }) {
+    const { flash } = usePage().props;
+    const [importing, setImporting] = useState(false);
     const formRef = useRef(null);
     const [state, dispatch] = useReducer(reducer, {
         editing: false,
@@ -77,7 +83,21 @@ function CandidateIndex({ auth, pageant }) {
                             Back to Pageant
                         </SecondaryButton>
                     </Link>
+                    <PrimaryButton type="button" onClick={() => setImporting(true)} className="flex items-center gap-2">
+                        <ArrowUpTrayIcon className="w-4 h-4" />
+                        Import
+                    </PrimaryButton>
                 </div>
+
+                {flash.message && <Alert role="status">{flash.message}</Alert>}
+
+                <ImportModal
+                    show={importing}
+                    onClose={() => setImporting(false)}
+                    pageant={pageant}
+                    type="candidates"
+                    title="Import Candidates"
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <div ref={formRef} className="lg:col-span-4 lg:sticky lg:top-24">
