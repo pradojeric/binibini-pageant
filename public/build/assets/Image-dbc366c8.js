@@ -1,1 +1,0 @@
-import{r as d,j as m}from"./app-57128eda.js";const g="/placeholders/placeholder-image.png";function x({src:e,fallback:s=g,loading:l="lazy",alt:c="",onError:a,...i}){const[n,o]=d.useState(null),t=!e||n===e;return m.jsx("img",{...i,src:t?s:e,alt:c,loading:l,decoding:"async",onError:p=>{t||o(e),a==null||a(p)}})}export{x as I};

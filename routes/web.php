@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminScoringController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CriteriaController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\JudgeController;
 use App\Http\Controllers\PageantController;
 use App\Http\Controllers\ProfileController;
@@ -63,6 +64,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('pageants.criterias', CriteriaController::class)->shallow();
         Route::resource('pageants.candidates', CandidateController::class)->except(['update'])->shallow();
         Route::post('/candidates/{candidate}/update', [CandidateController::class, 'update'])->name('candidates.update');
+
+        Route::prefix('/pageants/{pageant}/{type}/import')->whereIn('type', ['candidates', 'criterias'])->group(function () {
+            Route::post('/preview', [ImportController::class, 'preview'])->name('pageants.import.preview');
+            Route::post('/', [ImportController::class, 'store'])->name('pageants.import.store');
+            Route::get('/template', [ImportController::class, 'template'])->name('pageants.import.template');
+        });
 
         Route::get('/scoring/{pageant}/admin', [AdminScoringController::class, 'show'])->name('scoring.admin');
         Route::post('/scoring/{pageant}/admin/store', [AdminScoringController::class, 'store'])->name('scoring.admin.store');
