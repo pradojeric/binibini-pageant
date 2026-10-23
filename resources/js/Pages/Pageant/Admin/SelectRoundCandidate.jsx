@@ -4,9 +4,9 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
-import "react-lazy-load-image-component/src/effects/blur.css";
 import { useEffect, useMemo, useState } from "react";
 import OrderSelectionModal from "./_partial/OrderSelectionModal";
+import { SECONDARY_BUTTON_CLASSES } from "@/Components/styles";
 import { DIVISION_KEYS, divisionOf, divisionsLabel } from "@/Utils/divisions";
 import Checkbox from "@/Components/Checkbox";
 import InputLabel from "@/Components/InputLabel";
@@ -91,42 +91,30 @@ export default function ScoringShow({
             <Head title="Select Candidates" />
 
             <div
-                className="py-12 bg-fixed bg-cover bg-center min-h-screen"
+                className="py-12 bg-cover bg-center min-h-screen"
                 style={{
                     backgroundImage: `url(/storage/${pageant.background})`,
                 }}
             >
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                     {/* Stats Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-200">
-                            <span className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
-                                Current Round
-                            </span>
-                            <span className="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mt-2">
-                                {pageant.current_round ?? "-"}
-                            </span>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-200">
-                             <span className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
-                                Pageant Type
-                            </span>
-                             <span className="text-4xl font-extrabold text-purple-600 dark:text-purple-400 mt-2 uppercase">
-                                {divisionsLabel(pageant.divisions) || "-"}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Control Bar */}
-                    <div className="mb-6 flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <Link href={route("pageant.view-scores", pageant.id)}>
-                             <SecondaryButton>
-                                &larr; Back to Scores
-                            </SecondaryButton>
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+                        <Link href={route("pageant.view-scores", pageant.id)} className={`${SECONDARY_BUTTON_CLASSES} self-start lg:self-auto`}>
+                            &larr; Back to Scores
                         </Link>
-                         <div className="font-medium text-gray-500">
-                            Candidate Selection
-                         </div>
+
+                        <div className="min-w-0 flex-1">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                Candidate selection · Round {pageant.current_round ?? "-"}
+                                {divisionsLabel(pageant.divisions) && (
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">
+                                        {" "}· {divisionsLabel(pageant.divisions)}
+                                    </span>
+                                )}
+                            </h2>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Pick who advances into the round, in stage order.
+                            </p>
+                        </div>
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -136,8 +124,9 @@ export default function ScoringShow({
                             <form onSubmit={openOrderModal}>
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                                     <div className="flex items-center gap-3 w-full md:w-auto">
-                                        <InputLabel value="Select Round:" className="text-lg" />
+                                        <InputLabel htmlFor="round" value="Select Round:" className="text-lg" />
                                         <SelectInput
+                                            id="round"
                                             name="round"
                                             value={data.round}
                                             className="min-w-[200px]"
@@ -235,10 +224,10 @@ export default function ScoringShow({
                                                                 />
                                                             ) : (
                                                                 <div className="h-14 w-14 rounded-full bg-gray-200 flex items-center justify-center">
-                                                                     <span className="text-gray-500 font-bold">{candidate.candidate_number}</span>
+                                                                     <span className="text-gray-700 dark:text-gray-300 font-bold">{candidate.candidate_number}</span>
                                                                 </div>
                                                             )}
-                                                             <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+                                                             <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs tabular-nums font-bold px-1.5 py-0.5 rounded-full shadow-sm">
                                                                 #{candidate.candidate_number}
                                                             </div>
                                                         </div>
@@ -248,7 +237,7 @@ export default function ScoringShow({
                                                                     candidate.full_name
                                                                 }
                                                             </div>
-                                                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                            <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
                                                                 {
                                                                     candidate.nickname
                                                                 }
