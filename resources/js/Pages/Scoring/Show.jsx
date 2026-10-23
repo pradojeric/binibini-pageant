@@ -2,7 +2,7 @@ import { Head, useForm } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import { StarIcon } from "@heroicons/react/24/outline";
 import { DIVISION_KEYS, divisionOf, divisionsLabel } from "@/Utils/divisions";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
@@ -114,8 +114,8 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                 }}
             >
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                        <BackButton href={route("scoring.details", pageant.id)}>Back to Details</BackButton>
+                    <div className="mb-6">
+                        <Breadcrumbs items={[{ label: "Current Pageants", href: route("scoring.index") }, { label: pageant.pageant, href: route("scoring.details", pageant.id) }, { label: "Scoring" }]} className="inline-flex rounded-lg bg-white/90 dark:bg-gray-800/90 px-3 py-2 shadow-sm" />
                     </div>
 
                     {/* Stats Bar */}

@@ -5,7 +5,7 @@ import { divisionsLabel } from "@/Utils/divisions";
 import ComponentToPrint from "@/Pages/Pageant/Partials/ComponentToPrint";
 import { Listbox, Transition } from "@headlessui/react";
 import PageHeader from "@/Components/PageHeader";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import { Head } from "@inertiajs/react";
 import {
     useState,
@@ -82,9 +82,13 @@ export default function PageantPrinting({
             <Head title={`Printing - ${pageant.pageant}`} />
 
             <div className="space-y-8 pb-12">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <BackButton href={route('pageants.show', pageant.id)}>Back to Pageant</BackButton>
-                </div>
+                <Breadcrumbs
+                    items={[
+                        { label: "Pageants", href: route("pageants.index") },
+                        { label: pageant.pageant, href: route("pageants.show", pageant.id) },
+                        { label: "Printing" },
+                    ]}
+                />
 
                 {/* Hero / Overview Section */}
                 <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-100 dark:border-gray-700">

@@ -2,7 +2,7 @@ import { Head, useForm, router } from "@inertiajs/react";
 import Image from "@/Components/Image";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import { UserGroupIcon } from "@heroicons/react/24/outline";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -95,9 +95,8 @@ export default function ScoringShow({
                 }}
             >
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    <Breadcrumbs items={[{ label: "Pageants", href: route("pageants.index") }, { label: pageant.pageant, href: route("pageants.show", pageant.id) }, { label: "Scores", href: route("pageant.view-scores", pageant.id) }, { label: "Select Candidates" }]} />
                     <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
-                        <BackButton href={route("pageant.view-scores", pageant.id)}>Back to Scores</BackButton>
-
                         <div className="min-w-0 flex-1">
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                                 Candidate selection · Round {pageant.current_round ?? "-"}

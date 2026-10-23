@@ -1,6 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import JudgeCreate from "@/Pages/Judges/Partials/JudgeCreate";
 import JudgeList from "@/Pages/Judges/Partials/JudgeList";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import PageHeader from "@/Components/PageHeader";
 import { Head } from "@inertiajs/react";
 import { 
@@ -21,6 +22,8 @@ export default function JudgeIndex({ auth, judges }) {
             }
         >
             <Head title="Judges Management" />
+
+            <Breadcrumbs items={[{ label: "Judges" }]} className="mb-6" />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Column: Add Judge Form */}

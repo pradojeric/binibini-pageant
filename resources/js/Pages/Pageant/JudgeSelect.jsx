@@ -1,7 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Image from "@/Components/Image";
 import { Head, useForm } from "@inertiajs/react";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import PageHeader from "@/Components/PageHeader";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Checkbox from "@/Components/Checkbox";
@@ -51,10 +51,8 @@ export default function JudgeSelect({
         >
             <Head title={`Select Judges - ${pageant.pageant}`} />
 
-            <div className="max-w-4xl mx-auto space-y-6 pb-12">
-                <div className="flex justify-between items-center">
-                    <BackButton href={route("pageants.show", pageant.id)}>Back to Pageant</BackButton>
-                </div>
+            <div className="space-y-6 pb-12">
+                <Breadcrumbs items={[{ label: "Pageants", href: route("pageants.index") }, { label: pageant.pageant, href: route("pageants.show", pageant.id) }, { label: "Judges" }]} />
 
                 <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 shadow-sm rounded-xl overflow-hidden">
                     <div className="p-6 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">

@@ -2,7 +2,7 @@ import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
 import LiveControlPanel from "@/Pages/Pageant/Partials/LiveControlPanel";
 import ScoreActionsMenu from "@/Pages/Pageant/Partials/ScoreActionsMenu";
@@ -140,86 +140,82 @@ export default function PageantScores({
         >
             <Head title={`${pageant.pageant} · Scores`} />
 
-            <div className="py-8">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <BackButton href={route("pageants.show", pageant.id)}>Back to Pageant</BackButton>
+            <div className="space-y-6">
+                <Breadcrumbs items={[{ label: "Pageants", href: route("pageants.index") }, { label: pageant.pageant, href: route("pageants.show", pageant.id) }, { label: "Scores" }]} />
+
+                <LiveControlPanel pageant={pageant} rounds={rounds} groupList={groupList} judges={judges} />
+
+                {/* overflow-visible so the More menu isn't clipped by the card */}
+                <Card className="overflow-visible">
+                    <CardHeader icon={ChartBarIcon} title="Results" />
+
+                    <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row gap-4 md:items-end justify-between">
+                        <div>
+                            <InputLabel htmlFor="results-sort" value="Sort by" className="mb-1" />
+                            <SelectInput
+                                id="results-sort"
+                                className="w-full md:w-56"
+                                value={activeSort}
+                                onChange={(e) => setSortBy(e.target.value)}
+                            >
+                                <option value="order">Stage order</option>
+                                <option value="total">Total points</option>
+                                {criterias.map((criteria) => (
+                                    <option key={`criteria-` + criteria.id} value={String(criteria.id)}>
+                                        {criteria.name}
+                                    </option>
+                                ))}
+                            </SelectInput>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                            <Link href={route("pageant.candidates.select", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
+                                Select Candidates
+                            </Link>
+                            <Link href={route("scoring.admin", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
+                                Score Hidden
+                            </Link>
+                            <Link href={route("pageant.deduct", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
+                                Deduct
+                            </Link>
+                            <Link href={route("pageant.for-printing", pageant.id)} className={PRIMARY_BUTTON_CLASSES}>
+                                Summary
+                            </Link>
+                            <ScoreActionsMenu
+                                onResetScores={() => setConfirmingReset("scores")}
+                                onResetEverything={() => setConfirmingReset("everything")}
+                                onEndPageant={pageant.status !== "finished" ? () => setConfirmingEndPageant(true) : null}
+                            />
+                        </div>
                     </div>
 
-                    <LiveControlPanel pageant={pageant} rounds={rounds} groupList={groupList} judges={judges} />
-
-                    {/* overflow-visible so the More menu isn't clipped by the card */}
-                    <Card className="overflow-visible">
-                        <CardHeader icon={ChartBarIcon} title="Results" />
-
-                        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row gap-4 md:items-end justify-between">
-                            <div>
-                                <InputLabel htmlFor="results-sort" value="Sort by" className="mb-1" />
-                                <SelectInput
-                                    id="results-sort"
-                                    className="w-full md:w-56"
-                                    value={activeSort}
-                                    onChange={(e) => setSortBy(e.target.value)}
+                    <div className="p-4 sm:p-6 space-y-10">
+                        {noCandidates ? (
+                            <div className="py-12 text-center">
+                                <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                                    No candidates are in this round yet.
+                                </p>
+                                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                    Judges can't score until candidates are selected for it.
+                                </p>
+                                <Link
+                                    href={route("pageant.candidates.select", { pageant: pageant.id, round: pageant.current_round })}
+                                    className={`${PRIMARY_BUTTON_CLASSES} mt-6`}
                                 >
-                                    <option value="order">Stage order</option>
-                                    <option value="total">Total points</option>
-                                    {criterias.map((criteria) => (
-                                        <option key={`criteria-` + criteria.id} value={String(criteria.id)}>
-                                            {criteria.name}
-                                        </option>
-                                    ))}
-                                </SelectInput>
+                                    Select candidates for this round
+                                </Link>
                             </div>
-
-                            <div className="flex flex-wrap gap-2">
-                                <Link href={route("pageant.candidates.select", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
-                                    Select Candidates
-                                </Link>
-                                <Link href={route("scoring.admin", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
-                                    Score Hidden
-                                </Link>
-                                <Link href={route("pageant.deduct", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
-                                    Deduct
-                                </Link>
-                                <Link href={route("pageant.for-printing", pageant.id)} className={PRIMARY_BUTTON_CLASSES}>
-                                    Summary
-                                </Link>
-                                <ScoreActionsMenu
-                                    onResetScores={() => setConfirmingReset("scores")}
-                                    onResetEverything={() => setConfirmingReset("everything")}
-                                    onEndPageant={pageant.status !== "finished" ? () => setConfirmingEndPageant(true) : null}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="p-4 sm:p-6 space-y-10">
-                            {noCandidates ? (
-                                <div className="py-12 text-center">
-                                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                                        No candidates are in this round yet.
-                                    </p>
-                                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                        Judges can't score until candidates are selected for it.
-                                    </p>
-                                    <Link
-                                        href={route("pageant.candidates.select", { pageant: pageant.id, round: pageant.current_round })}
-                                        className={`${PRIMARY_BUTTON_CLASSES} mt-6`}
-                                    >
-                                        Select candidates for this round
-                                    </Link>
-                                </div>
-                            ) : DIVISION_KEYS.filter((key) => pageant.divisions.includes(key)).map((key) => (
-                                <CandidateScoreList
-                                    key={key}
-                                    division={key}
-                                    candidates={ranked[key] ?? []}
-                                    criterias={criterias}
-                                    showDeductions={showDeductions}
-                                />
-                            ))}
-                        </div>
-                    </Card>
-                </div>
+                        ) : DIVISION_KEYS.filter((key) => pageant.divisions.includes(key)).map((key) => (
+                            <CandidateScoreList
+                                key={key}
+                                division={key}
+                                candidates={ranked[key] ?? []}
+                                criterias={criterias}
+                                showDeductions={showDeductions}
+                            />
+                        ))}
+                    </div>
+                </Card>
             </div>
 
             <Modal show={confirmingReset !== null} onClose={closeModal}>

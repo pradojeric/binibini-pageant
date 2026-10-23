@@ -1,7 +1,7 @@
 import { Head, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { useReducer, useRef, useState } from "react";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import PageHeader from "@/Components/PageHeader";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Alert from "@/Components/Alert";
@@ -103,9 +103,9 @@ function CriteriaIndex({ auth, pageant }) {
         >
             <Head title={`Criteria - ${pageant.pageant}`} />
 
-            <div className="max-w-7xl mx-auto space-y-6 pb-12">
+            <div className="space-y-6 pb-12">
                 <div className="flex justify-between items-center">
-                    <BackButton href={route("pageants.show", pageant.id)}>Back to Pageant</BackButton>
+                    <Breadcrumbs items={[{ label: "Pageants", href: route("pageants.index") }, { label: pageant.pageant, href: route("pageants.show", pageant.id) }, { label: "Criteria" }]} />
                     <PrimaryButton type="button" onClick={() => setImporting(true)} className="flex items-center gap-2">
                         <ArrowUpTrayIcon className="w-4 h-4" />
                         Import

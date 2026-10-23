@@ -2,7 +2,7 @@ import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PageantForm, { initialPageantForm } from "@/Pages/Pageant/Partials/PageantForm";
 import PageHeader from "@/Components/PageHeader";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import { TrophyIcon } from "@heroicons/react/24/outline";
 
 export default function PageantEdit({ auth, pageant }) {
@@ -22,24 +22,27 @@ export default function PageantEdit({ auth, pageant }) {
         >
             <Head title={`Edit ${pageant.pageant}`} />
 
-            <div className="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                    <BackButton href={route("pageants.show", pageant.id)}>Back to Pageant</BackButton>
-                </div>
+            <Breadcrumbs
+                className="mb-6"
+                items={[
+                    { label: "Pageants", href: route("pageants.index") },
+                    { label: pageant.pageant, href: route("pageants.show", pageant.id) },
+                    { label: "Edit" },
+                ]}
+            />
 
-                <PageantForm
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    processing={processing}
-                    onSubmit={submit}
-                    currentBackground={pageant.background}
-                    submitLabel="Update Pageant"
-                    processingLabel="Updating…"
-                    footerTitle="Commit Changes"
-                    footerHint="Update all pageant parameters."
-                />
-            </div>
+            <PageantForm
+                data={data}
+                setData={setData}
+                errors={errors}
+                processing={processing}
+                onSubmit={submit}
+                currentBackground={pageant.background}
+                submitLabel="Update Pageant"
+                processingLabel="Updating…"
+                footerTitle="Commit Changes"
+                footerHint="Update all pageant parameters."
+            />
         </AuthenticatedLayout>
     );
 }

@@ -7,7 +7,7 @@ import IndexCriteria from "@/Pages/Pageant/Criterias/Partials/CriteriaList";
 import JudgeList from "@/Pages/Judges/Partials/JudgeList";
 import Card, { CardBody, CardHeader } from "@/Components/Card";
 import PageHeader from "@/Components/PageHeader";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import Chip from "@/Components/Chip";
 import Avatar from "@/Components/Avatar";
 import Typography from "@/Components/Typography";
@@ -123,9 +123,9 @@ export default function PageantShow({ auth, pageant }) {
             <Head title={pageant.pageant} />
 
             <div className="space-y-8 pb-12">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <BackButton href={route("pageants.index")}>Back to Pageants</BackButton>
-                </div>
+                <Breadcrumbs
+                    items={[{ label: "Pageants", href: route("pageants.index") }, { label: pageant.pageant }]}
+                />
 
                 {/* Hero / Overview Section */}
                 <Card className="w-full">

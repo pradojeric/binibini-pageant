@@ -2,7 +2,7 @@ import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PageantForm, { initialPageantForm } from "@/Pages/Pageant/Partials/PageantForm";
 import PageHeader from "@/Components/PageHeader";
-import BackButton from "@/Components/BackButton";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import { TrophyIcon } from "@heroicons/react/24/outline";
 
 export default function PageantCreate({ auth }) {
@@ -20,9 +20,10 @@ export default function PageantCreate({ auth }) {
         >
             <Head title="Create Pageant" />
 
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                <BackButton href={route("pageants.index")}>Back to Pageants</BackButton>
-            </div>
+            <Breadcrumbs
+                className="mb-6"
+                items={[{ label: "Pageants", href: route("pageants.index") }, { label: "Create" }]}
+            />
 
             <PageantForm
                 data={data}

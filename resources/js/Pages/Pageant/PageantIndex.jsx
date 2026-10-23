@@ -4,6 +4,7 @@ import { Head, Link } from "@inertiajs/react";
 import { divisionsLabel } from "@/Utils/divisions";
 import { cn } from "@/Utils/cn";
 import PageHeader from "@/Components/PageHeader";
+import Breadcrumbs from "@/Components/Breadcrumbs";
 import { PRIMARY_BUTTON_CLASSES } from "@/Components/styles";
 import { 
     TrophyIcon, 
@@ -35,7 +36,8 @@ export default function PageantIndex({ auth, pageants }) {
         >
             <Head title="Pageants" />
 
-            <div className="flex justify-end mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <Breadcrumbs items={[{ label: "Pageants" }]} />
                 <Link href={route("pageants.create")} className={cn(PRIMARY_BUTTON_CLASSES, "gap-2")}>
                     <PlusIcon className="w-5 h-5" />
                     Create Pageant
