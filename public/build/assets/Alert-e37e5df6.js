@@ -1,1 +1,0 @@
-import{j as n}from"./app-57128eda.js";import{c as r}from"./cn-0998f52b.js";const i={success:"bg-green-500 text-white",warning:"bg-yellow-400 text-yellow-900",info:"bg-blue-500 text-white"};function u({children:e,variant:t="success",className:s,...o}){return n.jsx("div",{className:r("block w-full p-4 rounded-lg font-medium",i[t],s),...o,children:e})}export{u as A};
