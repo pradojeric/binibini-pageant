@@ -20,7 +20,8 @@ export default function Authenticated({ user, header, children }) {
                      collapsed={sidebarCollapsed} setCollapsed={handleSetCollapsed} />
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+            {/* clip, not hidden: the glows below overhang this box, and a hidden box can still be scrolled sideways by focus */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-clip relative">
                 
                 {/* Mobile Header Bar */}
                 <header className="lg:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 z-20">
