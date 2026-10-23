@@ -37,9 +37,9 @@ class CriteriaController extends Controller
         // dd($request->all());
         $validatedData = $request->validate([
             'name'           => ['required'],
-            'round'          => ['required', 'numeric'],
-            'percentage'     => ['required', 'numeric'],
-            'group'          => ['required', 'numeric'],
+            'round'          => ['required', 'integer', 'min:1'],
+            'percentage'     => ['required', 'numeric', 'min:1', 'max:100'],
+            'group'          => ['required', 'integer', 'min:1'],
             'hidden_scoring' => ['nullable'],
         ]);
 
@@ -69,9 +69,9 @@ class CriteriaController extends Controller
     {
         $validatedData = $request->validate([
             'name'           => ['required'],
-            'round'          => ['required', 'numeric'],
-            'percentage'     => ['required', 'numeric'],
-            'group'          => ['required', 'numeric'],
+            'round'          => ['required', 'integer', 'min:1'],
+            'percentage'     => ['required', 'numeric', 'min:1', 'max:100'],
+            'group'          => ['required', 'integer', 'min:1'],
             'hidden_scoring' => ['nullable'],
         ]);
 
@@ -83,7 +83,11 @@ class CriteriaController extends Controller
      */
     public function destroy(Criteria $criteria)
     {
-        // dd($criteria);
+        // Scores reference the criteria, so deleting would fail on the foreign key.
+        if ($criteria->candidates()->exists()) {
+            return back()->withErrors(['delete' => "{$criteria->name} already has scores, so it can't be deleted."]);
+        }
+
         $criteria->delete();
     }
 }

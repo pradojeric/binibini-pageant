@@ -2,6 +2,10 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Image from "@/Components/Image";
 import { Head, Link } from "@inertiajs/react";
 import { divisionsLabel } from "@/Utils/divisions";
+import { cn } from "@/Utils/cn";
+import PageHeader from "@/Components/PageHeader";
+import Breadcrumbs from "@/Components/Breadcrumbs";
+import { PRIMARY_BUTTON_CLASSES } from "@/Components/styles";
 import { 
     TrophyIcon, 
     PlusIcon, 
@@ -28,30 +32,17 @@ export default function PageantIndex({ auth, pageants }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
-                            <TrophyIcon className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <h2 className="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
-                                Pageants
-                            </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Manage and track your pageant events</p>
-                        </div>
-                    </div>
-                    <Link
-                        href={route("pageants.create")}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]"
-                    >
-                        <PlusIcon className="w-5 h-5" />
-                        Create Pageant
-                    </Link>
-                </div>
-            }
+            header={<PageHeader icon={TrophyIcon} title="Pageants" subtitle="Manage and track your pageant events" />}
         >
             <Head title="Pageants" />
+
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <Breadcrumbs items={[{ label: "Pageants" }]} />
+                <Link href={route("pageants.create")} className={cn(PRIMARY_BUTTON_CLASSES, "gap-2")}>
+                    <PlusIcon className="w-5 h-5" />
+                    Create Pageant
+                </Link>
+            </div>
 
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div className="overflow-x-auto">

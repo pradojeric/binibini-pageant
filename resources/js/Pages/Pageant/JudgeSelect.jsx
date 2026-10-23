@@ -1,12 +1,12 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Image from "@/Components/Image";
-import { Head, Link, useForm } from "@inertiajs/react";
-import SecondaryButton from "@/Components/SecondaryButton";
+import { Head, useForm } from "@inertiajs/react";
+import Breadcrumbs from "@/Components/Breadcrumbs";
+import PageHeader from "@/Components/PageHeader";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Checkbox from "@/Components/Checkbox";
 import { 
     UserGroupIcon, 
-    ArrowLeftIcon,
     CheckIcon,
     UserIcon,
     ShieldCheckIcon
@@ -42,32 +42,17 @@ export default function JudgeSelect({
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
-                        <ShieldCheckIcon className="w-6 h-6" />
-                    </div>
-                    <div className="flex flex-col">
-                        <h2 className="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
-                            Select Judges
-                        </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                            {pageant.pageant}
-                        </p>
-                    </div>
-                </div>
+                <PageHeader
+                    icon={ShieldCheckIcon}
+                    title="Select Judges"
+                    subtitle={pageant.pageant}
+                />
             }
         >
             <Head title={`Select Judges - ${pageant.pageant}`} />
 
-            <div className="max-w-4xl mx-auto space-y-6 pb-12">
-                <div className="flex justify-between items-center">
-                    <Link href={route("pageants.show", pageant.id)}>
-                        <SecondaryButton className="flex items-center gap-2 lowercase py-2">
-                            <ArrowLeftIcon className="w-4 h-4" />
-                            Back to Pageant
-                        </SecondaryButton>
-                    </Link>
-                </div>
+            <div className="space-y-6 pb-12">
+                <Breadcrumbs items={[{ label: "Pageants", href: route("pageants.index") }, { label: pageant.pageant, href: route("pageants.show", pageant.id) }, { label: "Judges" }]} />
 
                 <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 shadow-sm rounded-xl overflow-hidden">
                     <div className="p-6 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">

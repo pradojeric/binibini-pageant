@@ -1,6 +1,9 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 import Image from "@/Components/Image";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import PageHeader from "@/Components/PageHeader";
+import Breadcrumbs from "@/Components/Breadcrumbs";
+import { MinusCircleIcon } from "@heroicons/react/24/outline";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TableComponent from "@/Components/TableComponent";
 import TextInput from "@/Components/TextInput";
@@ -8,7 +11,6 @@ import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import InputError from "@/Components/InputError";
 import { useEffect, useMemo } from "react";
-import { SECONDARY_BUTTON_CLASSES } from "@/Components/styles";
 import { DIVISION_KEYS, divisionOf, divisionsLabel } from "@/Utils/divisions";
 
 export default function ScoringShow({ auth, pageant, candidates }) {
@@ -110,11 +112,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {pageant.pageant} - Points Deduction
-                </h2>
-            }
+            header={<PageHeader icon={MinusCircleIcon} title="Points Deduction" subtitle={pageant.pageant} />}
         >
             <Head title="Pageant Deduction" />
 
@@ -125,11 +123,8 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                 }}
             >
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    <Breadcrumbs items={[{ label: "Pageants", href: route("pageants.index") }, { label: pageant.pageant, href: route("pageants.show", pageant.id) }, { label: "Scores", href: route("pageant.view-scores", pageant.id) }, { label: "Points Deduction" }]} />
                     <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
-                        <Link href={route("pageant.view-scores", pageant.id)} className={`${SECONDARY_BUTTON_CLASSES} self-start lg:self-auto`}>
-                            &larr; Back to Scores
-                        </Link>
-
                         <div className="min-w-0 flex-1">
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                                 Deductions · {data.round ? `Round ${data.round}` : "No round selected"}

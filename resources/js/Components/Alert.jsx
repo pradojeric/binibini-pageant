@@ -1,7 +1,7 @@
 import { cn } from "@/Utils/cn";
 
 const variants = {
-    success: "bg-green-500 text-white",
+    success: "bg-green-800 text-white",
     warning: "bg-yellow-400 text-yellow-900",
     info: "bg-blue-500 text-white",
 };

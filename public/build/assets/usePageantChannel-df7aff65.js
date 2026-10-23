@@ -1,1 +1,0 @@
-import{r as n,P as a}from"./app-70a0d425.js";function u(e,o={}){n.useEffect(()=>{if(!e||!window.Echo)return;const t=window.Echo.private(`pageant.${e}`),s=Array.isArray(o)?Object.fromEntries(o.map(r=>[r,null])):o;return Object.keys(s).forEach(r=>{t.listen(r,c=>{s[r]?s[r](c):a.reload({preserveScroll:!0})})}),()=>{window.Echo.leave(`pageant.${e}`)}},[e])}export{u};

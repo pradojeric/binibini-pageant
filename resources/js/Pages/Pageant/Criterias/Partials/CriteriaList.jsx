@@ -1,36 +1,56 @@
+import { useState } from "react";
 import { useForm } from "@inertiajs/react";
+import ConfirmDeleteModal from "@/Components/ConfirmDeleteModal";
 import TableComponent from "@/Components/TableComponent";
 import { 
     PencilIcon, 
     TrashIcon,
     ListBulletIcon,
-    EyeSlashIcon,
-    EyeIcon
+    LockClosedIcon,
+    UserGroupIcon
 } from "@heroicons/react/24/outline";
 
 export default function CriteriaList({ criterias, handleEditMode = () => {}, bare = false }) {
-    const { delete: destroy } = useForm({});
+    const { delete: destroy, processing, errors, clearErrors } = useForm({});
+    const [pendingDelete, setPendingDelete] = useState(null);
     const showAction = route().current("pageants.criterias.index");
 
-    function deleteCriteria(id) {
-        if (confirm("Are you sure you want to delete this criteria?")) {
-            destroy(route("criterias.destroy", id), {
-                onSuccess: () => {},
-                onError: () => alert("Error deleting criteria"),
-            });
-        }
-    }
+    const closeDelete = () => {
+        setPendingDelete(null);
+        clearErrors();
+    };
+
+    const confirmDelete = () => {
+        destroy(route("criterias.destroy", pendingDelete.id), {
+            preserveScroll: true,
+            onSuccess: closeDelete,
+        });
+    };
 
     return (
+        <>
+        {showAction && (
+            <ConfirmDeleteModal
+                show={pendingDelete !== null}
+                title={`Delete ${pendingDelete?.name ?? "criteria"}?`}
+                error={errors.delete}
+                processing={processing}
+                confirmLabel="Delete Criteria"
+                onConfirm={confirmDelete}
+                onClose={closeDelete}
+            >
+                Criteria that already have scores can't be deleted.
+            </ConfirmDeleteModal>
+        )}
         <TableComponent customHeader={true} bare={bare}>
             <thead>
                 <tr className="bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 text-left">
-                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Round</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Group</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Percentage</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Scoring</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Criteria</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Group</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-center">Percentage</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-center">Scored By</th>
                     {showAction && (
-                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
                     )}
                 </tr>
             </thead>
@@ -50,7 +70,7 @@ export default function CriteriaList({ criterias, handleEditMode = () => {}, bar
                             </div>
                         </td>
                         <td className="px-6 py-4">
-                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                                 Group {criteria.group}
                             </p>
                         </td>
@@ -63,37 +83,39 @@ export default function CriteriaList({ criterias, handleEditMode = () => {}, bar
                             {criteria.hidden_scoring ? (
                                 <span 
                                     className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                                    title="Scores are hidden from other judges"
+                                    title="Only the admin enters scores for this criteria"
                                 >
-                                    <EyeSlashIcon className="h-3 w-3" />
-                                    Hidden
+                                    <LockClosedIcon className="h-3 w-3" aria-hidden="true" />
+                                    Admin
                                 </span>
                             ) : (
                                 <span 
                                     className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-100 dark:border-green-800"
-                                    title="Scores are public"
+                                    title="Judges enter scores for this criteria"
                                 >
-                                    <EyeIcon className="h-3 w-3" />
-                                    Public
+                                    <UserGroupIcon className="h-3 w-3" aria-hidden="true" />
+                                    Judges
                                 </span>
                             )}
                         </td>
                         {showAction && (
                             <td className="px-6 py-4">
-                                <div className="flex items-center justify-end gap-2">
+                                <div className="flex items-center justify-end gap-1">
                                     <button
                                         onClick={() => handleEditMode(criteria)}
-                                        className="p-1 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
+                                        className="inline-flex h-11 w-11 items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
                                         title="Edit Criteria"
+                                        aria-label={`Edit ${criteria.name}`}
                                     >
-                                        <PencilIcon className="h-4 w-4" />
+                                        <PencilIcon className="h-5 w-5" aria-hidden="true" />
                                     </button>
                                     <button
-                                        onClick={() => deleteCriteria(criteria.id)}
-                                        className="p-1 rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
+                                        onClick={() => setPendingDelete(criteria)}
+                                        className="inline-flex h-11 w-11 items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
                                         title="Delete Criteria"
+                                        aria-label={`Delete ${criteria.name}`}
                                     >
-                                        <TrashIcon className="h-4 w-4" />
+                                        <TrashIcon className="h-5 w-5" aria-hidden="true" />
                                     </button>
                                 </div>
                             </td>
@@ -105,7 +127,7 @@ export default function CriteriaList({ criterias, handleEditMode = () => {}, bar
                     <tr>
                         <td colSpan={showAction ? 5 : 4} className="px-6 py-12 text-center">
                             <ListBulletIcon className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-                            <p className="text-gray-500 dark:text-gray-400">
+                            <p className="text-gray-600 dark:text-gray-400">
                                 No criteria defined yet.
                             </p>
                         </td>
@@ -113,5 +135,6 @@ export default function CriteriaList({ criterias, handleEditMode = () => {}, bar
                 )}
             </tbody>
         </TableComponent>
+        </>
     );
 }

@@ -1,6 +1,9 @@
 import { Head, useForm } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import PageHeader from "@/Components/PageHeader";
+import Breadcrumbs from "@/Components/Breadcrumbs";
+import { StarIcon } from "@heroicons/react/24/outline";
 import { DIVISION_KEYS, divisionOf, divisionsLabel } from "@/Utils/divisions";
 import CandidateBox from "@/Pages/Scoring/Partials/CandidateBox";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -100,11 +103,7 @@ export default function ScoringShow({ auth, pageant, candidates }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {pageant.pageant}
-                </h2>
-            }
+            header={<PageHeader icon={StarIcon} title="Scoring" subtitle={pageant.pageant} />}
         >
             <Head title={`Scoring - ${pageant.pageant}`} />
 
@@ -115,6 +114,10 @@ export default function ScoringShow({ auth, pageant, candidates }) {
                 }}
             >
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="mb-6">
+                        <Breadcrumbs items={[{ label: "Current Pageants", href: route("scoring.index") }, { label: pageant.pageant, href: route("scoring.details", pageant.id) }, { label: "Scoring" }]} className="inline-flex rounded-lg bg-white/90 dark:bg-gray-800/90 px-3 py-2 shadow-sm" />
+                    </div>
+
                     {/* Stats Bar */}
                     <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3 bg-black/60 backdrop-blur-md border-b border-white/10 mb-8">
                         <div className="flex flex-wrap items-center justify-center gap-4">
