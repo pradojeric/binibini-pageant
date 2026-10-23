@@ -5,6 +5,7 @@ import Modal from "@/Components/Modal";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import InputError from "@/Components/InputError";
+import InputLabel from "@/Components/InputLabel";
 import { SMALL_LINK_BUTTON_CLASSES } from "@/Components/styles";
 import { cn } from "@/Utils/cn";
 
@@ -73,12 +74,12 @@ export default function ImportModal({ show, onClose, pageant, type, title }) {
             <div className="p-6 space-y-5">
                 <div>
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         Upload a .csv or .xlsx file whose first row is the header. Existing records that match are updated; nothing is deleted.
                     </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <span>Template:</span>
                     {["csv", "xlsx"].map((format) => (
                         <a
@@ -94,7 +95,9 @@ export default function ImportModal({ show, onClose, pageant, type, title }) {
 
                 {!preview && (
                     <form onSubmit={handlePreview} className="space-y-4">
+                        <InputLabel htmlFor={`import-file-${type}`} value="File" className="sr-only" />
                         <input
+                            id={`import-file-${type}`}
                             type="file"
                             accept=".csv,.xlsx"
                             onChange={(e) => setFile(e.target.files[0] ?? null)}
@@ -126,7 +129,7 @@ export default function ImportModal({ show, onClose, pageant, type, title }) {
 
                         <div className="max-h-[60vh] overflow-auto rounded-lg border border-gray-100 dark:border-gray-700">
                             <table className="min-w-full text-sm">
-                                <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900 text-left text-xs uppercase text-gray-500 dark:text-gray-400">
+                                <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900 text-left text-xs uppercase text-gray-600 dark:text-gray-400">
                                     <tr>
                                         <th className="px-3 py-2">Row</th>
                                         <th className="px-3 py-2">Action</th>
@@ -146,7 +149,7 @@ export default function ImportModal({ show, onClose, pageant, type, title }) {
                                                 Object.keys(row.errors).length > 0 && "bg-red-50 dark:bg-red-900/20"
                                             )}
                                         >
-                                            <td className="px-3 py-2 text-gray-400">{row.row}</td>
+                                            <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{row.row}</td>
                                             <td className="px-3 py-2">
                                                 <span
                                                     className={cn(

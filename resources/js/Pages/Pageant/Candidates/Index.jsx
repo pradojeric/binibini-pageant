@@ -12,9 +12,8 @@ import {
     PencilSquareIcon,
     ArrowUpTrayIcon
 } from "@heroicons/react/24/outline";
-import CandidateCreate from "@/Pages/Pageant/Candidates/Partials/CandidateCreate";
 import CandidateList from "@/Pages/Pageant/Candidates/Partials/CandidateList";
-import CandidateEdit from "@/Pages/Pageant/Candidates/Partials/CandidateEdit";
+import CandidateForm from "@/Pages/Pageant/Candidates/Partials/CandidateForm";
 
 function reducer(state, action) {
     switch (action.type) {
@@ -66,7 +65,7 @@ function CandidateIndex({ auth, pageant }) {
                         <h2 className="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
                             Manage Candidates
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                             {pageant.pageant}
                         </p>
                     </div>
@@ -78,7 +77,7 @@ function CandidateIndex({ auth, pageant }) {
             <div className="max-w-7xl mx-auto space-y-6 pb-12">
                 <div className="flex justify-between items-center">
                     <Link href={route("pageants.show", pageant.id)}>
-                        <SecondaryButton className="flex items-center gap-2 lowercase py-2">
+                        <SecondaryButton className="flex items-center gap-2 py-2">
                             <ArrowLeftIcon className="w-4 h-4" />
                             Back to Pageant
                         </SecondaryButton>
@@ -101,7 +100,8 @@ function CandidateIndex({ auth, pageant }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <div ref={formRef} className="lg:col-span-4 lg:sticky lg:top-24">
-                        <div className="border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800 overflow-hidden rounded-xl">
+                        {/* The form is taller than a laptop viewport; scrolling inside the card keeps its submit button reachable while pinned. */}
+                        <div className="border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-800 overflow-hidden lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto rounded-xl">
                             <div className="p-6 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
                                     {state.editing ? (
@@ -115,15 +115,12 @@ function CandidateIndex({ auth, pageant }) {
                                 </h3>
                             </div>
                             <div className="p-6">
-                                {!state.editing ? (
-                                    <CandidateCreate pageant={pageant} />
-                                ) : (
-                                    <CandidateEdit
-                                        candidate={state.candidate}
-                                        pageant={pageant}
-                                        handleCancelEditMode={handleCancelEditMode}
-                                    />
-                                )}
+                                <CandidateForm
+                                    key={state.candidate?.id ?? "new"}
+                                    pageant={pageant}
+                                    candidate={state.candidate}
+                                    onCancel={handleCancelEditMode}
+                                />
                             </div>
                         </div>
                     </div>
@@ -139,7 +136,7 @@ function CandidateIndex({ auth, pageant }) {
                                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                             Candidate Directory
                                         </h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
                                             {pageant.candidates.length} candidates registered
                                         </p>
                                     </div>

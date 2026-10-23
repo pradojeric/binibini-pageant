@@ -16,7 +16,7 @@ class CandidateImport extends RowImport
     protected function rules(Pageant $pageant): array
     {
         return [
-            'candidate_number' => ['required', 'integer'],
+            'candidate_number' => ['required', 'integer', 'min:1'],
             'last_name'        => ['required', 'string', 'max:255'],
             'first_name'       => ['required', 'string', 'max:255'],
             'middle_name'      => ['nullable', 'string', 'max:255'],

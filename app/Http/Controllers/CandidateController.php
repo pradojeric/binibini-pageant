@@ -5,7 +5,6 @@ use App\Models\Candidate;
 use App\Models\Pageant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -35,8 +34,8 @@ class CandidateController extends Controller
     public function store(Request $request, Pageant $pageant)
     {
         $validatedData = $request->validate([
-            'candidate_number' => ['required'],
-            'picture'          => ['nullable', 'image'],
+            'candidate_number' => ['required', 'integer', 'min:1'],
+            'picture'          => ['nullable', 'mimes:jpg,jpeg,png,webp'],
             'last_name'        => ['required'],
             'first_name'       => ['required'],
             'middle_name'      => ['nullable'],
@@ -46,15 +45,9 @@ class CandidateController extends Controller
             'description'      => ['required'],
         ]);
 
-        /* 2. If a file is present, build a safe, non‑empty name */
+        // A generated name keeps candidates who share a name or number from overwriting each other's picture.
         if ($request->hasFile('picture')) {
-
-            $validatedData['picture'] = $request->file('picture')
-                ->storePubliclyAs(
-                    'candidate',
-                    Str::slug($request->last_name . ", " . $request->first_name) . '.' . $request->file('picture')->extension(),
-                    'public'
-                );
+            $validatedData['picture'] = $request->file('picture')->store('candidate', 'public');
         }
 
         $pageant->candidates()->create($validatedData);
@@ -83,8 +76,8 @@ class CandidateController extends Controller
     {
 
         $validatedData = $request->validate([
-            'candidate_number' => ['required'],
-            'picture'          => ['nullable', 'mimes:jpg,jpeg,png'],
+            'candidate_number' => ['required', 'integer', 'min:1'],
+            'picture'          => ['nullable', 'mimes:jpg,jpeg,png,webp'],
             'last_name'        => ['required'],
             'first_name'       => ['required'],
             'middle_name'      => ['nullable'],
@@ -97,10 +90,11 @@ class CandidateController extends Controller
         if (! $request->picture) {
             unset($validatedData['picture']);
         } else {
-            if ($candidate->picture && Storage::exists($candidate->picture)) {
-                Storage::delete($candidate->picture);
+            // Pictures live on the public disk; the default disk is local, so the old file was never found.
+            if ($candidate->picture) {
+                Storage::disk('public')->delete($candidate->picture);
             }
-            $validatedData['picture'] = $request->file('picture')->storePubliclyAs('candidate', $request->candidate_number, 'public');
+            $validatedData['picture'] = $request->file('picture')->store('candidate', 'public');
         }
 
         $candidate->update($validatedData);
@@ -111,8 +105,13 @@ class CandidateController extends Controller
      */
     public function destroy(Candidate $candidate)
     {
-        if ($candidate->picture && Storage::exists($candidate->picture)) {
-            Storage::delete($candidate->picture);
+        // Scores and round records reference the candidate, so deleting would fail on the foreign keys.
+        if ($candidate->criterias()->exists() || $candidate->pageantRounds()->exists() || $candidate->candidatesDeduction()->exists()) {
+            return back()->withErrors(['delete' => "{$candidate->full_name} already has scores or round entries, so they can't be deleted."]);
+        }
+
+        if ($candidate->picture) {
+            Storage::disk('public')->delete($candidate->picture);
         }
         $candidate->delete();
     }

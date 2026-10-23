@@ -19,9 +19,9 @@ class CriteriaImport extends RowImport
     {
         return [
             'name'           => ['required', 'string', 'max:255'],
-            'round'          => ['required', 'integer'],
-            'group'          => ['required', 'integer'],
-            'percentage'     => ['required', 'numeric'],
+            'round'          => ['required', 'integer', 'min:1'],
+            'group'          => ['required', 'integer', 'min:1'],
+            'percentage'     => ['required', 'numeric', 'min:1', 'max:100'],
             'hidden_scoring' => ['boolean'],
         ];
     }
