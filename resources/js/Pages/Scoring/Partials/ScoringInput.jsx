@@ -14,14 +14,12 @@ function ScoringInput({ criteria, candidate, onInputData = () => {}, initialValu
             const raw = e.target.value;
             setValue(raw);
             const num = Number(raw);
-            if (raw === "") {
-                // A cleared box must drop its score, or the old value would still be locked in.
-                onInputData(candidate.id, criteria.id, null);
-            } else if (!isNaN(num) && num > 0) {
-                onInputData(candidate.id, criteria.id, num);
-            }
+            // Enter submits without a blur, so only an in-range value may be recorded here;
+            // anything else (cleared, half-typed, out of range) counts as missing until blur clamps it.
+            const valid = raw !== "" && !isNaN(num) && num >= minMax.min && num <= minMax.max;
+            onInputData(candidate.id, criteria.id, valid ? num : null);
         },
-        [candidate.id, criteria.id, onInputData]
+        [candidate.id, criteria.id, minMax, onInputData]
     );
 
     const handleBlur = useCallback(
@@ -41,7 +39,7 @@ function ScoringInput({ criteria, candidate, onInputData = () => {}, initialValu
             <div className="flex justify-between items-center mb-1.5 px-0.5">
                 <InputLabel 
                     htmlFor={`can` + candidate.id + `crit` + criteria.id}
-                    className="text-[10px] font-black uppercase tracking-[0.1em] text-gray-500 dark:text-gray-400 group-focus-within/input:text-blue-500 transition-colors"
+                    className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300 group-focus-within/input:text-indigo-600 dark:group-focus-within/input:text-indigo-400 transition-colors"
                     value={criteria.name}
                 />
                 <span className="text-xs font-bold text-gray-600 dark:text-gray-400">
@@ -54,7 +52,7 @@ function ScoringInput({ criteria, candidate, onInputData = () => {}, initialValu
                     id={`can` + candidate.id + `crit` + criteria.id}
                     type="number"
                     name="scores[]"
-                    className={`block w-full bg-white dark:bg-gray-800 focus:ring-blue-500/20 focus:border-blue-500 rounded-2xl text-lg font-bold transition-all pr-12 ${
+                    className={`block w-full bg-white dark:bg-gray-800 rounded-2xl text-lg font-bold tabular-nums transition-colors pr-12 ${
                         missing ? "border-red-500 ring-2 ring-red-500/30" : "border-gray-200 dark:border-gray-700"
                     }`}
                     value={value}
@@ -62,6 +60,8 @@ function ScoringInput({ criteria, candidate, onInputData = () => {}, initialValu
                     required
                     min={minMax.min}
                     max={minMax.max}
+                    step="any"
+                    inputMode="decimal"
                     onBlur={handleBlur}
                     onChange={handleChange}
                     placeholder={`${minMax.min}–${minMax.max}`}

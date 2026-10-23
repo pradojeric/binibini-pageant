@@ -116,7 +116,7 @@ class AdminScoringController extends Controller
 
         broadcast(new ScoreSubmitted($pageant->id))->toOthers();
 
-        return redirect()->route('scoring.admin', $pageant);
+        return redirect()->route('scoring.admin', $pageant)->with('message', 'Hidden scores saved.');
     }
 
     public function select(Pageant $pageant, Request $request)
