@@ -1,0 +1,1 @@
+import{j as o}from"./app-XuDGHsaC.js";import{c as e}from"./cn-9wJ42EUr.js";import{I as m}from"./styles-CQawqJrt.js";function p({children:t,className:r="",...s}){return o.jsx("select",{...s,className:e(m,r),children:t})}export{p as S};

@@ -1,0 +1,1 @@
+import{r as p,j as d}from"./app-XuDGHsaC.js";const m="/placeholders/placeholder-image.png";function g({src:e,fallback:o=m,loading:r="lazy",alt:t="",onError:s,...n}){const[l,c]=p.useState(null),a=!e||l===e;return d.jsx("img",{...n,src:a?o:e,alt:t,loading:r,decoding:"async",onError:i=>{a||c(e),s?.(i)}})}export{g as I};
