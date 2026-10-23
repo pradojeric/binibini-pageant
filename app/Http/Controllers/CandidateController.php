@@ -6,6 +6,7 @@ use App\Models\Pageant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CandidateController extends Controller
@@ -40,7 +41,7 @@ class CandidateController extends Controller
             'first_name'       => ['required'],
             'middle_name'      => ['nullable'],
             'name_ext'         => ['nullable'],
-            'gender'           => ['required'],
+            'gender'           => ['required', Rule::in($pageant->divisions)],
             'nickname'         => ['required'],
             'description'      => ['required'],
         ]);
@@ -88,7 +89,7 @@ class CandidateController extends Controller
             'first_name'       => ['required'],
             'middle_name'      => ['nullable'],
             'name_ext'         => ['nullable'],
-            'gender'           => ['required'],
+            'gender'           => ['required', Rule::in($candidate->pageant->divisions)],
             'nickname'         => ['required'],
             'description'      => ['required'],
         ]);

@@ -2,384 +2,283 @@ import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
+import LiveControlPanel from "@/Pages/Pageant/Partials/LiveControlPanel";
+import ScoreActionsMenu from "@/Pages/Pageant/Partials/ScoreActionsMenu";
+import SecondaryButton from "@/Components/SecondaryButton";
+import DangerButton from "@/Components/DangerButton";
+import Modal from "@/Components/Modal";
+import Chip from "@/Components/Chip";
+import { Card, CardHeader } from "@/Components/Card";
 import { Head, Link, router } from "@inertiajs/react";
-import { useState, useEffect, useMemo } from "react";
-import { Button } from "@material-tailwind/react";
+import { useState, useMemo } from "react";
+import { ChartBarIcon } from "@heroicons/react/24/outline";
+import { usePageantChannel } from "@/hooks/usePageantChannel";
+import { DIVISION_KEYS } from "@/Utils/divisions";
+import { PRIMARY_BUTTON_CLASSES, SECONDARY_BUTTON_CLASSES } from "@/Components/styles";
+import { cn } from "@/Utils/cn";
 
-function rankItems(candidates, sortedBy = "total") {
-    if (!candidates.length) return [];
+// Keys match the values Pageant::status can return.
+const STATUS_STYLES = {
+    "not yet started": "bg-gray-100 text-gray-800",
+    ongoing: "bg-amber-100 text-amber-900",
+    finished: "bg-green-100 text-green-900",
+};
 
-    // 1. Pick the right score extractor
-    const getScore = (item) =>
-        sortedBy === "total" ? item.total : item.scores[sortedBy];
+const toNumber = (value) => parseFloat(value) || 0;
 
-    // 2. Sort descending (clone so we don’t mutate)
-    const sorted = [...candidates].sort((a, b) => getScore(b) - getScore(a));
+// Overall rank by total. Ties share the average of their positions (two tied for 1st are both 1.5).
+function withRanks(candidates) {
+    const byTotal = [...candidates].sort((a, b) => toNumber(b.total) - toNumber(a.total));
 
-    // 3. Build a map: scoreValue → array of positions (1-based)
-    const scorePositions = new Map();
-    sorted.forEach((item, idx) => {
-        const sc = getScore(item);
-        const pos = idx + 1;
-        if (!scorePositions.has(sc)) scorePositions.set(sc, []);
-        scorePositions.get(sc).push(pos);
+    const positions = new Map();
+    byTotal.forEach((item, idx) => {
+        const score = toNumber(item.total);
+        positions.set(score, [...(positions.get(score) ?? []), idx + 1]);
     });
 
-    // 4. Compute average rank per score
-    const scoreRank = new Map();
-    for (let [sc, positions] of scorePositions.entries()) {
-        const sum = positions.reduce((a, b) => a + b, 0);
-        scoreRank.set(sc, (sum / positions.length).toFixed(1));
-    }
+    return candidates.map((item) => {
+        const tied = positions.get(toNumber(item.total));
+        const rank = tied.reduce((a, b) => a + b, 0) / tied.length;
+        return { ...item, rank: Number.isInteger(rank) ? rank : rank.toFixed(1) };
+    });
+}
 
-    // 5. Attach the computed rank to each item and return
-    return sorted.map((item) => ({
-        ...item,
-        rank: scoreRank.get(getScore(item)),
-    }));
+// Sorting only changes row order; the rank stays the overall one.
+function sortCandidates(candidates, sortBy) {
+    if (sortBy === "order") {
+        return [...candidates].sort((a, b) => (a.order || 0) - (b.order || 0));
+    }
+    const score = (item) => toNumber(sortBy === "total" ? item.total : item.scores?.[sortBy]);
+    return [...candidates].sort((a, b) => score(b) - score(a));
 }
 
 export default function PageantScores({
     auth,
     pageant,
-    maleCandidates = [],
-    femaleCandidates = [],
+    candidatesByDivision = {},
     criterias,
+    judges = [],
 }) {
-    const [femCan, setFemCan] = useState([]);
-    const [maleCan, setMaleCan] = useState([]);
-    const [crits, setCrits] = useState(criterias);
-    const [groupList, setGroupList] = useState([1]);
+    const [sortBy, setSortBy] = useState("order");
+    // null, "scores" or "everything": which reset is waiting for confirmation
+    const [confirmingReset, setConfirmingReset] = useState(null);
+    const [confirmingEndPageant, setConfirmingEndPageant] = useState(false);
 
-    // const headings = ["Candidate Name"];
-    const headings = useMemo(
-        () => [
-            "Candidate Name",
-            ...criterias.map((c) => `${c.name} (${c.percentage})`),
-            "Total",
-            ...(pageant.current_round === 1 ? ["Deduction", "Overall"] : []),
-            "Rank",
-        ],
-        [criterias, pageant.current_round]
+    usePageantChannel(pageant.id, ['.score.submitted', '.scores.reset', '.round.changed', '.group.changed']);
+
+    // pageant_rounds has one row per division; list each round number once.
+    const rounds = useMemo(
+        () => [...new Map(pageant.pageant_rounds.map((r) => [r.round, r])).values()].sort((a, b) => a.round - b.round),
+        [pageant.pageant_rounds]
     );
 
-    useEffect(() => {
-        setFemCan(rankItems(femaleCandidates));
-        setMaleCan(rankItems(maleCandidates));
-        setCrits(criterias);
+    // Groups 1..highest among this round's criteria.
+    const groupList = useMemo(() => {
+        const groups = criterias.filter((c) => c.round == pageant.current_round).map((c) => Number(c.group));
+        return groups.length ? Array.from({ length: Math.max(...groups) }, (_, i) => i + 1) : [];
+    }, [criterias, pageant.current_round]);
 
-        const organizedData = criterias.reduce((acc, item) => {
-            if (!acc[item.round]) {
-                acc[item.round] = {};
-            }
-            if (!acc[item.round][item.group]) {
-                acc[item.round][item.group] = [];
-            }
-            acc[item.round][item.group].push(item.name);
-            return acc;
-        }, {});
+    // A criterion sort falls back to stage order once the round changes and that criterion is gone.
+    const activeSort =
+        sortBy === "order" || sortBy === "total" || criterias.some((c) => String(c.id) === sortBy) ? sortBy : "order";
 
-        if (!organizedData[pageant.current_round]) {
-            setGroupList([]);
-            return;
-        }
+    // Derived on every render, so realtime reloads keep the chosen sort.
+    const ranked = useMemo(
+        () =>
+            Object.fromEntries(
+                Object.entries(candidatesByDivision).map(([key, list]) => [key, sortCandidates(withRanks(list), activeSort)])
+            ),
+        [candidatesByDivision, activeSort]
+    );
 
-        const groups = Object.keys(organizedData[pageant.current_round]);
-        const highestGroup = Math.max(...groups.map(Number)); // Convert keys to numbers and find the max
-        setGroupList(Array.from({ length: highestGroup }, (_, i) => i + 1));
-    }, [pageant]);
+    // Deductions apply in every round, so show the columns whenever this round has one.
+    const showDeductions = useMemo(
+        () => Object.values(candidatesByDivision).some((list) => list.some((c) => Number(c.deduction) !== 0)),
+        [candidatesByDivision]
+    );
 
-    const sortFunction = (i) => {
-        // const femSort = [...femaleCandidates];
-        // const maleSort = [...maleCandidates];
-        // femSort.sort((a, b) => {
-        //     if (i === "total") return b.total - a.total;
-        //     return b.scores[i] - a.scores[i];
-        // });
-        // maleSort.sort((a, b) => {
-        //     if (i === "total") return b.total - a.total;
-        //     return b.scores[i] - a.scores[i];
-        // });
+    const noCandidates =
+        pageant.current_round > 0 && Object.values(candidatesByDivision).every((list) => list.length === 0);
 
-        setFemCan(rankItems(femaleCandidates, i));
-        setMaleCan(rankItems(maleCandidates, i));
+    const closeModal = () => {
+        setConfirmingReset(null);
     };
 
-    // crits.map((criteria) => {
-    //     headings.push(criteria.name + ` (` + criteria.percentage + `)`);
-    // });
+    const reset = () => {
+        const name = confirmingReset === "everything" ? "pageant.reset-everything" : "pageant.reset-scores";
+        router.post(route(name, pageant.id), {}, {
+            onFinish: () => closeModal(),
+        });
+    };
 
-    // headings.push("Total");
-    // if (pageant.current_round == 1) {
-    //     headings.push("Deduction");
-    //     headings.push("Overall");
-    // }
-    // headings.push("Rank");
+    const closeEndPageantModal = () => {
+        setConfirmingEndPageant(false);
+    };
+
+    const endPageant = () => {
+        router.post(route("end.pageant", pageant.id), {}, {
+            onFinish: () => closeEndPageantModal(),
+        });
+    };
 
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {pageant.pageant} Scores
-                </h2>
+                <div className="flex flex-wrap items-center gap-3">
+                    <h1 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                        {pageant.pageant} Scores
+                    </h1>
+                    <Chip
+                        value={pageant.status}
+                        className={cn(
+                            "rounded-full px-3",
+                            STATUS_STYLES[pageant.status?.toLowerCase()] ?? STATUS_STYLES["not yet started"]
+                        )}
+                    />
+                </div>
             }
         >
-            <Head title="Pageant" />
+            <Head title={`${pageant.pageant} · Scores`} />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6">
-                            <div className="flex space-x-2 justify-end">
-                                <Link
-                                    href={route(
-                                        "pageant.for-printing",
-                                        pageant.id
-                                    )}
+            <div className="py-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    <LiveControlPanel pageant={pageant} rounds={rounds} groupList={groupList} judges={judges} />
+
+                    {/* overflow-visible so the More menu isn't clipped by the card */}
+                    <Card className="overflow-visible">
+                        <CardHeader icon={ChartBarIcon} title="Results" />
+
+                        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row gap-4 md:items-end justify-between">
+                            <div>
+                                <InputLabel htmlFor="results-sort" value="Sort by" className="mb-1" />
+                                <SelectInput
+                                    id="results-sort"
+                                    className="w-full md:w-56"
+                                    value={activeSort}
+                                    onChange={(e) => setSortBy(e.target.value)}
                                 >
-                                    <Button
-                                        color="yellow"
-                                        className="transition duration-300 ease-in-out hover:bg-yellow-600"
-                                    >
-                                        Summary
-                                    </Button>
-                                </Link>
-
-                                <Button
-                                    onClick={(e) => {
-                                        if (
-                                            confirm(
-                                                "Are you sure? Not irreversable"
-                                            )
-                                        ) {
-                                            alert("Success");
-                                            router.get(
-                                                route(
-                                                    "pageant.reset-scores",
-                                                    pageant.id
-                                                )
-                                            );
-                                        }
-                                    }}
-                                    color="blue"
-                                    className="transition duration-300 ease-in-out hover:bg-blue-600"
-                                >
-                                    Reset Score
-                                </Button>
-
-                                {pageant.status != "finished" && (
-                                    <Link>
-                                        <Button
-                                            color="red"
-                                            className="transition duration-300 ease-in-out hover:bg-red-600"
-                                        >
-                                            End Pageant
-                                        </Button>
-                                    </Link>
-                                )}
-                            </div>
-                            <div className=" dark:text-white text-lg">
-                                Current Round:{" "}
-                                <span className="text-2xl">
-                                    {" "}
-                                    {pageant.current_round ?? "Not Yet Started"}
-                                </span>
-                            </div>
-                            <div className=" dark:text-white text-lg">
-                                Current Group:{" "}
-                                <span className="text-2xl">
-                                    {pageant.current_group ?? "Not Yet Started"}
-                                </span>
-                            </div>
-                            <div className=" dark:text-white text-lg">
-                                Total Rounds:
-                                <span className="text-2xl">
-                                    {" "}
-                                    {pageant.rounds}
-                                </span>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <div className="flex gap-2">
-                                    <form className="space-y-2">
-                                        <InputLabel value="Change Round" />
-                                        <SelectInput
-                                            name="round"
-                                            onChange={(e) => {
-                                                router.put(
-                                                    route(
-                                                        "pageant.change-round",
-                                                        {
-                                                            pageant: pageant.id,
-                                                            round: e.target
-                                                                .value,
-                                                        }
-                                                    )
-                                                );
-                                            }}
-                                        >
-                                            <option value="" hidden>
-                                                Select
-                                            </option>
-                                            <option value="0">
-                                                Not started
-                                            </option>
-                                            {pageant.pageant_rounds.map(
-                                                (round, index) => {
-                                                    return (
-                                                        <option
-                                                            value={round.round}
-                                                            key={`R` + index}
-                                                        >
-                                                            {`${round.round_name}`}
-                                                        </option>
-                                                    );
-                                                }
-                                            )}
-                                        </SelectInput>
-                                    </form>
-                                    <form className="space-y-2">
-                                        <InputLabel value="Change Group" />
-                                        <SelectInput
-                                            name="group"
-                                            onChange={(e) => {
-                                                router.put(
-                                                    route(
-                                                        "pageant.change-group",
-                                                        {
-                                                            pageant: pageant.id,
-                                                            group: e.target
-                                                                .value,
-                                                        }
-                                                    )
-                                                );
-                                            }}
-                                        >
-                                            <option value="" hidden>
-                                                Select
-                                            </option>
-                                            <option value="0">Group 0</option>
-                                            {groupList.map((group, index) => {
-                                                return (
-                                                    <option
-                                                        value={group}
-                                                        key={`G` + index}
-                                                    >
-                                                        {`Group ${group}`}
-                                                    </option>
-                                                );
-                                            })}
-                                        </SelectInput>
-                                    </form>
-                                </div>
-
-                                <form>
-                                    <InputLabel value="Sort By" />
-                                    <SelectInput
-                                        name="criteria"
-                                        defaultValue="total"
-                                        onChange={(e) => {
-                                            sortFunction(e.target.value);
-                                        }}
-                                    >
-                                        <option value="total">
-                                            Total Points
+                                    <option value="order">Stage order</option>
+                                    <option value="total">Total points</option>
+                                    {criterias.map((criteria) => (
+                                        <option key={`criteria-` + criteria.id} value={String(criteria.id)}>
+                                            {criteria.name}
                                         </option>
-                                        {crits.map((criteria) => {
-                                            return (
-                                                <option
-                                                    key={
-                                                        `criteria-` +
-                                                        criteria.id
-                                                    }
-                                                    value={criteria.id}
-                                                >
-                                                    {criteria.name}
-                                                </option>
-                                            );
-                                        })}
-                                    </SelectInput>
-                                </form>
+                                    ))}
+                                </SelectInput>
                             </div>
 
-                            <div className="mt-4 space-x-2">
-                                <Link href={route("scoring.admin", pageant.id)}>
-                                    <Button
-                                        color="green"
-                                        className="transition duration-300 ease-in-out hover:bg-green-600"
-                                    >
-                                        Score Hidden Criteria
-                                    </Button>
+                            <div className="flex flex-wrap gap-2">
+                                <Link href={route("pageant.candidates.select", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
+                                    Select Candidates
                                 </Link>
-
-                                <Link
-                                    href={route(
-                                        "pageant.candidates.select",
-                                        pageant.id
-                                    )}
-                                >
-                                    <Button
-                                        color="blue"
-                                        className="transition duration-300 ease-in-out hover:bg-blue-600"
-                                    >
-                                        Select Round Candidate
-                                    </Button>
+                                <Link href={route("scoring.admin", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
+                                    Score Hidden
                                 </Link>
-
-                                <Link
-                                    href={route("pageant.deduct", pageant.id)}
-                                >
-                                    <Button
-                                        color="red"
-                                        className="transition duration-300 ease-in-out hover:bg-red-600"
-                                    >
-                                        Deduct Points
-                                    </Button>
+                                <Link href={route("pageant.deduct", pageant.id)} className={SECONDARY_BUTTON_CLASSES}>
+                                    Deduct
                                 </Link>
+                                <Link href={route("pageant.for-printing", pageant.id)} className={PRIMARY_BUTTON_CLASSES}>
+                                    Summary
+                                </Link>
+                                <ScoreActionsMenu
+                                    onResetScores={() => setConfirmingReset("scores")}
+                                    onResetEverything={() => setConfirmingReset("everything")}
+                                    onEndPageant={pageant.status !== "finished" ? () => setConfirmingEndPageant(true) : null}
+                                />
                             </div>
-
-                            <hr className="mt-4 mb-2" />
-                            {/* {(pageant.type == "mr" ||
-                                pageant.type == "mr&ms") && (
-                                <CandidateScoreList
-                                    gender="Male"
-                                    candidates={maleCan}
-                                    headings={headings}
-                                    current_round={pageant.current_round}
-                                ></CandidateScoreList>
-                            )}
-                            {(pageant.type == "ms" ||
-                                pageant.type == "mr&ms") && (
-                                <CandidateScoreList
-                                    gender="Female"
-                                    candidates={femCan}
-                                    headings={headings}
-                                    current_round={pageant.current_round}
-                                ></CandidateScoreList>
-                            )} */}
-                            {["mr", "ms"].map(
-                                (sex) =>
-                                    pageant.type.includes(sex) && (
-                                        <CandidateScoreList
-                                            key={sex}
-                                            gender={
-                                                sex === "mr" ? "Male" : "Female"
-                                            }
-                                            candidates={
-                                                sex === "mr" ? maleCan : femCan
-                                            }
-                                            headings={headings}
-                                            current_round={
-                                                pageant.current_round
-                                            }
-                                        />
-                                    )
-                            )}
                         </div>
-                    </div>
+
+                        <div className="p-4 sm:p-6 space-y-10">
+                            {noCandidates ? (
+                                <div className="py-12 text-center">
+                                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                                        No candidates are in this round yet.
+                                    </p>
+                                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                        Judges can't score until candidates are selected for it.
+                                    </p>
+                                    <Link
+                                        href={route("pageant.candidates.select", { pageant: pageant.id, round: pageant.current_round })}
+                                        className={`${PRIMARY_BUTTON_CLASSES} mt-6`}
+                                    >
+                                        Select candidates for this round
+                                    </Link>
+                                </div>
+                            ) : DIVISION_KEYS.filter((key) => pageant.divisions.includes(key)).map((key) => (
+                                <CandidateScoreList
+                                    key={key}
+                                    division={key}
+                                    candidates={ranked[key] ?? []}
+                                    criterias={criterias}
+                                    showDeductions={showDeductions}
+                                />
+                            ))}
+                        </div>
+                    </Card>
                 </div>
             </div>
+
+            <Modal show={confirmingReset !== null} onClose={closeModal}>
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        {confirmingReset === "everything" ? "Reset everything?" : "Reset scores?"}
+                    </h2>
+
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        This permanently erases, for every round of this pageant:
+                    </p>
+                    <ul className="mt-2 list-disc ps-5 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                        <li>all judges' scores and all hidden (staff) scores</li>
+                        {confirmingReset === "everything" && (
+                            <>
+                                <li>all deductions</li>
+                                <li>every round's selected candidates and their stage order</li>
+                            </>
+                        )}
+                    </ul>
+                    {confirmingReset === "scores" && (
+                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            Deductions and each round's selected candidates and stage order are kept.
+                        </p>
+                    )}
+                    <p className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">
+                        The pageant goes back to "Not started". This cannot be undone.
+                    </p>
+
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={closeModal}>
+                            Cancel
+                        </SecondaryButton>
+
+                        <DangerButton className="ms-3" onClick={reset}>
+                            {confirmingReset === "everything" ? "Erase Everything" : "Erase Scores"}
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal show={confirmingEndPageant} onClose={closeEndPageantModal}>
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Are you sure you want to end this pageant?
+                    </h2>
+
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        This action will mark the pageant as finished.
+                    </p>
+
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={closeEndPageantModal}>
+                            Cancel
+                        </SecondaryButton>
+
+                        <DangerButton className="ms-3" onClick={endPageant}>
+                            End Pageant
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

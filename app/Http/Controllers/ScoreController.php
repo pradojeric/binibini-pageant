@@ -1,15 +1,23 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Events\ScoreSubmitted;
+use App\Models\CandidateCriteria;
 use App\Models\Criteria;
 use App\Models\Pageant;
 use App\Services\PageantScoreService;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class ScoreController extends Controller
 {
+    private const PAGEANT_ENDED = 'This pageant has ended. Scoring is closed.';
+
     public $pageantScoreService;
 
     public function __construct(PageantScoreService $pageantScoreService)
@@ -19,7 +27,10 @@ class ScoreController extends Controller
 
     public function index()
     {
-        $pageants = Pageant::all();
+        // A judge only sees the pageants they are assigned to that are still running.
+        $pageants = Pageant::whereHas('judges', fn($query) => $query->whereKey(Auth::id()))
+            ->where(fn($query) => $query->whereNull('status')->orWhere('status', '!=', 'finished'))
+            ->get();
 
         return Inertia::render('Scoring/Index', [
             'pageants' => $pageants,
@@ -28,71 +39,79 @@ class ScoreController extends Controller
 
     public function showDetails(Pageant $pageant)
     {
-        $criterias = $pageant->criterias()->where('hidden_scoring', false)->join('pageant_rounds', function ($join) {
-            $join->on('pageant_rounds.pageant_id', 'criterias.pageant_id')->on('pageant_rounds.round', 'criterias.round');
-        })->select('criterias.*',
-            'pageant_rounds.round_name',
-            'criterias.id as criteria_id')->get()->groupBy('round_name') // 1st level: round_name
+        $this->authorizeJudge($pageant);
+
+        $roundNames = $pageant->pageantRounds->pluck('round_name', 'round')->all();
+
+        // A round has one pageant_rounds row per division, so joining on it would list each criteria once per division.
+        $criterias = $pageant->criterias()
+            ->where('hidden_scoring', false)
+            ->whereIn('round', array_keys($roundNames))
+            ->get()
+            ->each(function ($criteria) use ($roundNames) {
+                $criteria->round_name  = $roundNames[$criteria->round];
+                $criteria->criteria_id = $criteria->id;
+            })
+            ->groupBy('round_name') // 1st level: round_name
             ->map(function ($roundItems) {
                 // 2nd level: group
                 return $roundItems->groupBy('group');
             });
 
-        $groupCriterias = $pageant->criterias->where('hidden_scoring', false)->groupBy('round')->values()->all();
+        //$groupCriterias = $pageant->criterias->where('hidden_scoring', false)->groupBy('round')->values()->all();
+
+        // Criteria this judge has already locked, so the page can mark those groups as submitted.
+        $submittedCriteriaIds = Auth::user()->candidateCriterias()
+            ->whereIn('criteria_id', $pageant->criterias()->select('id'))
+            ->distinct()
+            ->pluck('criteria_id');
 
         return Inertia::render('Scoring/Details', [
             'pageant'        => $pageant,
-            'groupCriterias' => $groupCriterias,
-            'c'              => $criterias,
+            //'groupCriterias' => $groupCriterias,
+            'groupCriterias'              => $criterias,
+            'submittedCriteriaIds'        => $submittedCriteriaIds,
         ]);
     }
 
+    /**
+     * Older entry point that nothing links to any more; judges pick a group on the details page.
+     */
     public function show(Pageant $pageant)
     {
-        $judge = Auth::user();
-
-        $alreadyScores = $judge->candidateCritieras->whereIn('criteria_id', $pageant->criterias->where('round', $pageant->current_round)->pluck('id'));
-
-        if ($alreadyScores->count() > 0) {
-            session()->flash('message', 'Already scored');
-            return;
-        }
-
-        if ($pageant->current_round == null) {
-            session()->flash('message', 'Round not yet started');
-            return;
-        }
-
-        return Inertia::render('Scoring/Show', [
-            'pageant' => $pageant->load(['criterias' => function ($query) use ($pageant) {
-                $query->where('round', $pageant->current_round);
-            }, 'candidates', 'judges']),
-        ]);
+        return redirect()->route('scoring.details', $pageant);
     }
 
     public function score(Pageant $pageant, Criteria $criteria)
     {
+        $this->authorizeJudge($pageant);
 
         $judge = Auth::user();
 
-        if ($pageant->current_round != $criteria->round || $pageant->current_group != $criteria->group) {
-            session()->flash('message', 'Round not yet started');
-            return;
+        if ((int) $criteria->pageant_id !== $pageant->id) {
+            return $this->backToDetails($pageant, 'That criteria is not part of this pageant.');
+        }
+
+        if ($pageant->status === 'finished') {
+            return $this->backToDetails($pageant, self::PAGEANT_ENDED);
         }
 
         if ($pageant->current_round == null) {
-            session()->flash('message', 'Pageant not opened yet');
-            return;
+            return $this->backToDetails($pageant, 'The pageant has not been opened yet. Please wait for the staff to start the event.');
         }
 
-        $alreadyScores = $judge->candidateCritieras->where('criteria_id', $criteria->id);
-
-        if ($alreadyScores->count() > 0) {
-            session()->flash('message', 'Already scored');
-            return;
+        if ($pageant->current_round != $criteria->round || $pageant->current_group != $criteria->group) {
+            return $this->backToDetails($pageant, 'This scoring round is not currently active. Please wait for the staff to open your assigned round.');
         }
 
-        $candidates = $pageant->pageantRounds()->where('round', $pageant->current_round)->first()->candidates;
+        if ($judge->candidateCriterias()->where('criteria_id', $criteria->id)->exists()) {
+            return $this->backToDetails($pageant, 'You have already submitted your scores for this round.');
+        }
+
+        $candidates = $pageant->roundRows((int) $pageant->current_round)
+            ->load('candidates')
+            ->flatMap(fn($round) => $round->candidates)
+            ->values();
 
         return Inertia::render('Scoring/Show', [
             'pageant'    => $pageant->load(['criterias' => function ($query) use ($pageant) {
@@ -106,70 +125,123 @@ class ScoreController extends Controller
 
     public function store(Request $request, Pageant $pageant)
     {
-        // dd($request->all());
         $request->validate([
-            'scores' => ['required', 'array'],
+            'scores'                => ['required', 'array'],
+            'scores.*.criteria_id'  => ['required', 'integer'],
+            'scores.*.candidate_id' => ['required', 'integer'],
+            'scores.*.score'        => ['nullable', 'numeric'],
         ]);
 
-        $scoring = $request->scores;
+        $judgeId = Auth::id();
 
-        // $scoring = $scoring->groupBy('candidate_id');
+        $this->authorizeJudge($pageant);
 
-        // dd($scoring);
-        foreach ($scoring as $i => $scores) {
-            // $candidate = Candidate::find($i);
-
-            // foreach ($scores as $score) {
-            //     $data[$score['criteria_id']] = [
-            //         'score' => $score['score'],
-            //         'user_id' => Auth::id(),
-            //     ];
-            // }
-
-            // $candidate->criterias()->attach($data);
-            Auth::user()->candidateCritieras()->updateOrCreate(
-                ['criteria_id' => $scores['criteria_id'], 'candidate_id' => $scores['candidate_id']],
-                ['score' => $scores['score']],
-            );
-
+        if ($pageant->status === 'finished') {
+            return $this->backToDetails($pageant, self::PAGEANT_ENDED);
         }
 
-        return redirect()->route('scoring.index', $pageant);
+        $scoring = collect($request->scores);
+
+        // Only criteria the staff has currently opened can be scored by judges;
+        // hidden criteria are entered by admins through AdminScoringController.
+        $criterias = $pageant->criterias()
+            ->where('round', $pageant->current_round)
+            ->where('group', $pageant->current_group)
+            ->where('hidden_scoring', false)
+            ->get()
+            ->keyBy('id');
+
+        // Judges score only the candidates staff selected into the open round, across every division.
+        $candidateIds = $pageant->roundRows((int) $pageant->current_round)
+            ->load('candidates')
+            ->flatMap(fn($round) => $round->candidates->pluck('id'))
+            ->flip();
+
+        $alreadyScored = CandidateCriteria::where('user_id', $judgeId)
+            ->whereIn('criteria_id', $criterias->keys())
+            ->exists();
+
+        if ($alreadyScored) {
+            return $this->alreadySubmitted($pageant);
+        }
+
+        $rows = [];
+        $now = now();
+
+        foreach ($scoring as $score) {
+            $criteria = $criterias->get($score['criteria_id']);
+
+            if (!$criteria || !$candidateIds->has($score['candidate_id'])) {
+                throw ValidationException::withMessages([
+                    'scores' => 'Some scores are for a criteria or candidate that is not open for scoring.',
+                ]);
+            }
+
+            $scoreValue = $score['score'];
+            $minScore = round($criteria->percentage / 2);
+
+            if ($scoreValue > $criteria->percentage) {
+                throw ValidationException::withMessages([
+                    'scores' => "Scores for {$criteria->name} cannot exceed {$criteria->percentage}.",
+                ]);
+            }
+
+            // Auto-correct score if it's below minimum or null
+            if ($scoreValue < $minScore || is_null($scoreValue)) {
+                $scoreValue = $minScore;
+            }
+
+            $rows[] = [
+                'user_id'      => $judgeId,
+                'criteria_id'  => $criteria->id,
+                'candidate_id' => $score['candidate_id'],
+                'score'        => $scoreValue,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ];
+        }
+
+        // Scores are locked once per group, so a partial submission would leave the rest unscorable.
+        $pairs = $scoring->map(fn($score) => $score['criteria_id'] . '-' . $score['candidate_id']);
+
+        if ($pairs->unique()->count() !== $pairs->count() || $pairs->count() !== $criterias->count() * $candidateIds->count()) {
+            throw ValidationException::withMessages([
+                'scores' => 'Score every candidate on every criteria in this group before locking.',
+            ]);
+        }
+
+        // Insert, never upsert: a submitted score is final. The unique index on
+        // (user_id, candidate_id, criteria_id) also rejects a concurrent double-submit.
+        try {
+            CandidateCriteria::insert($rows);
+        } catch (UniqueConstraintViolationException) {
+            return $this->alreadySubmitted($pageant);
+        }
+
+        broadcast(new ScoreSubmitted($pageant->id))->toOthers();
+
+        return redirect()
+            ->route('scoring.details', $pageant)
+            ->with('message', 'Scores locked successfully! Please wait for the staff to instruct you before proceeding to the next round of scoring.');
     }
 
-    // public function viewScoresOld(Request $request, Pageant $pageant)
-    // {
+    private function authorizeJudge(Pageant $pageant): void
+    {
+        abort_unless($pageant->judges()->whereKey(Auth::id())->exists(), 403);
+    }
 
-    //     $criterias  = $pageant->criterias->where('round', $pageant->current_round)->values()->all();
-    //     $round      = $pageant->pageantRounds()->where('round', $pageant->current_round)->first();
-    //     $candidates = $round ? $round->candidates : $pageant->candidates;
+    // A guard that stops a judge must answer with a page: Inertia rejects an empty response.
+    private function backToDetails(Pageant $pageant, string $message)
+    {
+        return redirect()->route('scoring.details', $pageant)->with('message', $message);
+    }
 
-    //     $candidatesScores = $candidates->map(function ($candidate) use ($criterias, $round) {
-    //         $scores = [];
-    //         foreach ($criterias as $criteria) {
-    //             $pivot                 = $criteria->candidates->where('id', $candidate->id)->sum('pivot.score');
-    //             $scores[$criteria->id] = $pivot ?? '';
-    //         }
-
-    //         $total                  = array_sum($scores);
-    //         $candidate['scores']    = $scores;
-    //         $deduction              = $candidate->candidatesDeduction()->find($round) ? $candidate->candidatesDeduction()->find($round)->pivot->deduction : 0;
-    //         $candidate['deduction'] = $deduction;
-    //         $candidate['total']     = $total - $deduction;
-
-    //         return $candidate;
-    //     });
-
-    //     $maleCandidates   = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
-    //     $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();
-
-    //     return Inertia::render('Pageant/PageantScores', [
-    //         'pageant'          => $pageant->load('pageantRounds'),
-    //         'maleCandidates'   => $maleCandidates,
-    //         'femaleCandidates' => $femaleCandidates,
-    //         'criterias'        => $criterias,
-    //     ]);
-    // }
+    private function alreadySubmitted(Pageant $pageant)
+    {
+        return redirect()
+            ->route('scoring.index', $pageant)
+            ->with('message', 'You have already submitted your scores for this round.');
+    }
 
     public function viewScores(Request $request, Pageant $pageant)
     {
@@ -235,231 +307,79 @@ class ScoreController extends Controller
         // grab all scored data…
         $candidatesScores = $this->pageantScoreService->getCandidateScores($pageant, $roundNum);
 
-        // 5) Split & sort
-        $male = $candidatesScores
-            ->where('gender', 'mr')
-            ->sortByDesc('total')
-            ->values()
-            ->all();
-
-        $female = $candidatesScores
-            ->where('gender', 'ms')
-            ->sortByDesc('total')
-            ->values()
-            ->all();
-
-        // 6) Render
+        // 5) Split by division & sort, then render
         return Inertia::render('Pageant/PageantScores', [
-            'pageant'          => $pageant->load('pageantRounds'),
-            'maleCandidates'   => $male,
-            'femaleCandidates' => $female,
+            'pageant'              => $pageant->load('pageantRounds'),
+            'judges'               => $this->judgeProgress($pageant),
+            'candidatesByDivision' => $this->rankByDivision($pageant, $candidatesScores),
             // 'criterias'        => $criterias,
-            'criterias'        => $pageant->criterias()->where('round', $roundNum)->get(),
+            'criterias'            => $pageant->criterias()->where('round', $roundNum)->orderBy('hidden_scoring', 'desc')->get(),
         ]);
     }
-
-    // public function forPrintingOld(Pageant $pageant)
-    // {
-
-    //     $candidates = $pageant->candidates;
-    //     $criterias  = $pageant
-    //         ->criterias() // start with the Criteria query
-    //         ->join('pageant_rounds', function ($join) {
-    //             $join->on('pageant_rounds.pageant_id', '=', 'criterias.pageant_id')
-    //                 ->on('pageant_rounds.round', '=', 'criterias.round');
-    //         })
-    //         ->select(
-    //             'criterias.*',
-    //             'pageant_rounds.round_name as round_name',
-    //         )
-    //         ->get();
-    //     $judges = $pageant->judges;
-
-    //     $candidatesScores = $candidates->map(function ($candidate) use ($criterias, $judges) {
-    //         $scores = [];
-
-    //         foreach ($criterias as $criteria) {
-    //             if ($criteria->hidden_scoring) {
-    //                 $pivot = CandidateCriteria::where(function ($query) use ($candidate, $criteria) {
-    //                     $query->where('criteria_id', $criteria->id)->where('candidate_id', $candidate->id);
-    //                 })->sum('score');
-    //                 $scores[$criteria->id][0] = $pivot ?? '';
-
-    //             } else {
-
-    //                 foreach ($judges as $judge) {
-    //                     // $pivot = $criteria->candidates()->where('candidates.id', $candidate->id)->wherePivot('user_id', $judge->id)->get()->sum('pivot.score');
-    //                     $pivot = CandidateCriteria::where(function ($query) use ($candidate, $judge, $criteria) {
-    //                         $query->where('criteria_id', $criteria->id)->where('candidate_id', $candidate->id)->where('user_id', $judge->id);
-    //                     })->sum('score');
-    //                     $scores[$criteria->id][$judge->id] = $pivot ?? '';
-    //                 }
-    //             }
-    //             $scores[$criteria->id]['total'] = array_sum($scores[$criteria->id]);
-    //         }
-
-    //         $total = array_sum(array_column($scores, 'total'));
-
-    //         $candidate['scores']    = $scores;
-    //         $deduction              = $candidate->candidatesDeduction->sum('pivot.deduction');
-    //         $candidate['deduction'] = $deduction;
-    //         $candidate['total']     = $total - $deduction;
-
-    //         return $candidate;
-    //     });
-
-    //     $maleCandidates   = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
-    //     $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();
-
-    //     return Inertia::render('Pageant/PageantPrinting', [
-    //         'pageant'          => $pageant,
-    //         'maleCandidates'   => $maleCandidates,
-    //         'femaleCandidates' => $femaleCandidates,
-    //         'criterias'        => $criterias->values()->all(),
-    //         'judges'           => $judges,
-    //     ]);
-    // }
-
-    // public function forPrinting2(Pageant $pageant)
-    // {
-
-    //     // 1) Build a round-number → round_name map
-    //     $roundNames = $pageant->pageantRounds
-    //         ->pluck('round_name', 'round')
-    //         ->toArray();
-
-    //     // Group criterias by round and append a Subtotal marker per round
-    //     $groupedCriterias  = $criterias->groupBy('round');
-    //     $extendedCriterias = collect();
-    //     foreach ($groupedCriterias as $roundNumber => $items) {
-    //         $extendedCriterias = $extendedCriterias->merge($items);
-    //         $extendedCriterias->push((object) [
-    //             'id'             => 'subtotal_' . $roundNumber,
-    //             'pageant_id'     => $pageant->id,
-    //             'round'          => $roundNumber,
-    //             'group'          => null,
-    //             'hidden_scoring' => false,
-    //             'name'           => 'Total',
-    //             'percentage'     => 0,
-    //             'round_name'     => $roundNames[$roundNumber],
-    //             'is_subtotal'    => true,
-    //         ]);
-    //     }
-    //     // Append a Grand Total marker after all rounds
-    //     $extendedCriterias->push((object) [
-    //         'id'             => 'grand_total',
-    //         'pageant_id'     => $pageant->id,
-    //         'round'          => null,
-    //         'group'          => null,
-    //         'hidden_scoring' => false,
-    //         'name'           => '',
-    //         'percentage'     => 0,
-    //         'round_name'     => 'Grand Total',
-    //         'is_grand_total' => true,
-    //     ]);
-    //     // Replace original collection
-    //     $criterias = $extendedCriterias;
-    //     $judges = $pageant->judges;
-
-    //     $candidatesScores = $candidates->map(function ($candidate) use ($criterias, $judges, $roundNames) {
-    //         $base = $candidate->toArray();
-    //         // 1) Grab all pivot rows for this candidate and these criteria
-    //         $byCrit = CandidateCriteria::where('candidate_id', $candidate->id)
-    //             ->whereIn('criteria_id', $criterias->pluck('id'))
-    //             ->get()
-    //             ->groupBy('criteria_id');
-
-    //         $scores      = [];
-    //         $roundTotals = [];
-
-    //         $roundDeductions = $candidate
-    //             ->candidatesDeduction->groupBy('round_name')->map(function ($deductions) {
-    //             return $deductions->sum(function ($r) {
-    //                 return $r->pivot->deduction;
-    //             });
-    //         });
-
-    //         foreach ($criterias as $crit) {
-    //             $critId = $crit->id;
-    //             // Handle Subtotal entries
-    //             if (! empty($crit->is_subtotal)) {
-    //                 $roundName       = $roundNames[$crit->round] ?? "Round {$crit->round}";
-    //                 $raw             = $roundTotals[$roundName] ?? 0;
-    //                 $ded             = $roundDeductions[$roundName] ?? 0;
-    //                 $scores[$critId] = ['total' => $raw - $ded];
-    //                 continue;
-    //             }
-    //             // Handle Grand Total entry
-    //             if (! empty($crit->is_grand_total)) {
-    //                 // overallTotal is not yet computed; will be after loop, so just set as 0 for now, will fix below
-    //                 $scores[$critId] = ['total' => 0];
-    //                 continue;
-    //             }
-    //             // Real criteria scoring
-    //             $group = $byCrit->get($critId, collect());
-    //             if ($crit->hidden_scoring || $judges->isEmpty()) {
-    //                 $scores[$critId][0] = (int) $group->sum('score');
-    //             } else {
-    //                 foreach ($judges as $judge) {
-    //                     $scores[$critId][$judge->id] = (int)
-    //                     $group->where('user_id', $judge->id)->sum('score');
-    //                 }
-    //             }
-    //             // per-criteria total
-    //             $scores[$critId]['total'] = array_sum($scores[$critId]);
-
-    //             // accumulate per-round total
-    //             $roundName               = $roundNames[$crit->round] ?? "Round {$crit->round}";
-    //             $roundTotals[$roundName] = ($roundTotals[$roundName] ?? 0)
-    //                  + $scores[$critId]['total'];
-    //         }
-
-    //         // Compute raw overall total across all rounds
-    //         $overallRaw = array_sum($roundTotals);
-    //         // Sum all per-round deductions
-    //         $totalDeductions = $roundDeductions->sum();
-    //         // Set grand_total to raw minus all deductions
-    //         // After overallTotal is known, update any grand_total pseudo-criteria
-    //         foreach ($criterias as $crit) {
-    //             if (! empty($crit->is_grand_total)) {
-    //                 $scores[$crit->id] = ['total' => $overallRaw - $totalDeductions];
-    //             }
-    //         }
-
-    //         return array_merge($base, [
-    //             'scores' => $scores,
-    //         ]);
-    //     });
-
-    //     $candidatesScores = $this->pageantScoreService
-    //         ->getCandidateScores($pageant, null, true);
-
-    //     $maleCandidates   = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
-    //     $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();
-
-    //     return Inertia::render('Pageant/PageantPrinting', [
-    //         'pageant'          => $pageant,
-    //         'maleCandidates'   => $maleCandidates,
-    //         'femaleCandidates' => $femaleCandidates,
-    //         'criterias'        => $this->pageantScoreService->getDetailedCriterias($pageant),
-    //         'judges'           => $pageant->judges,
-    //     ]);
-    // }
 
     public function forPrinting(Pageant $pageant)
     {
         $candidatesScores = $this->pageantScoreService
             ->getCandidateScores($pageant, null, true);
 
-        $maleCandidates   = $candidatesScores->where('gender', 'mr')->sortByDesc('total')->values()->all();
-        $femaleCandidates = $candidatesScores->where('gender', 'ms')->sortByDesc('total')->values()->all();
-
         return Inertia::render('Pageant/PageantPrinting', [
-            'pageant'          => $pageant,
-            'maleCandidates'   => $maleCandidates,
-            'femaleCandidates' => $femaleCandidates,
-            'criterias'        => $this->pageantScoreService->getDetailedCriterias($pageant),
-            'judges'           => $pageant->judges,
+            'pageant'              => $pageant,
+            'candidatesByDivision' => $this->rankByDivision($pageant, $candidatesScores),
+            'criterias'            => $this->pageantScoreService->getDetailedCriterias($pageant),
+            'judges'               => $pageant->judges,
         ]);
+    }
+
+    /**
+     * Whether each judge has submitted every score for the currently open group.
+     * Hidden criteria are left out: admins enter those, not judges.
+     *
+     * @return list<array{id: int, name: string, status: string}>
+     */
+    private function judgeProgress(Pageant $pageant): array
+    {
+        $groupCriteriaIds = $pageant->criterias()
+            ->where('round', $pageant->current_round)
+            ->where('group', $pageant->current_group)
+            ->where('hidden_scoring', false)
+            ->pluck('id');
+
+        // Judges score the candidates selected into the round, across every division's row.
+        $candidateCount = $pageant->roundRows((int) $pageant->current_round)
+            ->sum(fn($round) => $round->candidates()->count());
+
+        $expectedScores = $candidateCount * $groupCriteriaIds->count();
+
+        $submitted = CandidateCriteria::whereIn('criteria_id', $groupCriteriaIds)
+            ->selectRaw('user_id, count(*) as total')
+            ->groupBy('user_id')
+            ->pluck('total', 'user_id');
+
+        return $pageant->judges
+            ->map(fn($judge) => [
+                'id'     => $judge->id,
+                'name'   => $judge->name,
+                'status' => $expectedScores > 0 && ($submitted[$judge->id] ?? 0) >= $expectedScores ? 'done' : 'pending',
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Candidates of each of the pageant's divisions, highest total first.
+     *
+     * @return array<string, list<array<string, mixed>>>
+     */
+    private function rankByDivision(Pageant $pageant, Collection $candidatesScores): array
+    {
+        return collect($pageant->divisions)
+            ->mapWithKeys(fn(string $division) => [
+                $division => $candidatesScores
+                    ->where('gender', $division)
+                    ->sortByDesc('total')
+                    ->values()
+                    ->all(),
+            ])
+            ->all();
     }
 }

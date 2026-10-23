@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Candidate extends Model
@@ -29,6 +30,11 @@ class Candidate extends Model
         );
     }
 
+    public function pageant(): BelongsTo
+    {
+        return $this->belongsTo(Pageant::class);
+    }
+
     public function criterias(): BelongsToMany
     {
         return $this->belongsToMany(Criteria::class)->withPivot(['score'])->withTimestamps();
@@ -37,5 +43,10 @@ class Candidate extends Model
     public function candidatesDeduction(): BelongsToMany
     {
         return $this->belongsToMany(PageantRound::class, 'round_deductions')->withPivot('deduction');
+    }
+
+    public function pageantRounds(): BelongsToMany
+    {
+        return $this->belongsToMany(PageantRound::class, 'candidate_rounds', 'candidate_id', 'pageant_round_id')->withPivot('order');
     }
 }
