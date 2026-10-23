@@ -1,6 +1,8 @@
 import InputLabel from "@/Components/InputLabel";
 import SelectInput from "@/Components/SelectInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import PageHeader from "@/Components/PageHeader";
+import BackButton from "@/Components/BackButton";
 import CandidateScoreList from "@/Pages/Pageant/Partials/CandidateScoreList";
 import LiveControlPanel from "@/Pages/Pageant/Partials/LiveControlPanel";
 import ScoreActionsMenu from "@/Pages/Pageant/Partials/ScoreActionsMenu";
@@ -125,10 +127,7 @@ export default function PageantScores({
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex flex-wrap items-center gap-3">
-                    <h1 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                        {pageant.pageant} Scores
-                    </h1>
+                <PageHeader icon={ChartBarIcon} title="Scores" subtitle={pageant.pageant}>
                     <Chip
                         value={pageant.status}
                         className={cn(
@@ -136,13 +135,17 @@ export default function PageantScores({
                             STATUS_STYLES[pageant.status?.toLowerCase()] ?? STATUS_STYLES["not yet started"]
                         )}
                     />
-                </div>
+                </PageHeader>
             }
         >
             <Head title={`${pageant.pageant} · Scores`} />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <BackButton href={route("pageants.show", pageant.id)}>Back to Pageant</BackButton>
+                    </div>
+
                     <LiveControlPanel pageant={pageant} rounds={rounds} groupList={groupList} judges={judges} />
 
                     {/* overflow-visible so the More menu isn't clipped by the card */}

@@ -4,7 +4,9 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { divisionsLabel } from "@/Utils/divisions";
 import ComponentToPrint from "@/Pages/Pageant/Partials/ComponentToPrint";
 import { Listbox, Transition } from "@headlessui/react";
-import { Head, Link } from "@inertiajs/react";
+import PageHeader from "@/Components/PageHeader";
+import BackButton from "@/Components/BackButton";
+import { Head } from "@inertiajs/react";
 import {
     useState,
     useRef,
@@ -17,8 +19,7 @@ import {
     PrinterIcon,
     DocumentTextIcon,
     ChevronUpDownIcon,
-    CheckIcon,
-    ArrowLeftIcon
+    CheckIcon
 } from "@heroicons/react/24/outline";
 
 export default function PageantPrinting({
@@ -76,26 +77,15 @@ export default function PageantPrinting({
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={
-                <div className="flex items-center gap-3">
-                    <Link
-                        href={route('pageants.show', pageant.id)}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                    >
-                         <ArrowLeftIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                    </Link>
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
-                         <PrinterIcon className="w-6 h-6" />
-                    </div>
-                    <h2 className="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
-                        Printing Center
-                    </h2>
-                </div>
-            }
+            header={<PageHeader icon={PrinterIcon} title="Printing Center" subtitle={pageant.pageant} />}
         >
             <Head title={`Printing - ${pageant.pageant}`} />
 
             <div className="space-y-8 pb-12">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <BackButton href={route('pageants.show', pageant.id)}>Back to Pageant</BackButton>
+                </div>
+
                 {/* Hero / Overview Section */}
                 <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-100 dark:border-gray-700">
                     <div className="relative h-48 md:h-64 overflow-hidden">

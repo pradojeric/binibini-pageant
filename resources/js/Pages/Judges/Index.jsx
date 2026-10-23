@@ -1,6 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import JudgeCreate from "@/Pages/Judges/Partials/JudgeCreate";
 import JudgeList from "@/Pages/Judges/Partials/JudgeList";
+import PageHeader from "@/Components/PageHeader";
 import { Head } from "@inertiajs/react";
 import { 
     UsersIcon, 
@@ -13,14 +14,10 @@ export default function JudgeIndex({ auth, judges }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
-                        <UsersIcon className="w-6 h-6" />
-                    </div>
-                    <h2 className="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
-                        Judges Management
-                    </h2>
-                </div>
+                <PageHeader
+                    icon={UsersIcon}
+                    title="Judges Management"
+                />
             }
         >
             <Head title="Judges Management" />

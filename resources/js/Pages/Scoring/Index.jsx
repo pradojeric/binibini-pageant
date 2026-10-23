@@ -1,6 +1,8 @@
 import Alert from "@/Components/Alert";
 import PrimaryButton from "@/Components/PrimaryButton";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import PageHeader from "@/Components/PageHeader";
+import { TrophyIcon } from "@heroicons/react/24/outline";
 import { divisionsLabel } from "@/Utils/divisions";
 import { Head, Link, usePage } from "@inertiajs/react";
 import Image from "@/Components/Image";
@@ -66,11 +68,7 @@ export default function ScoringIndex({ auth, pageants }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    Current Pageants
-                </h2>
-            }
+            header={<PageHeader icon={TrophyIcon} title="Current Pageants" />}
         >
             <Head title="Pageant" />
 

@@ -1,13 +1,13 @@
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { useReducer, useRef, useState } from "react";
-import SecondaryButton from "@/Components/SecondaryButton";
+import BackButton from "@/Components/BackButton";
+import PageHeader from "@/Components/PageHeader";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Alert from "@/Components/Alert";
 import ImportModal from "@/Pages/Pageant/Partials/ImportModal";
 import { 
     UserGroupIcon, 
-    ArrowLeftIcon,
     PlusIcon,
     PencilSquareIcon,
     ArrowUpTrayIcon
@@ -57,31 +57,18 @@ function CandidateIndex({ auth, pageant }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
-                        <UserGroupIcon className="w-6 h-6" />
-                    </div>
-                    <div className="flex flex-col">
-                        <h2 className="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
-                            Manage Candidates
-                        </h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                            {pageant.pageant}
-                        </p>
-                    </div>
-                </div>
+                <PageHeader
+                    icon={UserGroupIcon}
+                    title="Manage Candidates"
+                    subtitle={pageant.pageant}
+                />
             }
         >
             <Head title={`Candidates - ${pageant.pageant}`} />
 
             <div className="max-w-7xl mx-auto space-y-6 pb-12">
                 <div className="flex justify-between items-center">
-                    <Link href={route("pageants.show", pageant.id)}>
-                        <SecondaryButton className="flex items-center gap-2 py-2">
-                            <ArrowLeftIcon className="w-4 h-4" />
-                            Back to Pageant
-                        </SecondaryButton>
-                    </Link>
+                    <BackButton href={route("pageants.show", pageant.id)}>Back to Pageant</BackButton>
                     <PrimaryButton type="button" onClick={() => setImporting(true)} className="flex items-center gap-2">
                         <ArrowUpTrayIcon className="w-4 h-4" />
                         Import

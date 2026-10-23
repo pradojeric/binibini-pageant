@@ -6,6 +6,8 @@ import { cn } from "@/Utils/cn";
 import IndexCriteria from "@/Pages/Pageant/Criterias/Partials/CriteriaList";
 import JudgeList from "@/Pages/Judges/Partials/JudgeList";
 import Card, { CardBody, CardHeader } from "@/Components/Card";
+import PageHeader from "@/Components/PageHeader";
+import BackButton from "@/Components/BackButton";
 import Chip from "@/Components/Chip";
 import Avatar from "@/Components/Avatar";
 import Typography from "@/Components/Typography";
@@ -22,7 +24,6 @@ import {
     ScaleIcon,
     ChartBarIcon,
     PrinterIcon,
-    ArrowLeftIcon,
     ClockIcon,
     Square2StackIcon
 } from "@heroicons/react/24/outline";
@@ -117,26 +118,15 @@ export default function PageantShow({ auth, pageant }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={
-                <div className="flex items-center gap-3">
-                    <Link
-                        href={route("pageants.index")}
-                        className="inline-flex items-center gap-2 rounded-lg px-2 py-1 -ml-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
-                    >
-                        <ArrowLeftIcon className="w-4 h-4" aria-hidden="true" />
-                        Pageants
-                    </Link>
-                    <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">/</span>
-                    <span className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-                        <TrophyIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
-                        Overview
-                    </span>
-                </div>
-            }
+            header={<PageHeader icon={TrophyIcon} title={pageant.pageant} subtitle="Overview" />}
         >
             <Head title={pageant.pageant} />
 
             <div className="space-y-8 pb-12">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <BackButton href={route("pageants.index")}>Back to Pageants</BackButton>
+                </div>
+
                 {/* Hero / Overview Section */}
                 <Card className="w-full">
                     <div className="relative min-h-[12rem] md:min-h-[16rem] flex flex-col justify-end overflow-hidden">
