@@ -7,6 +7,9 @@ export default defineConfig({
         laravel({
             input: 'resources/js/app.jsx',
             refresh: true,
+            // Serve dev assets over https with Herd's cert, so https pages
+            // don't block them as mixed content (http pages accept https too).
+            detectTls: 'binibini-pageant.test',
         }),
         react(),
     ],
@@ -17,9 +20,5 @@ export default defineConfig({
         },
         host: '127.0.0.1',
         strictPort: true,
-        hmr: {
-            host: 'binibini-pageant.test',
-            protocol: 'ws',
-        },
     },
 });
